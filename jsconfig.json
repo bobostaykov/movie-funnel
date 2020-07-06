@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "app": ["./App.js"],
+      "i18n": ["./i18n/i18n.js"]
+    }
+  }
+}
