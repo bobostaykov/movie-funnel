@@ -4,49 +4,60 @@
  * results screen.
  */
 
-import React, {useState} from 'react';
-import {ScrollView, StatusBar, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {
+   ScrollView,
+   StatusBar,
+   StyleSheet,
+   TextInput,
+   TouchableOpacity,
+   View
+} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign.js';
 
 import MainButton from 'components/MainButton.js';
 import i18n from 'i18n';
 import {MAX_PEOPLE, spacing} from 'modules/constants.js';
-import {autoAnimate, showToastAlert} from 'modules/utils.js';
+import {autoAnimate} from 'modules/utils.js';
 
 const statusBarHeight = StatusBar.currentHeight;
 
 const SearchScreen = ({navigation}) => {
-   // tracking how many input field are visible (initially two)
-   const [peopleList, setPeopleList] = useState([0, 1]);
    // storing the values for each of the input fields
-   const [actorNames, setActorNames] = useState(['', '']);
+   const [artistNames, setArtistNames] = useState(['', '']);
+   const scrollView = useRef(null);
+
+
+   /**
+    * Always make newly added input visible
+    */
+   const scrollToBottom = () => scrollView.current.scrollToEnd();
 
    const addInputField = () => {
-      if (peopleList.length < MAX_PEOPLE) {
+      if (artistNames.length < MAX_PEOPLE) {
          autoAnimate();
-         setPeopleList(current => [...current, current.length]);
-         setActorNames(current => [...current, '']);
-      } else {
-         showToastAlert(i18n.t('errors.max_people'));
+         setArtistNames(current => [...current, '']);
+         // wait for animation to finish
+         setTimeout(scrollToBottom, 500);
       }
    };
 
    const removeInputField = (indexToRemove) => {
       autoAnimate();
-      // always remove last index, peopleList only tracks the number of people
-      setPeopleList(current => current.slice(0, -1));
-      setActorNames(current => current.filter((value, index) => index !== indexToRemove));
+      setArtistNames(current =>
+         current.filter((value, index) => index !== indexToRemove));
    };
 
-   const NameInput = ({index}) => (
-      <View style={styles.nameInput}>
+   const NameInput = ({value, index}) => (
+      <View style={styles.nameInputContainer}>
          <TextInput
-            defaultValue={actorNames[index]}
+            defaultValue={value}
             placeholder={`Actor ${index + 1} Name`}
-            onChangeText={text => setActorNames(current => {
+            onChangeText={text => setArtistNames(current => {
                current[index] = text;
                return current;
-            })}/>
+            })}
+            style={styles.nameInput}/>
          {/* text inputs count should not be less than 2 */}
          {index > 1 && <TouchableOpacity
             style={styles.inputIcon}
@@ -59,17 +70,17 @@ const SearchScreen = ({navigation}) => {
 
    return (
       <View style={styles.homeContainer}>
-         <ScrollView>
-            {peopleList.map(((value, index) => <NameInput key={index} index={index}/>))}
-            <MainButton
+         <ScrollView keyboardShouldPersistTaps='handled' ref={scrollView}>
+            {artistNames.map(((value, index) => <NameInput value={value} index={index} key={index}/>))}
+            {artistNames.length < 10 && <MainButton
                text={i18n.t('home_screen.add')}
                style={styles.addButton}
-               onPress={addInputField}/>
+               onPress={addInputField}/>}
          </ScrollView>
          <MainButton
             text={i18n.t('home_screen.search')}
             style={styles.searchButton}
-            onPress={() => navigation.navigate('ResultsScreen')}/>
+            onPress={() => navigation.navigate('ResultsScreen', {actorNames: artistNames})}/>
       </View>
    );
 };
@@ -81,19 +92,24 @@ const styles = StyleSheet.create({
       padding: spacing.defaultPadding,
    },
 
-   nameInput: {
+   nameInputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       borderWidth: 2,
       borderColor: 'grey',
       borderRadius: 10,
-      paddingVertical: 7,
-      paddingHorizontal: 15,
       marginBottom: spacing.defaultMargin,
+   },
+
+   nameInput: {
+      flex: 1,
+      paddingVertical: 7,
+      paddingHorizontal: spacing.defaultPadding,
    },
 
    inputIcon: {
       marginStart: 'auto',
+      marginEnd: spacing.defaultMargin,
    },
 
    addButton: {
@@ -101,7 +117,7 @@ const styles = StyleSheet.create({
    },
 
    searchButton: {
-      marginTop: 'auto',
+      marginTop: spacing.defaultMargin,
    },
 });
 

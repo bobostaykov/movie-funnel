@@ -1,7 +1,4 @@
 {
-  "errors": {
-    "max_people": "There is room for only 10 people..."
-  },
   "home_screen": {
     "add": "Invite more",
     "search": "Apply magic"
