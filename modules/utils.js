@@ -9,7 +9,9 @@ import {
    ToastAndroid,
    UIManager
 } from 'react-native';
-import {ANIMATION_DURATION} from 'modules/constants.js';
+import {ANIMATION_DURATION, TMDB_MOVIE_PAGE_URL} from 'modules/constants.js';
+import * as WebBrowser from 'expo-web-browser';
+import i18n from 'i18n';
 
 export const platformAndroid = Platform.OS === 'android';
 export const platformIOS = Platform.OS === 'ios';
@@ -41,4 +43,14 @@ export const autoAnimate = (duration = ANIMATION_DURATION) => {
    }
 
    LayoutAnimation.configureNext({...LayoutAnimation.Presets.easeInEaseOut, duration});
+};
+
+export const openMovieURL = async (id) => {
+   WebBrowser.openBrowserAsync(TMDB_MOVIE_PAGE_URL + id)
+      .then(result => {
+         if (!result)
+            // tell the user URL can't be opened
+            showToastAlert(i18n.t('errors.movieUrl'));
+      })
+      .catch(() => showToastAlert(i18n.t('errors.movieUrl'), ToastAndroid.LONG));
 };

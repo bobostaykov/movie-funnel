@@ -1,6 +1,19 @@
 {
-  "home_screen": {
+  "errors": {
+    "movieUrl": "Имаше проблем при отваряне на линка към този филм",
+    "fetchResults": "Имаше проблем при получаване на резултатите"
+  },
+  "search_screen": {
     "add": "Покани още",
     "search": "Приложи магия"
+  },
+  "results_screen": {
+    "title_searching": "Търсене...",
+    "title_common_movies": "Общи филми на:",
+    "subtitle_and": "и",
+    "subtitle_other": "друг",
+    "subtitle_others": "други",
+    "expand_names": "покажи всички",
+    "collapse_names": "скрий"
   }
 }

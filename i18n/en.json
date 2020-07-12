@@ -1,6 +1,19 @@
 {
-  "home_screen": {
+  "errors": {
+    "movieUrl": "There was an error opening the movie URL",
+    "fetchResults": "There was an error fetching results"
+  },
+  "search_screen": {
     "add": "Invite more",
     "search": "Apply magic"
+  },
+  "results_screen": {
+    "title_searching": "Searching...",
+    "title_common_movies": "Common movies of:",
+    "subtitle_and": "and",
+    "subtitle_other": "other",
+    "subtitle_others": "others",
+    "expand_names": "show all",
+    "collapse_names": "hide"
   }
 }

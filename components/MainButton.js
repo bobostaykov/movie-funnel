@@ -5,14 +5,16 @@
 
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {DEFAULT_BORDER_RADIUS, OPACITY_ON_PRESS} from '../modules/constants.js';
 
-const MainButton = ({onPress, text, style}) => {
-   return (
-      <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
-         <Text style={styles.buttonText}>{text}</Text>
-      </TouchableOpacity>
-   );
-};
+const MainButton = ({onPress, text, style}) => (
+   <TouchableOpacity
+      activeOpacity={OPACITY_ON_PRESS}
+      style={[styles.button, style]}
+      onPress={onPress}>
+      <Text style={styles.buttonText}>{text}</Text>
+   </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
    button: {
@@ -20,7 +22,7 @@ const styles = StyleSheet.create({
       backgroundColor: 'orange',
       borderWidth: 2,
       borderColor: 'grey',
-      borderRadius: 10,
+      borderRadius: DEFAULT_BORDER_RADIUS,
       paddingVertical: 10,
    },
 

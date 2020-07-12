@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/AntDesign.js';
 
 import MainButton from 'components/MainButton.js';
 import i18n from 'i18n';
-import {MAX_PEOPLE, spacing} from 'modules/constants.js';
+import {DEFAULT_BORDER_RADIUS, MAX_PEOPLE, spacing} from 'modules/constants.js';
 import {autoAnimate} from 'modules/utils.js';
 
 const statusBarHeight = StatusBar.currentHeight;
@@ -73,14 +73,17 @@ const SearchScreen = ({navigation}) => {
          <ScrollView keyboardShouldPersistTaps='handled' ref={scrollView}>
             {artistNames.map(((value, index) => <NameInput value={value} index={index} key={index}/>))}
             {artistNames.length < 10 && <MainButton
-               text={i18n.t('home_screen.add')}
+               text={i18n.t('search_screen.add')}
                style={styles.addButton}
                onPress={addInputField}/>}
          </ScrollView>
          <MainButton
-            text={i18n.t('home_screen.search')}
+            text={i18n.t('search_screen.search')}
             style={styles.searchButton}
-            onPress={() => navigation.navigate('ResultsScreen', {actorNames: artistNames})}/>
+            onPress={() => navigation.navigate('ResultsScreen', {
+               artistIds: '54693,30614',
+               artistNames: 'Emma Stone,Ryan Gosling'
+            })}/>
       </View>
    );
 };
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       borderWidth: 2,
       borderColor: 'grey',
-      borderRadius: 10,
+      borderRadius: DEFAULT_BORDER_RADIUS,
       marginBottom: spacing.defaultMargin,
    },
 
