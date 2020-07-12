@@ -13,13 +13,12 @@ import {
    Image,
    Dimensions,
    StatusBar,
-   TouchableOpacity
 } from 'react-native';
 
 import MovieItem from 'components/MovieItem.js';
 import i18n from 'i18n';
 import bearerToken from 'assets/bearerToken.json';
-import {OPACITY_ON_PRESS, spacing, TMDB_API_MOVIES_URL} from 'modules/constants.js';
+import {spacing, TMDB_API_MOVIES_URL} from 'modules/constants.js';
 import {autoAnimate, showToastAlert} from 'modules/utils.js';
 
 const windowWidth = Dimensions.get('window').width;
@@ -62,7 +61,7 @@ const ResultsScreen = ({navigation, route}) => {
          .catch(() => {
             setLoading(false);
             navigation.pop();
-            showToastAlert(i18n.t('errors.fetchResults'), ToastAndroid.LONG);
+            showToastAlert(i18n.t('errors.fetch_results'), ToastAndroid.LONG);
          });
    };
 

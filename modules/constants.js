@@ -14,12 +14,15 @@ export const spacing = {
 // the minimum time (in milliseconds) the splash screen is visible
 export const SPLASH_SCREEN_MIN_DELAY = 1000;
 export const ANIMATION_DURATION = 250;
-export const MAX_PEOPLE = 10;
+export const MAX_ARTISTS = 10;
+export const POPULAR_ARTISTS_NUMBER = 20;
 export const DEFAULT_BORDER_RADIUS = 10;
 export const OPACITY_ON_PRESS = 0.5;
 
 // --- TMDb URLs ---
 export const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
+// endpoint to get most popular artists
+export const TMDB_POPULAR_ARTISTS_URL = 'https://api.themoviedb.org/3/person/popular';
 // endpoint to get artist id by name
 export const TMDB_API_ARTIST_URL = 'https://api.themoviedb.org/3/search/person?query=';
 // endpoint to get movies by artist IDs

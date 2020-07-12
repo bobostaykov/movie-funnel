@@ -1,84 +1,113 @@
 /**
- * On this screen the user inputs up to 10 actor/director
- * names and makes a search request which sends them to the
- * results screen.
+ * On this screen the user searches for and chooses up to 10
+ * actors/directors and makes a search request which sends them
+ * to the results screen. Initially, the 20 most popular actors
+ * are shown, ready to be selected.
  */
 
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
    ScrollView,
    StatusBar,
    StyleSheet,
-   TextInput,
-   TouchableOpacity,
+   TextInput, ToastAndroid,
    View
 } from 'react-native';
-import Icon from 'react-native-vector-icons/AntDesign.js';
 
 import MainButton from 'components/MainButton.js';
 import i18n from 'i18n';
-import {DEFAULT_BORDER_RADIUS, MAX_PEOPLE, spacing} from 'modules/constants.js';
-import {autoAnimate} from 'modules/utils.js';
+import {
+   DEFAULT_BORDER_RADIUS,
+   MAX_ARTISTS,
+   POPULAR_ARTISTS_NUMBER,
+   spacing,
+   TMDB_POPULAR_ARTISTS_URL
+} from 'modules/constants.js';
+import {autoAnimate, showToastAlert} from 'modules/utils.js';
+import bearerToken from 'assets/bearerToken.json';
+import ArtistItem from '../components/ArtistItem.js';
 
 const statusBarHeight = StatusBar.currentHeight;
 
 const SearchScreen = ({navigation}) => {
-   // storing the values for each of the input fields
-   const [artistNames, setArtistNames] = useState(['', '']);
-   const scrollView = useRef(null);
+   // storing the names and IDs of all of the selected actors/directors
+   const [selectedArtists, setSelectedArtists] = useState([]);
+   const [popularArtists, setPopularArtists] = useState([]);
+   const [searchTerm, setSearchTerm] = useState('');
+   const [searching, setSearching] = useState(false);
+   const [loading, setLoading] = useState(false);
 
+   useEffect(() => {
+      getPopularArtists();
+   }, []);
 
    /**
-    * Always make newly added input visible
+    * Fetches most popular artists on TMDb
     */
-   const scrollToBottom = () => scrollView.current.scrollToEnd();
+   const getPopularArtists = () => {
+      setLoading(true);
 
-   const addInputField = () => {
-      if (artistNames.length < MAX_PEOPLE) {
-         autoAnimate();
-         setArtistNames(current => [...current, '']);
-         // wait for animation to finish
-         setTimeout(scrollToBottom, 500);
+      fetch(TMDB_POPULAR_ARTISTS_URL, {
+         headers: {
+            Authorization: 'Bearer ' + bearerToken
+         }
+      })
+         .then(result => {
+            autoAnimate();
+            setLoading(false);
+            return result.json();
+         })
+         .then(json => parseResults(json.results))
+         .catch(() => {
+            setLoading(false);
+            showToastAlert(i18n.t('errors.fetch_popular'), ToastAndroid.LONG);
+         });
+   };
+
+   /**
+    * Extracts relevant information from the results
+    */
+   const parseResults = (resultsJSON) => {
+      const results = [];
+      let data;
+
+      for (const result of resultsJSON.slice(0, POPULAR_ARTISTS_NUMBER)) {
+         data = {};
+         data.name = result.name;
+         data.id = result.id
+         data.photo = result.profile_path;
+         data.knownFor = parseKnownFor(result.known_for)
+
+         results.push(data);
       }
+
+      setPopularArtists(results);
    };
 
-   const removeInputField = (indexToRemove) => {
-      autoAnimate();
-      setArtistNames(current =>
-         current.filter((value, index) => index !== indexToRemove));
-   };
+   /**
+    * Gets the titles of the 'known for' movies
+    */
+   const parseKnownFor = (knownForJSON) => {
+      const movies = [];
 
-   const NameInput = ({value, index}) => (
-      <View style={styles.nameInputContainer}>
-         <TextInput
-            defaultValue={value}
-            placeholder={`Actor ${index + 1} Name`}
-            onChangeText={text => setArtistNames(current => {
-               current[index] = text;
-               return current;
-            })}
-            style={styles.nameInput}/>
-         {/* text inputs count should not be less than 2 */}
-         {index > 1 && <TouchableOpacity
-            style={styles.inputIcon}
-            hitSlop={{top: 10, right: 10, bottom: 10, left: 10}}
-            onPress={() => removeInputField(index)}>
-            <Icon name='minuscircle' size={16} color='grey'/>
-         </TouchableOpacity>}
-      </View>
-   );
+      for (const movie of knownForJSON)
+         movies.push(movie.title);
+
+      return movies;
+   };
 
    return (
       <View style={styles.homeContainer}>
-         <ScrollView keyboardShouldPersistTaps='handled' ref={scrollView}>
-            {artistNames.map(((value, index) => <NameInput value={value} index={index} key={index}/>))}
-            {artistNames.length < 10 && <MainButton
-               text={i18n.t('search_screen.add')}
-               style={styles.addButton}
-               onPress={addInputField}/>}
+         <TextInput
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+            placeholder={i18n.t('search_screen.input_placeholder')}
+            style={styles.nameInput}/>
+         <ScrollView keyboardShouldPersistTaps='handled'>
+            {!searching && popularArtists.map((item, index) => <ArtistItem/>)}
          </ScrollView>
          <MainButton
-            text={i18n.t('search_screen.search')}
+            text={i18n.t('search_screen.apply_button')}
             style={styles.searchButton}
             onPress={() => navigation.navigate('ResultsScreen', {
                artistIds: '54693,30614',
@@ -95,17 +124,11 @@ const styles = StyleSheet.create({
       padding: spacing.defaultPadding,
    },
 
-   nameInputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+   nameInput: {
       borderWidth: 2,
       borderColor: 'grey',
       borderRadius: DEFAULT_BORDER_RADIUS,
       marginBottom: spacing.defaultMargin,
-   },
-
-   nameInput: {
-      flex: 1,
       paddingVertical: 7,
       paddingHorizontal: spacing.defaultPadding,
    },

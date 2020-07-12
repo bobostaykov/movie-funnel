@@ -50,7 +50,7 @@ export const openMovieURL = async (id) => {
       .then(result => {
          if (!result)
             // tell the user URL can't be opened
-            showToastAlert(i18n.t('errors.movieUrl'));
+            showToastAlert(i18n.t('errors.movie_url'));
       })
-      .catch(() => showToastAlert(i18n.t('errors.movieUrl'), ToastAndroid.LONG));
+      .catch(() => showToastAlert(i18n.t('errors.movie_url'), ToastAndroid.LONG));
 };
