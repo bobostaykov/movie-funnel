@@ -1,12 +1,15 @@
 {
   "errors": {
-    "movie_url": "There was an error opening the movie URL",
+    "web_page": "There was an error opening the web page",
     "fetch_results": "There was an error fetching results",
     "fetch_popular": "There was an error fetching popular artists"
   },
   "search_screen": {
     "input_placeholder": "Enter an actor or director name",
     "search_button": "Search",
+    "title_loading_popular": "Loading popular actors and directors...",
+    "title_showing_popular": "Popular actors and directors:",
+    "artist_profile": "Profile",
     "apply_button": "Apply magic"
   },
   "results_screen": {

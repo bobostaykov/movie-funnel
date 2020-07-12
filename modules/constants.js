@@ -18,6 +18,7 @@ export const MAX_ARTISTS = 10;
 export const POPULAR_ARTISTS_NUMBER = 20;
 export const DEFAULT_BORDER_RADIUS = 10;
 export const OPACITY_ON_PRESS = 0.5;
+export const ITEM_TEXT_LINE_HEIGHT = 16;
 
 // --- TMDb URLs ---
 export const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
@@ -31,3 +32,5 @@ export const TMDB_API_MOVIES_URL = 'https://api.themoviedb.org/3/discover/movie?
 export const TMDB_IMAGE_URL = 'http://image.tmdb.org/t/p/w185';
 // URL to TMDb movie page
 export const TMDB_MOVIE_PAGE_URL = 'https://www.themoviedb.org/movie/';
+// URL to artist TMDb page
+export const TMDB_ARTIST_PAGE_URL = 'https://www.themoviedb.org/person/';

@@ -35,7 +35,7 @@ const SearchScreen = ({navigation}) => {
    const [popularArtists, setPopularArtists] = useState([]);
    const [searchTerm, setSearchTerm] = useState('');
    const [searching, setSearching] = useState(false);
-   const [loading, setLoading] = useState(false);
+   const [loadingPopular, setLoadingPopular] = useState(false);
 
    useEffect(() => {
       getPopularArtists();
@@ -45,7 +45,7 @@ const SearchScreen = ({navigation}) => {
     * Fetches most popular artists on TMDb
     */
    const getPopularArtists = () => {
-      setLoading(true);
+      setLoadingPopular(true);
 
       fetch(TMDB_POPULAR_ARTISTS_URL, {
          headers: {
@@ -54,12 +54,12 @@ const SearchScreen = ({navigation}) => {
       })
          .then(result => {
             autoAnimate();
-            setLoading(false);
+            setLoadingPopular(false);
             return result.json();
          })
          .then(json => parseResults(json.results))
          .catch(() => {
-            setLoading(false);
+            setLoadingPopular(false);
             showToastAlert(i18n.t('errors.fetch_popular'), ToastAndroid.LONG);
          });
    };
@@ -74,9 +74,9 @@ const SearchScreen = ({navigation}) => {
       for (const result of resultsJSON.slice(0, POPULAR_ARTISTS_NUMBER)) {
          data = {};
          data.name = result.name;
-         data.id = result.id
-         data.photo = result.profile_path;
-         data.knownFor = parseKnownFor(result.known_for)
+         data.id = result.id;
+         data.photoPath = result.profile_path;
+         data.knownFor = parseKnownFor(result.known_for);
 
          results.push(data);
       }
@@ -90,8 +90,11 @@ const SearchScreen = ({navigation}) => {
    const parseKnownFor = (knownForJSON) => {
       const movies = [];
 
-      for (const movie of knownForJSON)
-         movies.push(movie.title);
+      for (const movie of knownForJSON) {
+         movie.media_type === 'movie' ?
+            movies.push(movie.title) :
+            movies.push(movie.original_name);
+      }
 
       return movies;
    };
@@ -104,7 +107,15 @@ const SearchScreen = ({navigation}) => {
             placeholder={i18n.t('search_screen.input_placeholder')}
             style={styles.nameInput}/>
          <ScrollView keyboardShouldPersistTaps='handled'>
-            {!searching && popularArtists.map((item, index) => <ArtistItem/>)}
+            <View></View>
+            {!searching && popularArtists.map((item, index) =>
+               <ArtistItem
+                  name={item.name}
+                  id={item.id}
+                  photoPath={item.photoPath}
+                  knownFor={item.knownFor}
+                  key={index}
+               />)}
          </ScrollView>
          <MainButton
             text={i18n.t('search_screen.apply_button')}

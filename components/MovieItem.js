@@ -11,9 +11,8 @@ import {
    spacing,
    TMDB_IMAGE_URL
 } from 'modules/constants.js';
-import {openMovieURL} from 'modules/utils.js';
-
-const OVERVIEW_LINE_HEIGHT = 16;
+import {openMovieOrArtistURL} from 'modules/utils.js';
+import {ITEM_TEXT_LINE_HEIGHT} from 'modules/constants.js';
 
 const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
    const [ratingTextWidth, setRatingTextWidth] = useState(0);
@@ -23,7 +22,7 @@ const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
       <TouchableOpacity
          activeOpacity={OPACITY_ON_PRESS}
          style={[styles.itemContainer, style]}
-         onPress={() => openMovieURL(id)}>
+         onPress={() => openMovieOrArtistURL(id)}>
          <Image
             resizeMode='cover'
             source={{uri: TMDB_IMAGE_URL + posterPath}}
@@ -45,7 +44,7 @@ const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
                   numberOfLines={overviewNumberOfLines}
                   style={styles.overview}
                   onLayout={event =>
-                     setOverviewNumberOfLines(Math.floor(event.nativeEvent.layout.height / OVERVIEW_LINE_HEIGHT))}>
+                     setOverviewNumberOfLines(Math.floor(event.nativeEvent.layout.height / ITEM_TEXT_LINE_HEIGHT))}>
                   {overview}
                </Text>
             </View>
@@ -108,7 +107,7 @@ const styles = StyleSheet.create({
       flexWrap: 'wrap',
       marginHorizontal: spacing.defaultMargin,
       height: '100%',
-      lineHeight: OVERVIEW_LINE_HEIGHT,
+      lineHeight: ITEM_TEXT_LINE_HEIGHT,
    },
 });
 
