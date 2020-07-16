@@ -2,7 +2,8 @@
   "errors": {
     "web_page": "There was an error opening the web page",
     "fetch_results": "There was an error fetching results",
-    "fetch_popular": "There was an error fetching popular artists"
+    "fetch_popular": "There was an error fetching popular artists",
+    "nothing_selected": "Please select between 2 and 10 artists"
   },
   "search_screen": {
     "input_placeholder": "Enter an actor or director name",
@@ -10,15 +11,18 @@
     "title_loading_popular": "Loading popular actors and directors...",
     "title_showing_popular": "Popular actors and directors:",
     "artist_profile": "Profile",
-    "apply_button": "Apply magic"
+    "apply_button": "Apply"
   },
   "results_screen": {
     "title_searching": "Searching...",
     "title_common_movies": "Common movies of:",
-    "subtitle_and": "and",
-    "subtitle_other": "other",
-    "subtitle_others": "others",
     "expand_names": "show all",
-    "collapse_names": "hide"
+    "collapse_names": "hide",
+    "no_common_movies": "don't have any common movies yet..."
+  },
+  "helpers": {
+    "and": "and",
+    "other": "other",
+    "others": "others"
   }
 }

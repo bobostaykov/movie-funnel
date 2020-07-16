@@ -14,11 +14,11 @@ export const spacing = {
 // the minimum time (in milliseconds) the splash screen is visible
 export const SPLASH_SCREEN_MIN_DELAY = 1000;
 export const ANIMATION_DURATION = 250;
-export const MAX_ARTISTS = 10;
 export const POPULAR_ARTISTS_NUMBER = 20;
 export const DEFAULT_BORDER_RADIUS = 10;
 export const OPACITY_ON_PRESS = 0.5;
 export const ITEM_TEXT_LINE_HEIGHT = 16;
+export const LOADING_INDICATOR_DIAMETER = 60;
 
 // --- TMDb URLs ---
 export const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';

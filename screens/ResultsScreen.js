@@ -5,14 +5,15 @@
 
 import React, {useEffect, useState} from 'react';
 import {
-   View,
+   Dimensions,
+   Image,
+   SafeAreaView,
+   ScrollView,
+   StatusBar,
    StyleSheet,
    Text,
    ToastAndroid,
-   ScrollView,
-   Image,
-   Dimensions,
-   StatusBar,
+   View,
 } from 'react-native';
 
 import MovieItem from 'components/MovieItem.js';
@@ -20,16 +21,16 @@ import i18n from 'i18n';
 import bearerToken from 'assets/bearerToken.json';
 import {spacing, TMDB_API_MOVIES_URL} from 'modules/constants.js';
 import {autoAnimate, showToastAlert} from 'modules/utils.js';
+import {globalStyles} from 'modules/globalStyles.js';
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 const statusBarHeight = StatusBar.currentHeight;
-const loadingIndicatorDiameter = 60;
+const windowHeight = Dimensions.get('window').height;
 
 const ResultsScreen = ({navigation, route}) => {
    const [movies, setMovies] = useState([]);
    const [artistNames, setArtistNames] = useState([]);
    const [loading, setLoading] = useState(false);
+   const [resultsFetched, setResultsFetched] = useState(false);
    // are all artist names shown (when more than 2)
    const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
 
@@ -52,12 +53,16 @@ const ResultsScreen = ({navigation, route}) => {
             Authorization: 'Bearer ' + bearerToken
          }
       })
-         .then(result => {
+         .then(result => result.json())
+         .then(json => {
             autoAnimate();
             setLoading(false);
-            return result.json();
+            setTimeout(() => {
+               autoAnimate();
+               setResultsFetched(true);
+            }, 500)
+            return parseResults(json.results);
          })
-         .then(json => parseResults(json.results))
          .catch(() => {
             setLoading(false);
             navigation.pop();
@@ -95,61 +100,78 @@ const ResultsScreen = ({navigation, route}) => {
       setArtistNames(artists);
    };
 
+   /**
+    * Toggles the expanded/collapsed view of the artist names
+    */
    const toggleArtistNamesExpanded = () => {
       autoAnimate();
       setArtistNamesExpanded(current => !current);
+   };
+
+   /**
+    * Returns a string of all artists' names joined with commas
+    */
+   const getAllArtistsNames = () => {
+      // deliberately not using string templates as is this case it is much less readable
+      return artistNames.length === 2 ?
+         artistNames[0]
+         + ' '
+         + i18n.t('helpers.and')
+         + ' '
+         + artistNames[1] :
+
+         artistNames.slice(0, -1).join(', ')
+         + ' '
+         + i18n.t('helpers.and')
+         + ' '
+         + artistNames[artistNames.length - 1];
+   };
+
+   /**
+    * Returns a string of the first two artists' names
+    * and an indicator of how many are hidden
+    */
+   const getArtistsNamesShortened = () => {
+      // deliberately not using string templates as is this case it is much less readable
+      return artistNames[0]
+      + ', '
+      + artistNames[1]
+      + ' '
+      + i18n.t('helpers.and')
+      + ' '
+      + (artistNames.length - 2)
+      + ' '
+      + (artistNames.length === 3 ?
+         i18n.t('helpers.other') :
+         i18n.t('helpers.others'))
    };
 
 
    // --- COMPONENTS ---
 
    const ExpandedArtistNames = () => (
-      <Text style={styles.subtitle}>
-         {
-            // deliberately not using string templates as is this case it is much less readable
-            artistNames.length === 2 ?
-               artistNames[0]
-               + ' '
-               + i18n.t('results_screen.subtitle_and')
-               + ' '
-               + artistNames[1] :
-
-               artistNames.slice(0, -1).join(', ')
-               + ' '
-               + i18n.t('results_screen.subtitle_and')
-               + ' '
-               + artistNames[artistNames.length - 1]
-         }
+      <View>
+         <Text style={styles.subtitle}>
+            {getAllArtistsNames()}
+         </Text>
          {artistNames.length > 2 && <ToggleButton/>}
-      </Text>
+      </View>
    );
 
    const CollapsedArtistNames = () => (
-      <Text style={styles.subtitle}>
-         {
-            // deliberately not using string templates as is this case it is much less readable
-            artistNames[0]
-            + ', '
-            + artistNames[1]
-            + ' '
-            + i18n.t('results_screen.subtitle_and')
-            + ' '
-            + (artistNames.length - 2)
-            + ' '
-            + (artistNames.length === 3 ?
-               i18n.t('results_screen.subtitle_other') :
-               i18n.t('results_screen.subtitle_others'))
-         }
+      <View>
+         <Text style={styles.subtitle}>
+            {getArtistsNamesShortened()}
+         </Text>
          {artistNames.length > 2 && <ToggleButton/>}
-      </Text>
+      </View>
    );
 
    const ToggleButton = () => (
       <Text style={styles.toggleButton} onPress={toggleArtistNamesExpanded}>{
-         '     ' +
-         (artistNamesExpanded ?
+         artistNamesExpanded ?
             i18n.t('results_screen.collapse_names') :
-            i18n.t('results_screen.expand_names'))
+            i18n.t('results_screen.expand_names')
       }</Text>
    );
 
@@ -165,9 +187,11 @@ const ResultsScreen = ({navigation, route}) => {
    );
 
    return (
-      <View style={styles.pageContainer}>
+      <SafeAreaView style={styles.pageContainer}>
          <ScrollView contentContainerStyle={styles.resultsContainer}>
-            {loading ? <TitleSearching/> : <TitleResults/>}
+            {loading ?
+               <TitleSearching/> :
+               movies.length > 0 && <TitleResults/>}
             {movies.map((item, index) =>
                <MovieItem
                   title={item.title}
@@ -180,8 +204,14 @@ const ResultsScreen = ({navigation, route}) => {
          </ScrollView>
          {loading && <Image
             source={require('assets/loading_indicator.gif')}
-            style={styles.loadingIndicator}/>}
-      </View>
+            style={globalStyles.loadingIndicator}/>}
+         {resultsFetched && movies.length === 0 &&
+         <Text style={styles.noResultsText}>{
+            getAllArtistsNames()
+            + ' '
+            + i18n.t('results_screen.no_common_movies')
+         }</Text>}
+      </SafeAreaView>
    );
 };
 
@@ -193,8 +223,9 @@ const styles = StyleSheet.create({
    },
 
    titleResults: {
-      width: '100%',
       alignItems: 'center',
+      width: '100%',
+      marginBottom: spacing.defaultMargin,
    },
 
    title: {
@@ -207,12 +238,13 @@ const styles = StyleSheet.create({
       height: 'auto',
       marginHorizontal: '15%',
       fontSize: 15,
-      marginBottom: spacing.defaultMargin,
       textAlign: 'center',
    },
 
    toggleButton: {
+      alignSelf: 'center',
       color: 'blue',
+      marginBottom: spacing.defaultMargin,
    },
 
    resultsContainer: {
@@ -220,12 +252,11 @@ const styles = StyleSheet.create({
       width: '100%',
    },
 
-   loadingIndicator: {
+   noResultsText: {
+      alignSelf: 'center',
       position: 'absolute',
-      top: (windowHeight - loadingIndicatorDiameter) / 2,
-      start: (windowWidth - loadingIndicatorDiameter) / 2,
-      width: loadingIndicatorDiameter,
-      height: loadingIndicatorDiameter,
+      top: windowHeight / 2,
+      textAlign: 'center',
    },
 });
 

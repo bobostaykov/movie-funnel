@@ -1,9 +1,12 @@
 /**
- * Component representing an item in the artist results list
+ * Component representing an item in the actors
+ * and directors results list
  */
 
 import React, {useState} from 'react';
 import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 import {
    DEFAULT_BORDER_RADIUS,
    ITEM_TEXT_LINE_HEIGHT,
@@ -12,35 +15,46 @@ import {
    TMDB_IMAGE_URL
 } from 'modules/constants.js';
 import i18n from 'i18n';
-import {openMovieOrArtistURL} from '../modules/utils.js';
+import {openMovieOrArtistURL} from 'modules/utils.js';
 
-const ArtistItem = ({name, id, photoPath, knownFor, style}) => {
-   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(4);
+const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
+   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
+   const [selected, setSelected] = useState(false);
 
    return (
       <TouchableOpacity
          activeOpacity={OPACITY_ON_PRESS}
-         style={[styles.itemContainer, style]}
-         onPress={() => {}}>
-         <Image
-            resizeMode='cover'
-            source={{uri: TMDB_IMAGE_URL + photoPath}}
-            style={styles.image}/>
-         <View style={styles.textContainer}>
-            <Text style={styles.name}>{name}</Text>
-            <Text
-               numberOfLines={knownForNumberOfLines}
-               style={styles.knownFor}
-               onLayout={event =>
-                  setKnownForNumberOfLines(Math.floor(event.nativeEvent.layout.height / ITEM_TEXT_LINE_HEIGHT))}>
-               Known for: {knownFor.join(', ')}
-            </Text>
-            <TouchableOpacity
-               activeOpacity={OPACITY_ON_PRESS}
-               style={styles.linkToProfile}
-               onPress={() => openMovieOrArtistURL(id, true)}>
-               <Text>{i18n.t('search_screen.artist_profile')}</Text>
-            </TouchableOpacity>
+         onPress={() => {
+            setSelected(current => !current);
+            onPress(id, name, !selected);
+         }}>
+         <View style={[styles.itemContainer, style]}>
+            <Image
+               resizeMode='cover'
+               source={{uri: TMDB_IMAGE_URL + photoPath}}
+               style={styles.image}/>
+            <View style={styles.textContainer}>
+               <Text style={styles.name}>{name}</Text>
+               <Text
+                  numberOfLines={knownForNumberOfLines}
+                  style={styles.knownFor}
+                  onLayout={event =>
+                     setKnownForNumberOfLines(Math.floor((event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT))}>
+                  Known for: {knownFor.join(', ')}
+               </Text>
+               <TouchableOpacity
+                  activeOpacity={OPACITY_ON_PRESS}
+                  style={styles.linkToProfile}
+                  onPress={() => openMovieOrArtistURL(id, true)}>
+                  <Text>{i18n.t('search_screen.artist_profile')}</Text>
+               </TouchableOpacity>
+            </View>
+            {selected && <View pointerEvents='none' style={styles.overlay}/>}
+            {selected && <Icon
+               name='check-circle'
+               size={24}
+               color='lightgreen'
+               style={styles.checkIcon}/>}
          </View>
       </TouchableOpacity>
    );
@@ -73,8 +87,8 @@ const styles = StyleSheet.create({
       height: 'auto',
       fontWeight: 'bold',
       fontSize: 20,
-      margin: spacing.defaultMargin,
-      marginBottom: spacing.marginS,
+      marginHorizontal: spacing.defaultMargin,
+      marginVertical: spacing.marginS,
    },
 
    knownFor: {
@@ -92,6 +106,22 @@ const styles = StyleSheet.create({
       marginStart: 'auto',
       paddingHorizontal: spacing.paddingS,
       paddingVertical: 5,
+   },
+
+   overlay: {
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      start: 0,
+      top: 0,
+      opacity: 0.3,
+      backgroundColor: 'blue',
+   },
+
+   checkIcon: {
+      position: 'absolute',
+      top: spacing.marginS,
+      end: spacing.marginS,
    },
 });
 

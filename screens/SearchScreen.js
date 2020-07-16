@@ -7,25 +7,27 @@
 
 import React, {useEffect, useState} from 'react';
 import {
+   Image,
+   SafeAreaView,
    ScrollView,
    StatusBar,
-   StyleSheet,
+   StyleSheet, Text,
    TextInput, ToastAndroid,
    View
 } from 'react-native';
 
 import MainButton from 'components/MainButton.js';
+import ArtistItem from 'components/ArtistItem.js';
 import i18n from 'i18n';
+import bearerToken from 'assets/bearerToken.json';
 import {
    DEFAULT_BORDER_RADIUS,
-   MAX_ARTISTS,
    POPULAR_ARTISTS_NUMBER,
    spacing,
    TMDB_POPULAR_ARTISTS_URL
 } from 'modules/constants.js';
 import {autoAnimate, showToastAlert} from 'modules/utils.js';
-import bearerToken from 'assets/bearerToken.json';
-import ArtistItem from '../components/ArtistItem.js';
+import {globalStyles} from 'modules/globalStyles.js';
 
 const statusBarHeight = StatusBar.currentHeight;
 
@@ -99,32 +101,75 @@ const SearchScreen = ({navigation}) => {
       return movies;
    };
 
+   /**
+    * Called on artist item press
+    */
+   const onSelectArtist = (id, name, selected) => {
+      selected ?
+         // add to list
+         setSelectedArtists(current => [...current, {id, name}]) :
+         // remove from list
+         setSelectedArtists(current => current.filter(item => item.id !== id));
+   };
+
+   /**
+    * Called on "apply" button press
+    */
+   const applyHandler = () => {
+      if (selectedArtists.length < 2 || selectedArtists.length > 10) {
+         showToastAlert(i18n.t('errors.nothing_selected'));
+         return;
+      }
+
+      navigation.navigate('ResultsScreen', {
+         artistIds: getArtistIds(),
+         artistNames: getArtistNames(),
+      });
+   };
+
+   const getArtistIds = () => {
+      const ids = [];
+      for (const artist of selectedArtists)
+         ids.push(artist.id)
+      return ids.join(',');
+   };
+
+   const getArtistNames = () => {
+      const names = [];
+      for (const artist of selectedArtists)
+         names.push(artist.name)
+      return names.join(',');
+   };
+
    return (
-      <View style={styles.homeContainer}>
+      <SafeAreaView style={styles.homeContainer}>
          <TextInput
             value={searchTerm}
             onChangeText={setSearchTerm}
             placeholder={i18n.t('search_screen.input_placeholder')}
             style={styles.nameInput}/>
          <ScrollView keyboardShouldPersistTaps='handled'>
-            <View></View>
+            {loadingPopular ?
+               <Text style={styles.title}>{i18n.t('search_screen.title_loading_popular')}</Text> :
+               <Text style={styles.title}>{i18n.t('search_screen.title_showing_popular')}</Text>}
             {!searching && popularArtists.map((item, index) =>
                <ArtistItem
                   name={item.name}
                   id={item.id}
                   photoPath={item.photoPath}
                   knownFor={item.knownFor}
+                  onPress={onSelectArtist}
                   key={index}
                />)}
          </ScrollView>
          <MainButton
             text={i18n.t('search_screen.apply_button')}
             style={styles.searchButton}
-            onPress={() => navigation.navigate('ResultsScreen', {
-               artistIds: '54693,30614',
-               artistNames: 'Emma Stone,Ryan Gosling'
-            })}/>
-      </View>
+            onPress={applyHandler}/>
+         {loadingPopular && <Image
+            source={require('assets/loading_indicator.gif')}
+            style={globalStyles.loadingIndicator}/>}
+      </SafeAreaView>
    );
 };
 
@@ -144,13 +189,12 @@ const styles = StyleSheet.create({
       paddingHorizontal: spacing.defaultPadding,
    },
 
-   inputIcon: {
-      marginStart: 'auto',
-      marginEnd: spacing.defaultMargin,
-   },
-
-   addButton: {
-      backgroundColor: 'lightgreen',
+   title: {
+      fontWeight: 'bold',
+      fontSize: 26,
+      alignSelf: 'center',
+      marginBottom: spacing.marginS,
+      textAlign: 'center',
    },
 
    searchButton: {

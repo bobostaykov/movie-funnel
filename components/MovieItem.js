@@ -30,7 +30,7 @@ const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
          <View style={styles.textContainer}>
             <View style={styles.titleAndRatingContainer}>
                <Text
-                  style={[styles.title, {marginEnd: ratingTextWidth + 2 * spacing.defaultPadding}]}>
+                  style={[styles.title, {marginEnd: ratingTextWidth + 2 * spacing.defaultMargin}]}>
                   {title}
                </Text>
                <Text
@@ -44,7 +44,7 @@ const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
                   numberOfLines={overviewNumberOfLines}
                   style={styles.overview}
                   onLayout={event =>
-                     setOverviewNumberOfLines(Math.floor(event.nativeEvent.layout.height / ITEM_TEXT_LINE_HEIGHT))}>
+                     setOverviewNumberOfLines(Math.floor((event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT))}>
                   {overview}
                </Text>
             </View>
@@ -83,23 +83,23 @@ const styles = StyleSheet.create({
       width: 'auto',
       height: 'auto',
       fontWeight: 'bold',
-      fontSize: 20,
-      margin: spacing.defaultMargin,
-      marginBottom: spacing.marginS,
+      fontSize: 18,
+      marginHorizontal: spacing.defaultMargin,
+      marginVertical: spacing.marginS,
    },
 
    rating: {
       marginStart: 'auto',
       fontWeight: 'bold',
       fontSize: 20,
-      margin: spacing.defaultMargin,
-      marginBottom: spacing.marginS,
+      marginEnd: spacing.defaultMargin,
+      marginVertical: spacing.marginS,
    },
 
    overviewContainer: {
       flex: 1,
       flexDirection: 'row',
-      marginBottom: 12,
+      marginBottom: spacing.marginS,
    },
 
    overview: {
