@@ -4,26 +4,35 @@
  */
 
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
-import {DEFAULT_BORDER_RADIUS, OPACITY_ON_PRESS} from '../modules/constants.js';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {DEFAULT_BORDER_RADIUS, OPACITY_ON_PRESS, spacing} from 'modules/constants.js';
 
-const MainButton = ({onPress, text, style}) => (
+const MainButton = ({onPress, text, icon, style, getWidth}) => (
    <TouchableOpacity
       activeOpacity={OPACITY_ON_PRESS}
       style={[styles.button, style]}
+      onLayout={event => getWidth && getWidth(event.nativeEvent.layout.width)}
       onPress={onPress}>
-      <Text style={styles.buttonText}>{text}</Text>
+      <View style={styles.innerContainer}>
+         {text && <Text style={styles.buttonText}>{text}</Text>}
+         {icon}
+      </View>
    </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
    button: {
       alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: 'orange',
       borderWidth: 2,
       borderColor: 'grey',
       borderRadius: DEFAULT_BORDER_RADIUS,
-      paddingVertical: 10,
+      padding: spacing.paddingS,
+   },
+
+   innerContainer: {
+      flexDirection: 'row',
    },
 
    buttonText: {

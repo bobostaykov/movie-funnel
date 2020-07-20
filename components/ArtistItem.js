@@ -3,11 +3,12 @@
  * and directors results list
  */
 
-import React, {useState} from 'react';
-import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Image, Text, TouchableOpacity, DeviceEventEmitter} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {
+   CLEAR_SELECTION_EVENT,
    DEFAULT_BORDER_RADIUS,
    ITEM_TEXT_LINE_HEIGHT,
    OPACITY_ON_PRESS,
@@ -20,6 +21,18 @@ import {openMovieOrArtistURL} from 'modules/utils.js';
 const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
    const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
    const [selected, setSelected] = useState(false);
+
+   useEffect(() => {
+      const subscription = DeviceEventEmitter.addListener(
+         CLEAR_SELECTION_EVENT,
+         () => setSelected(false)
+      );
+
+      return () => DeviceEventEmitter.removeSubscription(subscription);
+   }, []);
+
+   if (!id)
+      return null;
 
    return (
       <TouchableOpacity
@@ -40,7 +53,7 @@ const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
                   style={styles.knownFor}
                   onLayout={event =>
                      setKnownForNumberOfLines(Math.floor((event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT))}>
-                  Known for: {knownFor.join(', ')}
+                  {i18n.t('misc.known_for') + knownFor.join(', ')}
                </Text>
                <TouchableOpacity
                   activeOpacity={OPACITY_ON_PRESS}
@@ -114,7 +127,7 @@ const styles = StyleSheet.create({
       position: 'absolute',
       start: 0,
       top: 0,
-      opacity: 0.3,
+      opacity: 0.25,
       backgroundColor: 'blue',
    },
 

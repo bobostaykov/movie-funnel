@@ -5,49 +5,103 @@
  * are shown, ready to be selected.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+   DeviceEventEmitter,
    Image,
    SafeAreaView,
    ScrollView,
    StatusBar,
-   StyleSheet, Text,
-   TextInput, ToastAndroid,
-   View
+   StyleSheet,
+   Text,
+   TextInput,
+   ToastAndroid,
+   View,
+   Keyboard, TouchableOpacity, Dimensions, Animated
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import MainButton from 'components/MainButton.js';
 import ArtistItem from 'components/ArtistItem.js';
 import i18n from 'i18n';
 import bearerToken from 'assets/bearerToken.json';
 import {
-   DEFAULT_BORDER_RADIUS,
+   ANIMATION_DURATION,
+   CLEAR_SELECTION_EVENT,
+   DEFAULT_BORDER_RADIUS, MAX_RESULTS_SHOWN, MORE_THAN_20_SEARCH_RESULTS,
    POPULAR_ARTISTS_NUMBER,
-   spacing,
+   spacing, TMDB_API_ARTISTS_URL,
    TMDB_POPULAR_ARTISTS_URL
 } from 'modules/constants.js';
 import {autoAnimate, showToastAlert} from 'modules/utils.js';
 import {globalStyles} from 'modules/globalStyles.js';
 
+const windowWidth = Dimensions.get('window').width;
 const statusBarHeight = StatusBar.currentHeight;
+const searchButtonMargin = 6;
+
 
 const SearchScreen = ({navigation}) => {
    // storing the names and IDs of all of the selected actors/directors
    const [selectedArtists, setSelectedArtists] = useState([]);
+   // list of fetched popular artists to show initially on search screen
    const [popularArtists, setPopularArtists] = useState([]);
+   // search term, value changing as user types
+   const [intermediateSearchValue, setIntermediateSearchValue] = useState('');
+   // value of search field after pressing search button
    const [searchTerm, setSearchTerm] = useState('');
+   // whether the user is in "search" mode
    const [searching, setSearching] = useState(false);
-   const [loadingPopular, setLoadingPopular] = useState(false);
+   // list of fetched artist results
+   const [searchResults, setSearchResults] = useState([]);
+   // whether fetching is in progress
+   const [loading, setLoading] = useState(false);
+   // whether keyboard is currently on screen
+   const [keyboardVisible, setKeyboardVisible] = useState(false);
+   // search button width, calculated on button layout, used to place "erase" icon next to it
+   const [searchButtonWidth, setSearchButtonWidth] = useState(0);
+   /*
+    whether results are fully fetched, used to show "no results"
+    text with a delay, otherwise it shows for a moment before the
+    results appear
+   */
+   const [resultsFetched, setResultsFetched] = useState(false);
+   // a reference to the scroll view
+   const scrollView = useRef(null);
+   // animate the opacity of the scroll view
+   const animatedOpacity = useRef(new Animated.Value(1)).current;
 
    useEffect(() => {
-      getPopularArtists();
+      fetchPopularArtists();
+
+      const didShowSubscription = Keyboard.addListener('keyboardDidShow', () => {
+         autoAnimate();
+         setKeyboardVisible(true);
+      });
+      const didHideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+         autoAnimate();
+         setKeyboardVisible(false);
+      });
+
+      return () => {
+         Keyboard.removeSubscription(didShowSubscription);
+         Keyboard.removeSubscription(didHideSubscription);
+      };
    }, []);
+
+   useEffect(() => {
+      // console.log('searchResults:', searchResults);
+      // console.log('popularArtists:', popularArtists);
+   });
+
+
+   // --- FUNCTIONS ---
 
    /**
     * Fetches most popular artists on TMDb
     */
-   const getPopularArtists = () => {
-      setLoadingPopular(true);
+   const fetchPopularArtists = () => {
+      setLoading(true);
 
       fetch(TMDB_POPULAR_ARTISTS_URL, {
          headers: {
@@ -56,24 +110,64 @@ const SearchScreen = ({navigation}) => {
       })
          .then(result => {
             autoAnimate();
-            setLoadingPopular(false);
+            setLoading(false);
             return result.json();
          })
-         .then(json => parseResults(json.results))
+         .then(json => parseArtistResults(json.results, json.total_results, true))
          .catch(() => {
-            setLoadingPopular(false);
             showToastAlert(i18n.t('errors.fetch_popular'), ToastAndroid.LONG);
+            autoAnimate();
+            setLoading(false);
+            setSearching(false);
+         });
+   };
+
+   /**
+    * Fetch actor and director results for search term
+    */
+   const fetchResultsForSearchTerm = (term) => {
+      if (!term.trim()) {
+         showToastAlert(i18n.t('errors.empty_search'));
+         setIntermediateSearchValue('');
+         return;
+      }
+
+      setLoading(true);
+      setSearching(true);
+
+      fetch(TMDB_API_ARTISTS_URL + encodeURI(term), {
+         headers: {
+            Authorization: 'Bearer ' + bearerToken
+         }
+      })
+         .then(result => {
+            autoAnimate();
+            setLoading(false);
+            setTimeout(() => {
+               autoAnimate();
+               setResultsFetched(true);
+            }, 500)
+            return result.json();
+         })
+         .then(json => parseArtistResults(json.results, json.total_results))
+         .catch(() => {
+            showToastAlert(i18n.t('errors.fetch_search_results'), ToastAndroid.LONG);
+            autoAnimate();
+            setLoading(false);
+            setSearching(false);
          });
    };
 
    /**
     * Extracts relevant information from the results
+    * @param isPopular: whether popular artists results are
+    *    parsed; if false -> then search results are parsed
     */
-   const parseResults = (resultsJSON) => {
+   const parseArtistResults = (resultsJSON, resultCount, isPopular = false) => {
       const results = [];
       let data;
 
-      for (const result of resultsJSON.slice(0, POPULAR_ARTISTS_NUMBER)) {
+      for (const result of resultsJSON.slice(0, isPopular ? POPULAR_ARTISTS_NUMBER : MAX_RESULTS_SHOWN)) {
          data = {};
          data.name = result.name;
          data.id = result.id;
@@ -83,7 +177,15 @@ const SearchScreen = ({navigation}) => {
          results.push(data);
       }
 
-      setPopularArtists(results);
+      if (isPopular) {
+         setPopularArtists(results);
+      } else {
+         if (resultCount > 20)
+            results.push({name: MORE_THAN_20_SEARCH_RESULTS});
+         setSearchResults(results);
+      }
+
+      scrollResultsToTop();
    };
 
    /**
@@ -104,12 +206,36 @@ const SearchScreen = ({navigation}) => {
    /**
     * Called on artist item press
     */
-   const onSelectArtist = (id, name, selected) => {
+   const selectArtistHandler = (id, name, selected) => {
       selected ?
          // add to list
          setSelectedArtists(current => [...current, {id, name}]) :
          // remove from list
          setSelectedArtists(current => current.filter(item => item.id !== id));
+   };
+
+   /**
+    * Called on "erase" icon press. Exits "search" mode and shows
+    * initial screen with popular artists. Fades artist items out
+    * and in to make the transition smooth.
+    */
+   const eraseHandler = () => {
+      setIntermediateSearchValue('');
+      setTimeout(() => setSearching(false), ANIMATION_DURATION);
+
+      Animated.sequence([
+         Animated.timing(animatedOpacity, {
+            toValue: 0,
+            duration: ANIMATION_DURATION,
+            useNativeDriver: true,
+         }),
+         Animated.timing(animatedOpacity, {
+            toValue: 1,
+            duration: ANIMATION_DURATION,
+            delay: ANIMATION_DURATION,
+            useNativeDriver: true,
+         })
+      ]).start();
    };
 
    /**
@@ -122,51 +248,170 @@ const SearchScreen = ({navigation}) => {
       }
 
       navigation.navigate('ResultsScreen', {
-         artistIds: getArtistIds(),
-         artistNames: getArtistNames(),
+         artistIds: getSelectedArtistIds(),
+         artistNames: getSelectedArtistNames(),
       });
    };
 
-   const getArtistIds = () => {
+   /**
+    * Called on "clear" button press
+    */
+   const clearSelectionHandler = () => {
+      autoAnimate();
+      setSelectedArtists([]);
+      DeviceEventEmitter.emit(CLEAR_SELECTION_EVENT);
+   };
+
+   const getSelectedArtistIds = () => {
       const ids = [];
       for (const artist of selectedArtists)
-         ids.push(artist.id)
+         ids.push(artist.id);
       return ids.join(',');
    };
 
-   const getArtistNames = () => {
+   const getSelectedArtistNames = () => {
       const names = [];
       for (const artist of selectedArtists)
-         names.push(artist.name)
+         names.push(artist.name);
       return names.join(',');
    };
 
+   const scrollResultsToTop = () => {
+      scrollView.current?.scrollTo({y: 0});
+   };
+
+   // invisible when keyboard shown or no results
+   const isBottomBarVisible = () =>
+      !keyboardVisible &&
+      ((searching && searchResults.length > 0) ||
+         !searching);
+
+   const isNoResultsVisible = () =>
+      searching &&
+      resultsFetched &&
+      searchResults.length === 0;
+
+   const isHintShowing20Visible = () =>
+      searching &&
+      !loading &&
+      searchResults[searchResults.length - 1] &&
+      searchResults[searchResults.length - 1].name === MORE_THAN_20_SEARCH_RESULTS;
+
+
+   // --- COMPONENTS ---
+
+   /**
+    * Title text shown when loading
+    */
+   const TitleLoading = () => searching ?
+      <Text style={styles.title}>{i18n.t('search_screen.title_loading_results')}</Text> :
+      <Text style={styles.title}>{i18n.t('search_screen.title_loading_popular')}</Text>;
+
+   /**
+    * Title text shown when showing popular artists/search results
+    */
+   const TitleNotLoading = () => searching ?
+      <Text style={styles.title}>
+         {searchResults.length > 0 && i18n.t('search_screen.title_showing_results') + ' "' + searchTerm + '":'}
+      </Text> :
+      <Text style={styles.title}>{i18n.t('search_screen.title_showing_popular')}</Text>;
+
+   /**
+    * Image and text telling the user no results were found
+    */
+   const NoResults = () => (
+      <View style={styles.noResultsContainer}>
+         <Image
+            resizeMode='contain'
+            style={styles.noResultsImage}
+            source={require('assets/no_results.png')}/>
+         <Text style={styles.noResultsText}>
+            {i18n.t('errors.no_results') + ' "' + searchTerm + '"'}
+         </Text>
+      </View>
+   );
+
+
    return (
-      <SafeAreaView style={styles.homeContainer}>
-         <TextInput
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-            placeholder={i18n.t('search_screen.input_placeholder')}
-            style={styles.nameInput}/>
-         <ScrollView keyboardShouldPersistTaps='handled'>
-            {loadingPopular ?
-               <Text style={styles.title}>{i18n.t('search_screen.title_loading_popular')}</Text> :
-               <Text style={styles.title}>{i18n.t('search_screen.title_showing_popular')}</Text>}
-            {!searching && popularArtists.map((item, index) =>
+      <SafeAreaView style={styles.outerContainer}>
+         {/* search bar */}
+         <View style={styles.searchContainer}>
+            <TextInput
+               value={intermediateSearchValue}
+               onChangeText={setIntermediateSearchValue}
+               placeholder={i18n.t('search_screen.input_placeholder')}
+               style={styles.nameInput}/>
+            {searching && <TouchableOpacity
+               onPress={eraseHandler}
+               style={[styles.clearSearchIcon, {marginEnd: searchButtonWidth + searchButtonMargin * 2 + 40}]}>
+               <Icon
+                  name='backspace'
+                  size={20}
+                  color='grey'/>
+            </TouchableOpacity>}
+            <MainButton
+               icon={<Icon name='search' size={20} color='black'/>}
+               style={styles.searchButton}
+               getWidth={setSearchButtonWidth}
+               onPress={() => {
+                  Keyboard.dismiss();
+                  setSearchTerm(intermediateSearchValue);
+                  fetchResultsForSearchTerm(intermediateSearchValue);
+               }}/>
+         </View>
+
+         {/* main container */}
+         <Animated.ScrollView
+            ref={scrollView}
+            style={{opacity: animatedOpacity}}
+            contentContainerStyle={styles.resultsContainer}
+            keyboardShouldPersistTaps='handled'>
+
+            {loading ? <TitleLoading/> : <TitleNotLoading/>}
+
+            {!searching && !loading && popularArtists.map((item, index) =>
                <ArtistItem
                   name={item.name}
                   id={item.id}
                   photoPath={item.photoPath}
                   knownFor={item.knownFor}
-                  onPress={onSelectArtist}
+                  onPress={selectArtistHandler}
                   key={index}
                />)}
-         </ScrollView>
-         <MainButton
-            text={i18n.t('search_screen.apply_button')}
-            style={styles.searchButton}
-            onPress={applyHandler}/>
-         {loadingPopular && <Image
+
+            {searching && !loading && searchResults.map((item, index) =>
+               <ArtistItem
+                  name={item.name}
+                  id={item.id}
+                  photoPath={item.photoPath}
+                  knownFor={item.knownFor}
+                  onPress={selectArtistHandler}
+                  key={index}
+               />)}
+
+            {isHintShowing20Visible() && <Text>{i18n.t('search_screen.hint_showing_20_results')}</Text>}
+
+            {isNoResultsVisible() && <NoResults/>}
+         </Animated.ScrollView>
+
+         {/* bottom bar */}
+         {isBottomBarVisible() && <View style={styles.bottomButtonsContainer}>
+            <MainButton
+               text={i18n.t('search_screen.clear_selection_button')}
+               style={styles.clearSelectionButton}
+               onPress={clearSelectionHandler}/>
+            <MainButton
+               text={i18n.t('search_screen.apply_button')}
+               style={styles.applyButton}
+               onPress={applyHandler}/>
+            <View style={styles.artistCounterContainer}>
+               <Text style={styles.artistCounterText}>
+                  {selectedArtists.length}
+               </Text>
+            </View>
+         </View>}
+
+         {loading && <Image
             source={require('assets/loading_indicator.gif')}
             style={globalStyles.loadingIndicator}/>}
       </SafeAreaView>
@@ -174,19 +419,44 @@ const SearchScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-   homeContainer: {
+   outerContainer: {
       flex: 1,
+      justifyContent: 'center',
       marginTop: statusBarHeight,
       padding: spacing.defaultPadding,
    },
 
+   searchContainer: {
+      flexDirection: 'row',
+      marginBottom: spacing.marginS,
+   },
+
    nameInput: {
+      width: '100%',
       borderWidth: 2,
       borderColor: 'grey',
       borderRadius: DEFAULT_BORDER_RADIUS,
-      marginBottom: spacing.defaultMargin,
       paddingVertical: 7,
       paddingHorizontal: spacing.defaultPadding,
+   },
+
+   clearSearchIcon: {
+      alignSelf: 'center',
+      marginStart: 'auto',
+   },
+
+   searchButton: {
+      margin: searchButtonMargin,
+      marginStart: 'auto',
+      padding: 8,
+      borderRadius: 6,
+      backgroundColor: '#99e2c8',
+   },
+
+   resultsContainer: {
+      alignItems: 'center',
+      // flex: 1,
+      justifyContent: 'center',
    },
 
    title: {
@@ -197,8 +467,54 @@ const styles = StyleSheet.create({
       textAlign: 'center',
    },
 
-   searchButton: {
+   bottomButtonsContainer: {
+      flexDirection: 'row',
       marginTop: spacing.defaultMargin,
+   },
+
+   clearSelectionButton: {
+      backgroundColor: 'red',
+      marginEnd: spacing.marginS,
+      paddingHorizontal: spacing.defaultPadding,
+   },
+
+   applyButton: {
+      flex: 1,
+   },
+
+   artistCounterContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'absolute',
+      top: -10,
+      end: -10,
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      backgroundColor: '#99e2c8'
+   },
+
+   artistCounterText: {
+      fontWeight: 'bold',
+   },
+
+   hintMoreThan20Results: {
+      marginTop: -10,
+   },
+
+   noResultsContainer: {
+      width: '100%',
+      alignItems: 'center',
+      marginBottom: '50%',
+   },
+
+   noResultsImage: {
+      width: windowWidth,
+   },
+
+   noResultsText: {
+      fontWeight: 'bold',
+      fontSize: 17,
    },
 });
 

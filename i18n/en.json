@@ -3,14 +3,20 @@
     "web_page": "There was an error opening the web page",
     "fetch_results": "There was an error fetching results",
     "fetch_popular": "There was an error fetching popular artists",
-    "nothing_selected": "Please select between 2 and 10 artists"
+    "fetch_search_results": "There was an error fetching search results",
+    "nothing_selected": "Please select between 2 and 10 artists",
+    "empty_search": "Please search for a real name",
+    "no_results": "No results found for"
   },
   "search_screen": {
-    "input_placeholder": "Enter an actor or director name",
-    "search_button": "Search",
     "title_loading_popular": "Loading popular actors and directors...",
     "title_showing_popular": "Popular actors and directors:",
+    "input_placeholder": "Enter an actor or director name",
+    "title_loading_results": "Loading results...",
+    "title_showing_results": "Results for",
+    "hint_showing_20_results": "Results were truncated to 20",
     "artist_profile": "Profile",
+    "clear_selection_button": "Clear",
     "apply_button": "Apply"
   },
   "results_screen": {
@@ -24,5 +30,8 @@
     "and": "and",
     "other": "other",
     "others": "others"
+  },
+  "misc": {
+    "known_for": "Known for: "
   }
 }

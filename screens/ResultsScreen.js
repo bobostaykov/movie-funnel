@@ -27,11 +27,19 @@ const statusBarHeight = StatusBar.currentHeight;
 const windowHeight = Dimensions.get('window').height;
 
 const ResultsScreen = ({navigation, route}) => {
-   const [movies, setMovies] = useState([]);
+   // a list of fetched results (common movies of selected artists)
+   const [movieResults, setMovieResults] = useState([]);
+   // a list of selected artists' names to show above results
    const [artistNames, setArtistNames] = useState([]);
+   // whether fetching is in progress
    const [loading, setLoading] = useState(false);
+   /*
+    whether results are fully fetched, used to show "no results"
+    text with a delay, otherwise it shows for a moment before the
+    results appear
+   */
    const [resultsFetched, setResultsFetched] = useState(false);
-   // are all artist names shown (when more than 2)
+   // whether all artist names are shown (when more than 2)
    const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
 
    useEffect(() => {
@@ -88,7 +96,7 @@ const ResultsScreen = ({navigation, route}) => {
          results.push(resultData);
       }
 
-      setMovies(results);
+      setMovieResults(results);
    };
 
    const parseArtistNames = () => {
@@ -191,8 +199,8 @@ const ResultsScreen = ({navigation, route}) => {
          <ScrollView contentContainerStyle={styles.resultsContainer}>
             {loading ?
                <TitleSearching/> :
-               movies.length > 0 && <TitleResults/>}
-            {movies.map((item, index) =>
+               movieResults.length > 0 && <TitleResults/>}
+            {movieResults.map((item, index) =>
                <MovieItem
                   title={item.title}
                   overview={item.overview}
@@ -205,7 +213,7 @@ const ResultsScreen = ({navigation, route}) => {
          {loading && <Image
             source={require('assets/loading_indicator.gif')}
             style={globalStyles.loadingIndicator}/>}
-         {resultsFetched && movies.length === 0 &&
+         {resultsFetched && movieResults.length === 0 &&
          <Text style={styles.noResultsText}>{
             getAllArtistsNames()
             + ' '

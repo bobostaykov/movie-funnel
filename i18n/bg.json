@@ -3,14 +3,20 @@
     "web_page": "Имаше проблем при отваряне на линка към този филм",
     "fetch_results": "Имаше проблем при получаване на резултатите",
     "fetch_popular": "Имаше проблем при получаване на информация за популярни актьори",
-    "nothing_selected": "Моля избери между 2 и 10 човека"
+    "fetch_search_results": "Имаше проблем при получаване на резултати",
+    "nothing_selected": "Моля избери между 2 и 10 човека",
+    "empty_search": "Моля потърси истинско име",
+    "no_results": "Няма намерени резултати за"
   },
   "search_screen": {
-    "input_placeholder": "Въведи име на актьор или режисьор",
-    "search_button": "Търси",
     "title_loading_popular": "Зареждане на популярни актьори и режисьори...",
     "title_showing_popular": "Популярни актьори и режисьори:",
+    "input_placeholder": "Въведи име на актьор или режисьор на английски",
+    "title_loading_results": "Зареждане на резултати...",
+    "title_showing_results": "Резултати за",
+    "hint_showing_20_results": "Резултатите бяха скъсени до 20",
     "artist_profile": "Профил",
+    "clear_selection_button": "Изчисти",
     "apply_button": "Напред"
   },
   "results_screen": {
@@ -24,5 +30,8 @@
     "and": "и",
     "other": "друг",
     "others": "други"
+  },
+  "misc": {
+    "known_for": "Известен с: "
   }
 }
