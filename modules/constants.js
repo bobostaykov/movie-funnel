@@ -11,6 +11,13 @@ export const spacing = {
    marginL: 20,
 };
 
+export const DEFAULT_HIT_SLOP = {
+   top: 10,
+   end: 10,
+   bottom: 10,
+   start: 10,
+};
+
 // the minimum time (in milliseconds) the splash screen is visible
 export const SPLASH_SCREEN_MIN_DELAY = 1000;
 export const ANIMATION_DURATION = 250;
