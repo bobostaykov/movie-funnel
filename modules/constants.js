@@ -2,6 +2,10 @@
  * File with global constant values
  */
 
+export const colors = {
+   cyan: '#99e2c8',
+};
+
 export const spacing = {
    paddingS: 10,
    defaultPadding: 16,
@@ -37,7 +41,7 @@ export const TMDB_POPULAR_ARTISTS_URL = 'https://api.themoviedb.org/3/person/pop
 // endpoint to search for artists by name
 export const TMDB_API_ARTISTS_URL = 'https://api.themoviedb.org/3/search/person?query=';
 // endpoint to get movies by artist IDs
-export const TMDB_API_MOVIES_URL = 'https://api.themoviedb.org/3/discover/movie?with_people=';
+export const TMDB_API_MOVIES_URL = 'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&with_people=';
 // URL to get movie poster
 export const TMDB_IMAGE_URL = 'http://image.tmdb.org/t/p/w185';
 // URL to TMDb movie page
