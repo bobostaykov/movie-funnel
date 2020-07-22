@@ -5,6 +5,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {
+   Alert,
    Dimensions,
    Image,
    SafeAreaView,
@@ -15,11 +16,13 @@ import {
    ToastAndroid,
    View,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import MovieItem from 'components/MovieItem.js';
+import MainButton from 'components/MainButton.js';
 import i18n from 'i18n';
 import bearerToken from 'assets/bearerToken.json';
-import {spacing, TMDB_API_MOVIES_URL} from 'modules/constants.js';
+import {colors, spacing, TMDB_API_MOVIES_URL} from 'modules/constants.js';
 import {autoAnimate, showToastAlert} from 'modules/utils.js';
 import {globalStyles} from 'modules/globalStyles.js';
 
@@ -27,23 +30,16 @@ const statusBarHeight = StatusBar.currentHeight;
 const windowHeight = Dimensions.get('window').height;
 
 const ResultsScreen = ({navigation, route}) => {
-   // a list of fetched results (common movies of selected artists)
+   // a list of fetched movies
    const [movieResults, setMovieResults] = useState([]);
    // a list of selected artists' names to show above results
    const [artistNames, setArtistNames] = useState([]);
    // whether fetching is in progress
    const [loading, setLoading] = useState(false);
-   /*
-    whether results are fully fetched, used to show "no results"
-    text with a delay, otherwise it shows for a moment before the
-    results appear
-   */
-   const [resultsFetched, setResultsFetched] = useState(false);
    // whether all artist names are shown (when more than 2)
    const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
 
    useEffect(() => {
-      parseArtistNames();
       getMovies();
    }, []);
 
@@ -65,11 +61,7 @@ const ResultsScreen = ({navigation, route}) => {
          .then(json => {
             autoAnimate();
             setLoading(false);
-            setTimeout(() => {
-               autoAnimate();
-               setResultsFetched(true);
-            }, 500)
-            return parseResults(json.results);
+            return parseMovies(json.results);
          })
          .catch(() => {
             setLoading(false);
@@ -79,13 +71,55 @@ const ResultsScreen = ({navigation, route}) => {
    };
 
    /**
-    * Extract the relevant information from the results
+    * Called when no common movies for selected artists are found.
+    * Informs the user with an alert and fetches movies starring
+    * the selected artists.
     */
-   const parseResults = (resultsJSON) => {
+   const getAllIndividualMovies = async (artists) => {
+      const title = i18n.t('results_screen.alert_title');
+      const message = getAllArtistsNames(artists) + ' ' + i18n.t('results_screen.no_common_movies');
+      const movies = [];
+
+      Alert.alert(title, message, undefined, {cancelable: true});
+
+      autoAnimate();
+      setLoading(true);
+
+      // fetching individual movies for max three of the selected artists only
+      for (const id of route.params.artistIds.split(',').slice(0, 3))
+         movies.push(...(await getIndividualMoviesForArtist(id)));
+
+      autoAnimate();
+      setLoading(false);
+      setMovieResults(movies);
+   };
+
+   const getIndividualMoviesForArtist = async (id) => {
+      try {
+         const result = await fetch(TMDB_API_MOVIES_URL + id, {
+            headers: {
+               Authorization: 'Bearer ' + bearerToken
+            }
+         });
+         const json = await result.json();
+         return parseMovies(json.results, true);
+      } catch (error) {
+         setLoading(false);
+         navigation.pop();
+         showToastAlert(i18n.t('errors.fetch_results'), ToastAndroid.LONG);
+      }
+   };
+
+   /**
+    * Extracts the relevant information from the movie results
+    * @param areIndividual: are the individual artist movies
+    *    being parsed or the common
+    */
+   const parseMovies = (resultsJSON, areIndividual = false) => {
       const results = [];
       let resultData;
 
-      for (const result of resultsJSON) {
+      for (const [index, result] of resultsJSON.entries()) {
          resultData = {};
          resultData.title = result.title;
          resultData.overview = result.overview;
@@ -94,9 +128,21 @@ const ResultsScreen = ({navigation, route}) => {
          resultData.rating = result.vote_average;
 
          results.push(resultData);
+
+         // fetching max three individual movies per selected artist
+         if (areIndividual && index === 2)
+            break;
       }
 
-      setMovieResults(results);
+      if (areIndividual)
+         return results;
+
+      const artists = parseArtistNames();
+
+      if (results.length > 0)
+         setMovieResults(results);
+      else
+         getAllIndividualMovies(artists);
    };
 
    const parseArtistNames = () => {
@@ -106,6 +152,8 @@ const ResultsScreen = ({navigation, route}) => {
          artists.push(name);
 
       setArtistNames(artists);
+      // also returning result to use before the next render
+      return artists;
    };
 
    /**
@@ -119,39 +167,53 @@ const ResultsScreen = ({navigation, route}) => {
    /**
     * Returns a string of all artists' names joined with commas
     */
-   const getAllArtistsNames = () => {
-      // deliberately not using string templates as is this case it is much less readable
-      return artistNames.length === 2 ?
-         artistNames[0]
-         + ' '
-         + i18n.t('helpers.and')
-         + ' '
-         + artistNames[1] :
+   const getAllArtistsNames = (artistsArray) => {
+      let artists;
 
-         artistNames.slice(0, -1).join(', ')
+      if (artistsArray)
+         artists = artistsArray;
+      else
+         artists = artistNames;
+
+      // deliberately not using string templates as in this case it is much less readable
+      return artists.length === 2 ?
+         artists[0]
          + ' '
          + i18n.t('helpers.and')
          + ' '
-         + artistNames[artistNames.length - 1];
+         + artists[1] :
+
+         artists.slice(0, -1).join(', ')
+         + ' '
+         + i18n.t('helpers.and')
+         + ' '
+         + artists[artists.length - 1];
    };
 
    /**
     * Returns a string of the first two artists' names
     * and an indicator of how many are hidden
     */
-   const getArtistsNamesShortened = () => {
-      // deliberately not using string templates as is this case it is much less readable
-      return artistNames[0]
-      + ', '
-      + artistNames[1]
-      + ' '
-      + i18n.t('helpers.and')
-      + ' '
-      + (artistNames.length - 2)
-      + ' '
-      + (artistNames.length === 3 ?
-         i18n.t('helpers.other') :
-         i18n.t('helpers.others'))
+   const getArtistsNamesShortened = (artistsArray) => {
+      let artists;
+
+      if (artistsArray)
+         artists = artistsArray;
+      else
+         artists = artistNames;
+
+      // deliberately not using string templates as in this case it is much less readable
+      return artists[0]
+         + ', '
+         + artists[1]
+         + ' '
+         + i18n.t('helpers.and')
+         + ' '
+         + (artists.length - 2)
+         + ' '
+         + (artists.length === 3 ?
+            i18n.t('helpers.other') :
+            i18n.t('helpers.others'));
    };
 
 
@@ -197,9 +259,17 @@ const ResultsScreen = ({navigation, route}) => {
    return (
       <SafeAreaView style={styles.pageContainer}>
          <ScrollView contentContainerStyle={styles.resultsContainer}>
-            {loading ?
-               <TitleSearching/> :
-               movieResults.length > 0 && <TitleResults/>}
+            <View style={styles.header}>
+               {!loading && <MainButton
+                  icon={<Icon name='arrow-back' size={20} color='black'/>}
+                  style={styles.backButton}
+                  onPress={() => navigation.pop()}/>}
+
+               {loading ?
+                  <TitleSearching/> :
+                  movieResults.length > 0 && <TitleResults/>}
+            </View>
+
             {movieResults.map((item, index) =>
                <MovieItem
                   title={item.title}
@@ -210,15 +280,10 @@ const ResultsScreen = ({navigation, route}) => {
                   key={index}
                />)}
          </ScrollView>
+
          {loading && <Image
             source={require('assets/loading_indicator.gif')}
             style={globalStyles.loadingIndicator}/>}
-         {resultsFetched && movieResults.length === 0 &&
-         <Text style={styles.noResultsText}>{
-            getAllArtistsNames()
-            + ' '
-            + i18n.t('results_screen.no_common_movies')
-         }</Text>}
       </SafeAreaView>
    );
 };
@@ -230,10 +295,20 @@ const styles = StyleSheet.create({
       paddingHorizontal: spacing.defaultPadding,
    },
 
+   header: {
+      flexDirection: 'row',
+      marginBottom: spacing.defaultMargin,
+   },
+
+   backButton: {
+      backgroundColor: colors.cyan,
+      marginTop: 'auto',
+      marginBottom: 'auto',
+   },
+
    titleResults: {
       alignItems: 'center',
-      width: '100%',
-      marginBottom: spacing.defaultMargin,
+      flex: 1,
    },
 
    title: {

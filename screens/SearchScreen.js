@@ -26,7 +26,7 @@ import i18n from 'i18n';
 import bearerToken from 'assets/bearerToken.json';
 import {
    ANIMATION_DURATION,
-   CLEAR_SELECTION_EVENT,
+   CLEAR_SELECTION_EVENT, colors,
    DEFAULT_BORDER_RADIUS, DEFAULT_HIT_SLOP, MAX_RESULTS_SHOWN, MORE_THAN_20_SEARCH_RESULTS,
    POPULAR_ARTISTS_NUMBER,
    spacing, TMDB_API_ARTISTS_URL,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
       start: backButtonMargin,
       padding: 8,
       borderRadius: 6,
-      backgroundColor: '#99e2c8',
+      backgroundColor: colors.cyan,
    },
 
    searchButton: {
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
       end: backButtonMargin,
       padding: 8,
       borderRadius: 6,
-      backgroundColor: '#99e2c8',
+      backgroundColor: colors.cyan,
    },
 
    clearSearchIcon: {

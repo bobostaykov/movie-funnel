@@ -2,6 +2,7 @@
   "errors": {
     "web_page": "There was an error opening the web page",
     "fetch_results": "There was an error fetching results",
+    "fetch_individual": "There was an error fetching individual movies",
     "fetch_popular": "There was an error fetching popular artists",
     "fetch_search_results": "There was an error fetching search results",
     "nothing_selected": "Please select between 2 and 10 artists",
@@ -24,7 +25,8 @@
     "title_common_movies": "Common movies of:",
     "expand_names": "show all",
     "collapse_names": "hide",
-    "no_common_movies": "don't have any common movies yet..."
+    "no_common_movies": "don't have any common movies yet... Check out their individual movies instead!",
+    "alert_title": "No results"
   },
   "helpers": {
     "and": "and",
