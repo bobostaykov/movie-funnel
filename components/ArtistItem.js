@@ -4,7 +4,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Image, Text, TouchableOpacity, DeviceEventEmitter} from 'react-native';
+import {DeviceEventEmitter, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {

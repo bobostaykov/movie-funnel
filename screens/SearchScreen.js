@@ -7,16 +7,19 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {
+   Animated,
    DeviceEventEmitter,
+   Dimensions,
    Image,
+   Keyboard,
    SafeAreaView,
    StatusBar,
    StyleSheet,
    Text,
    TextInput,
    ToastAndroid,
-   View,
-   Keyboard, TouchableOpacity, Dimensions, Animated
+   TouchableOpacity,
+   View
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -26,10 +29,15 @@ import i18n from 'i18n';
 import bearerToken from 'assets/bearerToken.json';
 import {
    ANIMATION_DURATION,
-   CLEAR_SELECTION_EVENT, colors,
-   DEFAULT_BORDER_RADIUS, DEFAULT_HIT_SLOP, MAX_RESULTS_SHOWN, MORE_THAN_20_SEARCH_RESULTS,
+   CLEAR_SELECTION_EVENT,
+   colors,
+   DEFAULT_BORDER_RADIUS,
+   DEFAULT_HIT_SLOP,
+   MAX_RESULTS_SHOWN,
+   MORE_THAN_20_SEARCH_RESULTS,
    POPULAR_ARTISTS_NUMBER,
-   spacing, TMDB_API_ARTISTS_URL,
+   spacing,
+   TMDB_API_ARTISTS_URL,
    TMDB_POPULAR_ARTISTS_URL
 } from 'modules/constants.js';
 import {autoAnimate, showToastAlert} from 'modules/utils.js';
@@ -253,7 +261,7 @@ const SearchScreen = ({navigation}) => {
     * Called on "clear" icon press
     */
    const clearSearchHandler = () => {
-      autoAnimate()
+      autoAnimate();
       setIntermediateSearchValue('');
       nameInput.current.focus();
    };

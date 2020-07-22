@@ -3,16 +3,16 @@
  */
 
 import React, {useState} from 'react';
-import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {
    DEFAULT_BORDER_RADIUS,
+   ITEM_TEXT_LINE_HEIGHT,
    OPACITY_ON_PRESS,
    spacing,
    TMDB_IMAGE_URL
 } from 'modules/constants.js';
 import {openMovieOrArtistURL} from 'modules/utils.js';
-import {ITEM_TEXT_LINE_HEIGHT} from 'modules/constants.js';
 
 const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
    const [ratingTextWidth, setRatingTextWidth] = useState(0);
