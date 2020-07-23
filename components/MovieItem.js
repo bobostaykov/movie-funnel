@@ -2,7 +2,7 @@
  * Component representing an item in the movie results list
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {
@@ -14,19 +14,60 @@ import {
 } from 'modules/constants.js';
 import {openMovieOrArtistURL} from 'modules/utils.js';
 
+const ITEM_HEIGHT = 150;
+// aspect ratio of regular movie poster images
+const IMAGE_RATIO = 0.66;
+
 const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
+   // the width of the rating text, calculated on layout and used to add proper margin to title
    const [ratingTextWidth, setRatingTextWidth] = useState(0);
+   // the number of lines which the overview text can span, calculated on layout
    const [overviewNumberOfLines, setOverviewNumberOfLines] = useState(4);
+   // whether a movie poster photo is provided
+   const [hasPhoto, setHasPhoto] = useState(true);
+
+   useEffect(() => {
+      checkHasPhoto(TMDB_IMAGE_URL + posterPath);
+   }, []);
+
+   /**
+    * Checks if a poster photo for the movie is provided
+    */
+   const checkHasPhoto = url => {
+      fetch(url)
+         .then(result => {
+            setHasPhoto(result.status !== 404);
+         })
+         .catch(() => setHasPhoto(false));
+   };
+
+
+   /**
+    * Movie poster photo fetched from TMDb
+    */
+   const MoviePosterPhoto = () => (
+      <Image
+         resizeMode='cover'
+         source={{uri: TMDB_IMAGE_URL + posterPath}}
+         style={styles.posterPhoto}/>
+   );
+
+   /**
+    * Dummy image used in case no poster photo is provided
+    */
+   const DummyImage = () => (
+      <Image
+         resizeMode='cover'
+         source={require('assets/dummy_movie_image.png')}
+         style={styles.dummyImage}/>
+   );
 
    return (
       <TouchableOpacity
          activeOpacity={OPACITY_ON_PRESS}
          style={[styles.itemContainer, style]}
          onPress={() => openMovieOrArtistURL(id)}>
-         <Image
-            resizeMode='cover'
-            source={{uri: TMDB_IMAGE_URL + posterPath}}
-            style={styles.posterImage}/>
+         {hasPhoto ? <MoviePosterPhoto/> : <DummyImage/>}
          <View style={styles.textContainer}>
             <View style={styles.titleAndRatingContainer}>
                <Text
@@ -55,20 +96,25 @@ const MovieItem = ({title, overview, posterPath, id, rating, style}) => {
 
 const styles = StyleSheet.create({
    itemContainer: {
-      height: 150,
+      height: ITEM_HEIGHT,
       width: '100%',
       flexDirection: 'row',
+      alignItems: 'center',
       borderRadius: DEFAULT_BORDER_RADIUS,
       backgroundColor: '#f3e2d7',
       marginBottom: spacing.marginL,
       overflow: 'hidden',
    },
 
-   posterImage: {
-      height: '100%',
-      // aspect ratio of regular movie poster images
-      aspectRatio: 0.66,
+   posterPhoto: {
+      height: ITEM_HEIGHT,
+      width: IMAGE_RATIO * ITEM_HEIGHT,
       borderRadius: DEFAULT_BORDER_RADIUS,
+   },
+
+   dummyImage: {
+      height: ITEM_HEIGHT,
+      width: IMAGE_RATIO * ITEM_HEIGHT,
    },
 
    textContainer: {

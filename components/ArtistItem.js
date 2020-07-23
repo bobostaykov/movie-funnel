@@ -18,11 +18,20 @@ import {
 import i18n from 'i18n';
 import {openMovieOrArtistURL} from 'modules/utils.js';
 
+const ITEM_HEIGHT = 150;
+const IMAGE_RATIO = 0.66;
+
 const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
+   // the number of lines which the "known for" text can span, calculated on layout
    const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
+   // whether the item is selected
    const [selected, setSelected] = useState(false);
+   // whether the artist photo is provided
+   const [hasPhoto, setHasPhoto] = useState(true);
 
    useEffect(() => {
+      checkHasPhoto(TMDB_IMAGE_URL + photoPath);
+
       const subscription = DeviceEventEmitter.addListener(
          CLEAR_SELECTION_EVENT,
          () => setSelected(false)
@@ -30,6 +39,38 @@ const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
 
       return () => DeviceEventEmitter.removeSubscription(subscription);
    }, []);
+
+   /**
+    * Checks if a photo of the artist is provided
+    */
+   const checkHasPhoto = url => {
+      fetch(url)
+         .then(result => {
+            setHasPhoto(result.status !== 404);
+         })
+         .catch(() => setHasPhoto(false));
+   };
+
+
+   /**
+    * Artist photo fetched from TMDb
+    */
+   const ArtistPhoto = () => (
+      <Image
+         resizeMode='cover'
+         source={{uri: TMDB_IMAGE_URL + photoPath}}
+         style={styles.artistPhoto}/>
+   );
+
+   /**
+    * Dummy avatar used in case no photo is provided
+    */
+   const DummyImage = () => (
+      <Image
+         resizeMode='contain'
+         source={require('assets/dummy_artist_image.png')}
+         style={styles.dummyImage}/>
+   );
 
    if (!id)
       return null;
@@ -42,10 +83,7 @@ const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
             onPress(id, name, !selected);
          }}>
          <View style={[styles.itemContainer, style]}>
-            <Image
-               resizeMode='cover'
-               source={{uri: TMDB_IMAGE_URL + photoPath}}
-               style={styles.image}/>
+            {hasPhoto ? <ArtistPhoto/> : <DummyImage/>}
             <View style={styles.textContainer}>
                <Text style={styles.name}>{name}</Text>
                <Text
@@ -75,20 +113,25 @@ const ArtistItem = ({name, id, photoPath, knownFor, style, onPress}) => {
 
 const styles = StyleSheet.create({
    itemContainer: {
-      height: 150,
+      height: ITEM_HEIGHT,
       width: '100%',
       flexDirection: 'row',
+      alignItems: 'center',
       borderRadius: DEFAULT_BORDER_RADIUS,
       backgroundColor: '#dbe3fa',
       marginBottom: spacing.marginL,
       overflow: 'hidden',
    },
 
-   image: {
-      height: '100%',
-      // aspect ratio of regular movie poster images
-      aspectRatio: 0.66,
+   artistPhoto: {
+      height: ITEM_HEIGHT,
+      width: IMAGE_RATIO * ITEM_HEIGHT,
       borderRadius: DEFAULT_BORDER_RADIUS,
+   },
+
+   dummyImage: {
+      height: ITEM_HEIGHT - 50,
+      width: IMAGE_RATIO * ITEM_HEIGHT,
    },
 
    textContainer: {
