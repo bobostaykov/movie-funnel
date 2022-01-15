@@ -8,7 +8,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  DeviceEventEmitter,
   Dimensions,
   Image,
   Keyboard,
@@ -29,7 +28,6 @@ import i18n from "i18n";
 import bearerToken from "assets/bearerToken.json";
 import {
   ANIMATION_DURATION,
-  CLEAR_SELECTION_EVENT,
   colors,
   DEFAULT_BORDER_RADIUS,
   DEFAULT_HIT_SLOP,
@@ -49,7 +47,7 @@ const statusBarHeight = StatusBar.currentHeight;
 const backButtonMargin = 6;
 
 const SearchScreen = ({ navigation }) => {
-  // storing the names and IDs of all of the selected actors/directors
+  // storing the names and IDs of all the selected actors/directors
   const [selectedArtists, setSelectedArtists] = useState([]);
   // list of fetched popular artists to show initially on search screen
   const [popularArtists, setPopularArtists] = useState([]);
@@ -222,7 +220,7 @@ const SearchScreen = ({ navigation }) => {
   /**
    * Called on artist item press
    */
-  const selectArtistHandler = (id, name, selected) => {
+  const selectArtist = (id, name, selected) => {
     selected
       ? // add to list
         setSelectedArtists((current) => [...current, { id, name }])
@@ -295,7 +293,6 @@ const SearchScreen = ({ navigation }) => {
   const clearSelection = () => {
     autoAnimate();
     setSelectedArtists([]);
-    DeviceEventEmitter.emit(CLEAR_SELECTION_EVENT);
   };
 
   /**
@@ -469,7 +466,10 @@ const SearchScreen = ({ navigation }) => {
               id={item.id}
               photoPath={item.photoPath}
               knownFor={item.knownFor}
-              onPress={selectArtistHandler}
+              onPress={selectArtist}
+              selected={selectedArtists
+                .map((artist) => artist.id)
+                .includes(item.id)}
               key={index}
             />
           ))}
@@ -482,7 +482,10 @@ const SearchScreen = ({ navigation }) => {
               id={item.id}
               photoPath={item.photoPath}
               knownFor={item.knownFor}
-              onPress={selectArtistHandler}
+              onPress={selectArtist}
+              selected={selectedArtists
+                .map((artist) => artist.id)
+                .includes(item.id)}
               key={index}
             />
           ))}

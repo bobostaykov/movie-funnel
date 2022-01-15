@@ -107,7 +107,7 @@ const ResultsScreen = ({ navigation, route }) => {
         },
       });
       const json = await result.json();
-      return parseMovies(json.results, true);
+      return await parseMovies(json.results, true);
     } catch (error) {
       setLoading(false);
       navigation.pop();
@@ -120,7 +120,7 @@ const ResultsScreen = ({ navigation, route }) => {
    * @param areIndividual: are the individual artist movies
    *    being parsed or the common
    */
-  const parseMovies = (resultsJSON, areIndividual = false) => {
+  const parseMovies = async (resultsJSON, areIndividual = false) => {
     const results = [];
     let resultData;
 
@@ -143,7 +143,7 @@ const ResultsScreen = ({ navigation, route }) => {
     const artists = parseArtistNames();
 
     if (results.length > 0) setMovieResults(results);
-    else getAllIndividualMovies(artists);
+    else await getAllIndividualMovies(artists);
   };
 
   const parseArtistNames = () => {

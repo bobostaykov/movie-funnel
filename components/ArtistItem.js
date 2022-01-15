@@ -5,7 +5,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  DeviceEventEmitter,
   Image,
   StyleSheet,
   Text,
@@ -15,7 +14,6 @@ import {
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 import {
-  CLEAR_SELECTION_EVENT,
   DEFAULT_BORDER_RADIUS,
   ITEM_TEXT_LINE_HEIGHT,
   OPACITY_ON_PRESS,
@@ -28,23 +26,22 @@ import { openMovieOrArtistURL } from "modules/utils.js";
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;
 
-const ArtistItem = ({ name, id, photoPath, knownFor, style, onPress }) => {
+const ArtistItem = ({
+  name,
+  id,
+  photoPath,
+  knownFor,
+  style,
+  onPress,
+  selected,
+}) => {
   // the number of lines which the "known for" text can span, calculated on layout
   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
-  // whether the item is selected
-  const [selected, setSelected] = useState(false);
   // whether the artist photo is provided
   const [hasPhoto, setHasPhoto] = useState(true);
 
   useEffect(() => {
     checkHasPhoto(TMDB_IMAGE_URL + photoPath);
-
-    const subscription = DeviceEventEmitter.addListener(
-      CLEAR_SELECTION_EVENT,
-      () => setSelected(false)
-    );
-
-    return () => DeviceEventEmitter.removeSubscription(subscription);
   }, []);
 
   /**
@@ -85,10 +82,7 @@ const ArtistItem = ({ name, id, photoPath, knownFor, style, onPress }) => {
   return (
     <TouchableOpacity
       activeOpacity={OPACITY_ON_PRESS}
-      onPress={() => {
-        setSelected((current) => !current);
-        onPress(id, name, !selected);
-      }}
+      onPress={() => onPress(id, name, !selected)}
     >
       <View style={[styles.itemContainer, style]}>
         {hasPhoto ? <ArtistPhoto /> : <DummyImage />}

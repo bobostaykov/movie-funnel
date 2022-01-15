@@ -51,6 +51,3 @@ export const TMDB_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
 export const TMDB_MOVIE_PAGE_URL = "https://www.themoviedb.org/movie/";
 // URL to artist TMDb page
 export const TMDB_ARTIST_PAGE_URL = "https://www.themoviedb.org/person/";
-
-// custom event names
-export const CLEAR_SELECTION_EVENT = "CLEAR_SELECTION_EVENT";
