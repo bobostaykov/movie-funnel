@@ -42,6 +42,7 @@ import {
 } from "modules/constants.js";
 import { autoAnimate, showToastAlert } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
+import { Badge, FAB } from "react-native-elements";
 
 const windowWidth = Dimensions.get("window").width;
 const statusBarHeight = StatusBar.currentHeight;
@@ -276,7 +277,7 @@ const SearchScreen = ({ navigation }) => {
   /**
    * Called on "apply" button press
    */
-  const applyHandler = () => {
+  const applySelection = () => {
     if (selectedArtists.length < 2 || selectedArtists.length > 10) {
       showToastAlert(i18n.t("errors.nothing_selected"));
       return;
@@ -291,7 +292,7 @@ const SearchScreen = ({ navigation }) => {
   /**
    * Called on "clear" button press
    */
-  const clearSelectionHandler = () => {
+  const clearSelection = () => {
     autoAnimate();
     setSelectedArtists([]);
     DeviceEventEmitter.emit(CLEAR_SELECTION_EVENT);
@@ -332,10 +333,6 @@ const SearchScreen = ({ navigation }) => {
   const scrollResultsToTop = () => {
     scrollView.current?.scrollTo({ y: 0 });
   };
-
-  // invisible when keyboard shown or no results
-  const isBottomBarVisible = () =>
-    !keyboardVisible && ((searching && searchResults.length > 0) || !searching);
 
   const isNoResultsVisible = () =>
     searching && resultsFetched && searchResults.length === 0;
@@ -499,26 +496,31 @@ const SearchScreen = ({ navigation }) => {
         {isNoResultsVisible() && <NoResults />}
       </Animated.ScrollView>
 
-      {/* bottom bar */}
-      {isBottomBarVisible() && (
-        <View style={styles.bottomButtonsContainer}>
-          <MainButton
-            text={i18n.t("search_screen.clear_selection_button")}
-            style={styles.clearSelectionButton}
-            onPress={clearSelectionHandler}
+      <FAB
+        visible={selectedArtists.length > 0}
+        size="small"
+        color="red"
+        icon={{ name: "close" }}
+        placement="right"
+        onPress={clearSelection}
+        style={styles.clearSelectionFab}
+      />
+      <View>
+        <FAB
+          visible={selectedArtists.length > 0}
+          icon={{ name: "arrow-forward" }}
+          color="#62cc16"
+          placement="right"
+          onPress={applySelection}
+          style={styles.applyFab}
+        />
+        {selectedArtists.length > 0 && (
+          <Badge
+            containerStyle={styles.artistCounterContainer}
+            value={selectedArtists.length}
           />
-          <MainButton
-            text={i18n.t("search_screen.apply_button")}
-            style={styles.applyButton}
-            onPress={applyHandler}
-          />
-          <View style={styles.artistCounterContainer}>
-            <Text style={styles.artistCounterText}>
-              {selectedArtists.length}
-            </Text>
-          </View>
-        </View>
-      )}
+        )}
+      </View>
 
       {loading && (
         <Image
@@ -535,14 +537,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     marginTop: statusBarHeight,
-    padding: spacing.defaultPadding,
+    paddingHorizontal: spacing.defaultPadding,
     paddingTop: 5,
   },
 
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.marginS,
   },
 
   nameInput: {
@@ -577,7 +578,6 @@ const styles = StyleSheet.create({
 
   resultsContainer: {
     alignItems: "center",
-    // flex: 1,
     justifyContent: "center",
   },
 
@@ -585,39 +585,23 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 26,
     alignSelf: "center",
-    marginBottom: spacing.marginS,
+    marginVertical: spacing.marginS,
     textAlign: "center",
   },
 
-  bottomButtonsContainer: {
-    flexDirection: "row",
-    marginTop: spacing.defaultMargin,
+  applyFab: {
+    marginEnd: 0,
   },
 
-  clearSelectionButton: {
-    backgroundColor: "red",
-    marginEnd: spacing.marginS,
-    paddingHorizontal: spacing.defaultPadding,
-  },
-
-  applyButton: {
-    flex: 1,
+  clearSelectionFab: {
+    marginBottom: 90,
   },
 
   artistCounterContainer: {
-    justifyContent: "center",
-    alignItems: "center",
     position: "absolute",
-    top: -10,
-    end: -10,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: "#99e2c8",
-  },
-
-  artistCounterText: {
-    fontWeight: "bold",
+    top: -80,
+    end: 0,
+    padding: 3,
   },
 
   hintMoreThan20Results: {

@@ -12,6 +12,7 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import SearchScreen from "screens/SearchScreen.js";
 import ResultsScreen from "screens/ResultsScreen.js";
+import { SafeAreaProvider } from "react-native-safe-area-context/src/SafeAreaContext";
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -30,7 +31,11 @@ const App = () => {
     </Stack.Navigator>
   );
 
-  return <NavigationContainer>{createStack()}</NavigationContainer>;
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>{createStack()}</NavigationContainer>
+    </SafeAreaProvider>
+  );
 };
 
 const styles = StyleSheet.create({});
