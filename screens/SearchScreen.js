@@ -218,13 +218,17 @@ const SearchScreen = ({ navigation }) => {
    * Called on artist item press
    */
   const selectArtist = (id, name, selected) => {
-    selected
-      ? // add to list
-        setSelectedArtists((current) => [...current, { id, name }])
-      : // remove from list
-        setSelectedArtists((current) =>
-          current.filter((item) => item.id !== id)
-        );
+    if (selected) {
+      if (selectedArtists.length < 10) {
+        // add to list
+        setSelectedArtists((current) => [...current, { id, name }]);
+      } else {
+        showToastAlert(i18n.t("errors.too_many_artists"));
+      }
+    } else {
+      // remove from list
+      setSelectedArtists((current) => current.filter((item) => item.id !== id));
+    }
   };
 
   /**
@@ -274,7 +278,7 @@ const SearchScreen = ({ navigation }) => {
    */
   const applySelection = () => {
     if (selectedArtists.length < 2 || selectedArtists.length > 10) {
-      showToastAlert(i18n.t("errors.nothing_selected"));
+      showToastAlert(i18n.t("errors.too_few_artists"));
       return;
     }
 

@@ -5,7 +5,8 @@
     "fetch_individual": "There was an error fetching individual movies",
     "fetch_popular": "There was an error fetching popular artists",
     "fetch_search_results": "There was an error fetching search results",
-    "nothing_selected": "Please select between 2 and 10 artists",
+    "too_few_artists": "Please select at least 2 artists",
+    "too_many_artists": "Please select up to 10 artists",
     "empty_search": "Please search for a real name",
     "no_results": "No results found for"
   },
