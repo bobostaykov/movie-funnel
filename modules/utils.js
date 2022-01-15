@@ -3,18 +3,22 @@
  */
 
 import {
-   Alert,
-   LayoutAnimation,
-   Platform,
-   ToastAndroid,
-   UIManager
-} from 'react-native';
-import {ANIMATION_DURATION, TMDB_ARTIST_PAGE_URL, TMDB_MOVIE_PAGE_URL} from 'modules/constants.js';
-import * as WebBrowser from 'expo-web-browser';
-import i18n from 'i18n';
+  Alert,
+  LayoutAnimation,
+  Platform,
+  ToastAndroid,
+  UIManager,
+} from "react-native";
+import {
+  ANIMATION_DURATION,
+  TMDB_ARTIST_PAGE_URL,
+  TMDB_MOVIE_PAGE_URL,
+} from "modules/constants.js";
+import * as WebBrowser from "expo-web-browser";
+import i18n from "i18n";
 
-export const platformAndroid = Platform.OS === 'android';
-export const platformIOS = Platform.OS === 'ios';
+export const platformAndroid = Platform.OS === "android";
+export const platformIOS = Platform.OS === "ios";
 
 /**
  * Platform specific way to present an info message to the user:
@@ -22,9 +26,9 @@ export const platformIOS = Platform.OS === 'ios';
  * For iOS - alert
  */
 export const showToastAlert = (message, toastLength = ToastAndroid.SHORT) => {
-   platformAndroid ?
-      ToastAndroid.show(message, toastLength) :
-      Alert.alert(message);
+  platformAndroid
+    ? ToastAndroid.show(message, toastLength)
+    : Alert.alert(message);
 };
 
 /**
@@ -32,25 +36,30 @@ export const showToastAlert = (message, toastLength = ToastAndroid.SHORT) => {
  */
 let experimentalSet = false;
 export const autoAnimate = (duration = ANIMATION_DURATION) => {
-   // in order for LayoutAnimation to work on Android
-   if (
-      platformAndroid &&
-      UIManager.setLayoutAnimationEnabledExperimental &&
-      !experimentalSet
-   ) {
-      UIManager.setLayoutAnimationEnabledExperimental(true);
-      experimentalSet = true;
-   }
+  // in order for LayoutAnimation to work on Android
+  if (
+    platformAndroid &&
+    UIManager.setLayoutAnimationEnabledExperimental &&
+    !experimentalSet
+  ) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+    experimentalSet = true;
+  }
 
-   LayoutAnimation.configureNext({...LayoutAnimation.Presets.easeInEaseOut, duration});
+  LayoutAnimation.configureNext({
+    ...LayoutAnimation.Presets.easeInEaseOut,
+    duration,
+  });
 };
 
 export const openMovieOrArtistURL = async (id, isArtist = false) => {
-   WebBrowser.openBrowserAsync((isArtist ? TMDB_ARTIST_PAGE_URL : TMDB_MOVIE_PAGE_URL) + id)
-      .then(result => {
-         if (!result)
-            // tell the user URL can't be opened
-            showToastAlert(i18n.t('errors.web_page'));
-      })
-      .catch(() => showToastAlert(i18n.t('errors.web_page'), ToastAndroid.LONG));
+  WebBrowser.openBrowserAsync(
+    (isArtist ? TMDB_ARTIST_PAGE_URL : TMDB_MOVIE_PAGE_URL) + id
+  )
+    .then((result) => {
+      if (!result)
+        // tell the user URL can't be opened
+        showToastAlert(i18n.t("errors.web_page"));
+    })
+    .catch(() => showToastAlert(i18n.t("errors.web_page"), ToastAndroid.LONG));
 };

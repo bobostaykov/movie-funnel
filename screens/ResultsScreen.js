@@ -3,351 +3,349 @@
  * information and a link to the corresponding TMDB page
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from "react";
 import {
-   Alert,
-   Dimensions,
-   Image,
-   SafeAreaView,
-   ScrollView,
-   StatusBar,
-   StyleSheet,
-   Text,
-   ToastAndroid,
-   View,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+  Alert,
+  Dimensions,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  View,
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-import MovieItem from 'components/MovieItem.js';
-import MainButton from 'components/MainButton.js';
-import i18n from 'i18n';
-import bearerToken from 'assets/bearerToken.json';
-import {colors, spacing, TMDB_API_MOVIES_URL} from 'modules/constants.js';
-import {autoAnimate, showToastAlert} from 'modules/utils.js';
-import {globalStyles} from 'modules/globalStyles.js';
+import MovieItem from "components/MovieItem.js";
+import MainButton from "components/MainButton.js";
+import i18n from "i18n";
+import bearerToken from "assets/bearerToken.json";
+import { colors, spacing, TMDB_API_MOVIES_URL } from "modules/constants.js";
+import { autoAnimate, showToastAlert } from "modules/utils.js";
+import { globalStyles } from "modules/globalStyles.js";
 
 const statusBarHeight = StatusBar.currentHeight;
-const windowHeight = Dimensions.get('window').height;
+const windowHeight = Dimensions.get("window").height;
 
-const ResultsScreen = ({navigation, route}) => {
-   // a list of fetched movies
-   const [movieResults, setMovieResults] = useState([]);
-   // a list of selected artists' names to show above results
-   const [artistNames, setArtistNames] = useState([]);
-   // whether fetching is in progress
-   const [loading, setLoading] = useState(false);
-   // whether all artist names are shown (when more than 2)
-   const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
-   // whether individual movies of selected artists are shown, due to the absence of common movies
-   const [showingIndividualMovies, setShowingIndividualMovies] = useState(false);
+const ResultsScreen = ({ navigation, route }) => {
+  // a list of fetched movies
+  const [movieResults, setMovieResults] = useState([]);
+  // a list of selected artists' names to show above results
+  const [artistNames, setArtistNames] = useState([]);
+  // whether fetching is in progress
+  const [loading, setLoading] = useState(false);
+  // whether all artist names are shown (when more than 2)
+  const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
+  // whether individual movies of selected artists are shown, due to the absence of common movies
+  const [showingIndividualMovies, setShowingIndividualMovies] = useState(false);
 
-   useEffect(() => {
-      getMovies();
-   }, []);
+  useEffect(() => {
+    getMovies();
+  }, []);
 
+  // --- FUNCTIONS ---
 
-   // --- FUNCTIONS ---
+  /**
+   * Fetch movies from TMDb API, using their IDs
+   */
+  const getMovies = () => {
+    setLoading(true);
 
-   /**
-    * Fetch movies from TMDb API, using their IDs
-    */
-   const getMovies = () => {
-      setLoading(true);
-
-      fetch(TMDB_API_MOVIES_URL + route.params.artistIds, {
-         headers: {
-            Authorization: 'Bearer ' + bearerToken
-         }
+    fetch(TMDB_API_MOVIES_URL + route.params.artistIds, {
+      headers: {
+        Authorization: "Bearer " + bearerToken,
+      },
+    })
+      .then((result) => result.json())
+      .then((json) => {
+        autoAnimate();
+        setLoading(false);
+        return parseMovies(json.results);
       })
-         .then(result => result.json())
-         .then(json => {
-            autoAnimate();
-            setLoading(false);
-            return parseMovies(json.results);
-         })
-         .catch(() => {
-            setLoading(false);
-            navigation.pop();
-            showToastAlert(i18n.t('errors.fetch_results'), ToastAndroid.LONG);
-         });
-   };
+      .catch(() => {
+        setLoading(false);
+        navigation.pop();
+        showToastAlert(i18n.t("errors.fetch_results"), ToastAndroid.LONG);
+      });
+  };
 
-   /**
-    * Called when no common movies for selected artists are found.
-    * Informs the user with an alert and fetches movies starring
-    * the selected artists.
-    */
-   const getAllIndividualMovies = async (artists) => {
-      const title = i18n.t('results_screen.alert_title');
-      const message = getAllArtistsNames(artists) + ' ' + i18n.t('results_screen.no_common_movies');
-      const movies = [];
+  /**
+   * Called when no common movies for selected artists are found.
+   * Informs the user with an alert and fetches movies starring
+   * the selected artists.
+   */
+  const getAllIndividualMovies = async (artists) => {
+    const title = i18n.t("results_screen.alert_title");
+    const message =
+      getAllArtistsNames(artists) +
+      " " +
+      i18n.t("results_screen.no_common_movies");
+    const movies = [];
 
-      Alert.alert(title, message, undefined, {cancelable: true});
+    Alert.alert(title, message, undefined, { cancelable: true });
 
-      autoAnimate();
-      setShowingIndividualMovies(true);
-      setLoading(true);
+    autoAnimate();
+    setShowingIndividualMovies(true);
+    setLoading(true);
 
-      // fetching individual movies for max three of the selected artists only
-      for (const id of route.params.artistIds.split(',').slice(0, 3))
-         movies.push(...(await getIndividualMoviesForArtist(id)));
+    // fetching individual movies for max three of the selected artists only
+    for (const id of route.params.artistIds.split(",").slice(0, 3))
+      movies.push(...(await getIndividualMoviesForArtist(id)));
 
-      autoAnimate();
+    autoAnimate();
+    setLoading(false);
+    setMovieResults(movies);
+  };
+
+  const getIndividualMoviesForArtist = async (id) => {
+    try {
+      const result = await fetch(TMDB_API_MOVIES_URL + id, {
+        headers: {
+          Authorization: "Bearer " + bearerToken,
+        },
+      });
+      const json = await result.json();
+      return parseMovies(json.results, true);
+    } catch (error) {
       setLoading(false);
-      setMovieResults(movies);
-   };
+      navigation.pop();
+      showToastAlert(i18n.t("errors.fetch_results"), ToastAndroid.LONG);
+    }
+  };
 
-   const getIndividualMoviesForArtist = async (id) => {
-      try {
-         const result = await fetch(TMDB_API_MOVIES_URL + id, {
-            headers: {
-               Authorization: 'Bearer ' + bearerToken
-            }
-         });
-         const json = await result.json();
-         return parseMovies(json.results, true);
-      } catch (error) {
-         setLoading(false);
-         navigation.pop();
-         showToastAlert(i18n.t('errors.fetch_results'), ToastAndroid.LONG);
-      }
-   };
+  /**
+   * Extracts the relevant information from the movie results
+   * @param areIndividual: are the individual artist movies
+   *    being parsed or the common
+   */
+  const parseMovies = (resultsJSON, areIndividual = false) => {
+    const results = [];
+    let resultData;
 
-   /**
-    * Extracts the relevant information from the movie results
-    * @param areIndividual: are the individual artist movies
-    *    being parsed or the common
-    */
-   const parseMovies = (resultsJSON, areIndividual = false) => {
-      const results = [];
-      let resultData;
+    for (const [index, result] of resultsJSON.entries()) {
+      resultData = {};
+      resultData.title = result.title;
+      resultData.overview = result.overview;
+      resultData.posterPath = result.poster_path;
+      resultData.id = result.id;
+      resultData.rating = result.vote_average;
 
-      for (const [index, result] of resultsJSON.entries()) {
-         resultData = {};
-         resultData.title = result.title;
-         resultData.overview = result.overview;
-         resultData.posterPath = result.poster_path;
-         resultData.id = result.id;
-         resultData.rating = result.vote_average;
+      results.push(resultData);
 
-         results.push(resultData);
+      // fetching max three individual movies per selected artist
+      if (areIndividual && index === 2) break;
+    }
 
-         // fetching max three individual movies per selected artist
-         if (areIndividual && index === 2)
-            break;
-      }
+    if (areIndividual) return results;
 
-      if (areIndividual)
-         return results;
+    const artists = parseArtistNames();
 
-      const artists = parseArtistNames();
+    if (results.length > 0) setMovieResults(results);
+    else getAllIndividualMovies(artists);
+  };
 
-      if (results.length > 0)
-         setMovieResults(results);
-      else
-         getAllIndividualMovies(artists);
-   };
+  const parseArtistNames = () => {
+    const artists = [];
 
-   const parseArtistNames = () => {
-      const artists = [];
+    for (const name of route.params.artistNames.split(",")) artists.push(name);
 
-      for (const name of route.params.artistNames.split(','))
-         artists.push(name);
+    setArtistNames(artists);
+    // also returning result to use before the next render
+    return artists;
+  };
 
-      setArtistNames(artists);
-      // also returning result to use before the next render
-      return artists;
-   };
+  /**
+   * Toggles the expanded/collapsed view of the artist names
+   */
+  const toggleArtistNamesExpanded = () => {
+    autoAnimate();
+    setArtistNamesExpanded((current) => !current);
+  };
 
-   /**
-    * Toggles the expanded/collapsed view of the artist names
-    */
-   const toggleArtistNamesExpanded = () => {
-      autoAnimate();
-      setArtistNamesExpanded(current => !current);
-   };
+  /**
+   * Returns a string of all artists' names joined with commas
+   */
+  const getAllArtistsNames = (artistsArray) => {
+    let artists;
 
-   /**
-    * Returns a string of all artists' names joined with commas
-    */
-   const getAllArtistsNames = (artistsArray) => {
-      let artists;
+    if (artistsArray) artists = artistsArray;
+    else artists = artistNames;
 
-      if (artistsArray)
-         artists = artistsArray;
-      else
-         artists = artistNames;
+    // deliberately not using string templates as in this case it is much less readable
+    return artists.length === 2
+      ? artists[0] + " " + i18n.t("helpers.and") + " " + artists[1]
+      : artists.slice(0, -1).join(", ") +
+          " " +
+          i18n.t("helpers.and") +
+          " " +
+          artists[artists.length - 1];
+  };
 
-      // deliberately not using string templates as in this case it is much less readable
-      return artists.length === 2 ?
-         artists[0]
-         + ' '
-         + i18n.t('helpers.and')
-         + ' '
-         + artists[1] :
+  /**
+   * Returns a string of the first two artists' names
+   * and an indicator of how many are hidden
+   */
+  const getArtistsNamesShortened = (artistsArray) => {
+    let artists;
 
-         artists.slice(0, -1).join(', ')
-         + ' '
-         + i18n.t('helpers.and')
-         + ' '
-         + artists[artists.length - 1];
-   };
+    if (artistsArray) artists = artistsArray;
+    else artists = artistNames;
 
-   /**
-    * Returns a string of the first two artists' names
-    * and an indicator of how many are hidden
-    */
-   const getArtistsNamesShortened = (artistsArray) => {
-      let artists;
+    // deliberately not using string templates as in this case it is much less readable
+    return (
+      artists[0] +
+      ", " +
+      artists[1] +
+      " " +
+      i18n.t("helpers.and") +
+      " " +
+      (artists.length - 2) +
+      " " +
+      (artists.length === 3
+        ? i18n.t("helpers.other")
+        : i18n.t("helpers.others"))
+    );
+  };
 
-      if (artistsArray)
-         artists = artistsArray;
-      else
-         artists = artistNames;
+  // --- COMPONENTS ---
 
-      // deliberately not using string templates as in this case it is much less readable
-      return artists[0]
-         + ', '
-         + artists[1]
-         + ' '
-         + i18n.t('helpers.and')
-         + ' '
-         + (artists.length - 2)
-         + ' '
-         + (artists.length === 3 ?
-            i18n.t('helpers.other') :
-            i18n.t('helpers.others'));
-   };
+  const ExpandedArtistNames = () => (
+    <View>
+      <Text style={styles.subtitle}>{getAllArtistsNames()}</Text>
+      {artistNames.length > 2 && <ToggleButton />}
+    </View>
+  );
 
+  const CollapsedArtistNames = () => (
+    <View>
+      <Text style={styles.subtitle}>{getArtistsNamesShortened()}</Text>
+      {artistNames.length > 2 && <ToggleButton />}
+    </View>
+  );
 
-   // --- COMPONENTS ---
+  const ToggleButton = () => (
+    <Text style={styles.toggleButton} onPress={toggleArtistNamesExpanded}>
+      {artistNamesExpanded
+        ? i18n.t("results_screen.collapse_names")
+        : i18n.t("results_screen.expand_names")}
+    </Text>
+  );
 
-   const ExpandedArtistNames = () => (
-      <View>
-         <Text style={styles.subtitle}>
-            {getAllArtistsNames()}
-         </Text>
-         {artistNames.length > 2 && <ToggleButton/>}
-      </View>
-   );
+  const TitleResults = () => (
+    <View style={styles.titleResults}>
+      <Text style={styles.title}>
+        {showingIndividualMovies
+          ? i18n.t("results_screen.title_individual_movies")
+          : i18n.t("results_screen.title_common_movies")}
+      </Text>
+      {artistNamesExpanded || artistNames.length === 2 ? (
+        <ExpandedArtistNames />
+      ) : (
+        <CollapsedArtistNames />
+      )}
+    </View>
+  );
 
-   const CollapsedArtistNames = () => (
-      <View>
-         <Text style={styles.subtitle}>
-            {getArtistsNamesShortened()}
-         </Text>
-         {artistNames.length > 2 && <ToggleButton/>}
-      </View>
-   );
+  const TitleSearching = () => (
+    <Text style={styles.title}>{i18n.t("results_screen.title_searching")}</Text>
+  );
 
-   const ToggleButton = () => (
-      <Text style={styles.toggleButton} onPress={toggleArtistNamesExpanded}>{
-         artistNamesExpanded ?
-            i18n.t('results_screen.collapse_names') :
-            i18n.t('results_screen.expand_names')
-      }</Text>
-   );
+  return (
+    <SafeAreaView style={styles.pageContainer}>
+      <ScrollView contentContainerStyle={styles.resultsContainer}>
+        <View style={styles.header}>
+          {!loading && (
+            <MainButton
+              icon={<Icon name="arrow-back" size={20} color="black" />}
+              style={styles.backButton}
+              onPress={() => navigation.pop()}
+            />
+          )}
 
-   const TitleResults = () => (
-      <View style={styles.titleResults}>
-         <Text style={styles.title}>{
-            showingIndividualMovies ?
-            i18n.t('results_screen.title_individual_movies') :
-            i18n.t('results_screen.title_common_movies')
-         }</Text>
-         {artistNamesExpanded || artistNames.length === 2 ? <ExpandedArtistNames/> : <CollapsedArtistNames/>}
-      </View>
-   );
+          {loading ? (
+            <TitleSearching />
+          ) : (
+            movieResults.length > 0 && <TitleResults />
+          )}
+        </View>
 
-   const TitleSearching = () => (
-      <Text style={styles.title}>{i18n.t('results_screen.title_searching')}</Text>
-   );
+        {movieResults.map((item, index) => (
+          <MovieItem
+            title={item.title}
+            overview={item.overview}
+            posterPath={item.posterPath}
+            id={item.id}
+            rating={item.rating}
+            key={index}
+          />
+        ))}
+      </ScrollView>
 
-   return (
-      <SafeAreaView style={styles.pageContainer}>
-         <ScrollView contentContainerStyle={styles.resultsContainer}>
-            <View style={styles.header}>
-               {!loading && <MainButton
-                  icon={<Icon name='arrow-back' size={20} color='black'/>}
-                  style={styles.backButton}
-                  onPress={() => navigation.pop()}/>}
-
-               {loading ?
-                  <TitleSearching/> :
-                  movieResults.length > 0 && <TitleResults/>}
-            </View>
-
-            {movieResults.map((item, index) =>
-               <MovieItem
-                  title={item.title}
-                  overview={item.overview}
-                  posterPath={item.posterPath}
-                  id={item.id}
-                  rating={item.rating}
-                  key={index}
-               />)}
-         </ScrollView>
-
-         {loading && <Image
-            source={require('assets/loading_indicator.gif')}
-            style={globalStyles.loadingIndicator}/>}
-      </SafeAreaView>
-   );
+      {loading && (
+        <Image
+          source={require("assets/loading_indicator.gif")}
+          style={globalStyles.loadingIndicator}
+        />
+      )}
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
-   pageContainer: {
-      flex: 1,
-      paddingTop: statusBarHeight,
-      paddingHorizontal: spacing.defaultPadding,
-   },
+  pageContainer: {
+    flex: 1,
+    paddingTop: statusBarHeight,
+    paddingHorizontal: spacing.defaultPadding,
+  },
 
-   header: {
-      flexDirection: 'row',
-      marginBottom: spacing.defaultMargin,
-   },
+  header: {
+    flexDirection: "row",
+    marginBottom: spacing.defaultMargin,
+  },
 
-   backButton: {
-      backgroundColor: colors.cyan,
-      marginTop: 'auto',
-      marginBottom: 'auto',
-   },
+  backButton: {
+    backgroundColor: colors.cyan,
+    marginTop: "auto",
+    marginBottom: "auto",
+  },
 
-   titleResults: {
-      alignItems: 'center',
-      flex: 1,
-   },
+  titleResults: {
+    alignItems: "center",
+    flex: 1,
+  },
 
-   title: {
-      fontWeight: 'bold',
-      fontSize: 30,
-   },
+  title: {
+    fontWeight: "bold",
+    fontSize: 30,
+  },
 
-   subtitle: {
-      width: 'auto',
-      height: 'auto',
-      marginHorizontal: '15%',
-      fontSize: 15,
-      textAlign: 'center',
-   },
+  subtitle: {
+    width: "auto",
+    height: "auto",
+    marginHorizontal: "15%",
+    fontSize: 15,
+    textAlign: "center",
+  },
 
-   toggleButton: {
-      alignSelf: 'center',
-      color: 'blue',
-      marginBottom: spacing.defaultMargin,
-   },
+  toggleButton: {
+    alignSelf: "center",
+    color: "blue",
+    marginBottom: spacing.defaultMargin,
+  },
 
-   resultsContainer: {
-      alignItems: 'center',
-      width: '100%',
-   },
+  resultsContainer: {
+    alignItems: "center",
+    width: "100%",
+  },
 
-   noResultsText: {
-      alignSelf: 'center',
-      position: 'absolute',
-      top: windowHeight / 2,
-      textAlign: 'center',
-   },
+  noResultsText: {
+    alignSelf: "center",
+    position: "absolute",
+    top: windowHeight / 2,
+    textAlign: "center",
+  },
 });
 
 export default ResultsScreen;

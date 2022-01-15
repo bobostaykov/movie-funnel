@@ -2,15 +2,11 @@
  *
  */
 
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
 const CustomSplashScreen = (props) => {
-   return (
-      <View>
-
-      </View>
-   );
+  return <View></View>;
 };
 
 const styles = StyleSheet.create({});
