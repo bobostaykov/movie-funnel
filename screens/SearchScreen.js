@@ -11,6 +11,7 @@ import {
   Dimensions,
   Image,
   Keyboard,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -62,12 +63,13 @@ const SearchScreen = ({ navigation }) => {
     variable to make the exit from "search" mode smooth
    */
   const [popularVisible, setPopularVisible] = useState(true);
+  const [refreshingPopular] = useState(false);
   // list of fetched artist results
   const [searchResults, setSearchResults] = useState([]);
   // whether fetching is in progress
   const [loading, setLoading] = useState(false);
   // whether keyboard is currently on screen
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [, setKeyboardVisible] = useState(false);
   // search button width, calculated on button layout
   const [backButtonWidth, setBackButtonWidth] = useState(0);
   /*
@@ -100,11 +102,6 @@ const SearchScreen = ({ navigation }) => {
       Keyboard.removeSubscription(didHideSubscription);
     };
   }, []);
-
-  useEffect(() => {
-    // console.log('searchResults:', searchResults);
-    // console.log('popularArtists:', popularArtists);
-  });
 
   // --- FUNCTIONS ---
 
@@ -447,6 +444,13 @@ const SearchScreen = ({ navigation }) => {
         style={{ opacity: animatedOpacity }}
         contentContainerStyle={styles.resultsContainer}
         keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshingPopular}
+            onRefresh={fetchPopularArtists}
+            enabled={!searching}
+          />
+        }
       >
         {loading ? (
           <View>
