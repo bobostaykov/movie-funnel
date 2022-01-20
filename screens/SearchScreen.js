@@ -17,7 +17,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -39,9 +38,10 @@ import {
   TMDB_API_ARTISTS_URL,
   TMDB_POPULAR_ARTISTS_URL,
 } from "modules/constants.js";
-import { autoAnimate, showToastAlert } from "modules/utils.js";
+import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
 import { Badge, FAB } from "react-native-elements";
+import Toast from "react-native-toast-message";
 
 const windowWidth = Dimensions.get("window").width;
 const statusBarHeight = StatusBar.currentHeight;
@@ -125,7 +125,7 @@ const SearchScreen = ({ navigation }) => {
         parseArtistResults(json.results, json.total_results, true)
       )
       .catch(() => {
-        showToastAlert(i18n.t("errors.fetch_popular"), ToastAndroid.LONG);
+        Toast.show({ text2: i18n.t("errors.fetch_popular") });
         autoAnimate();
         setLoading(false);
         setSearching(false);
@@ -156,10 +156,7 @@ const SearchScreen = ({ navigation }) => {
       })
       .then((json) => parseArtistResults(json.results, json.total_results))
       .catch(() => {
-        showToastAlert(
-          i18n.t("errors.fetch_search_results"),
-          ToastAndroid.LONG
-        );
+        Toast.show({ text2: i18n.t("errors.fetch_search_results") });
         autoAnimate();
         setLoading(false);
         setSearching(false);
@@ -223,7 +220,7 @@ const SearchScreen = ({ navigation }) => {
         // add to list
         setSelectedArtists((current) => [...current, { id, name }]);
       } else {
-        showToastAlert(i18n.t("errors.too_many_artists"));
+        Toast.show({ text2: i18n.t("errors.too_many_artists") });
       }
     } else {
       // remove from list
@@ -278,7 +275,7 @@ const SearchScreen = ({ navigation }) => {
    */
   const applySelection = () => {
     if (selectedArtists.length < 2 || selectedArtists.length > 10) {
-      showToastAlert(i18n.t("errors.too_few_artists"));
+      Toast.show({ text2: i18n.t("errors.too_few_artists") });
       return;
     }
 
@@ -301,7 +298,7 @@ const SearchScreen = ({ navigation }) => {
    */
   const searchHandler = () => {
     if (!intermediateSearchValue.trim()) {
-      showToastAlert(i18n.t("errors.empty_search"));
+      Toast.show({ text2: i18n.t("errors.empty_search") });
       setIntermediateSearchValue("");
       return;
     }

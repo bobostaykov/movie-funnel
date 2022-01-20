@@ -2,13 +2,7 @@
  * File with global helper functions
  */
 
-import {
-  Alert,
-  LayoutAnimation,
-  Platform,
-  ToastAndroid,
-  UIManager,
-} from "react-native";
+import { LayoutAnimation, Platform, UIManager } from "react-native";
 import {
   ANIMATION_DURATION,
   TMDB_ARTIST_PAGE_URL,
@@ -16,20 +10,10 @@ import {
 } from "modules/constants.js";
 import * as WebBrowser from "expo-web-browser";
 import i18n from "i18n";
+import Toast from "react-native-toast-message";
 
 export const platformAndroid = Platform.OS === "android";
 export const platformIOS = Platform.OS === "ios";
-
-/**
- * Platform specific way to present an info message to the user:
- * For Android - toast
- * For iOS - alert
- */
-export const showToastAlert = (message, toastLength = ToastAndroid.SHORT) => {
-  platformAndroid
-    ? ToastAndroid.show(message, toastLength)
-    : Alert.alert(message);
-};
 
 /**
  * LayoutAnimation automatically animates a transformation on screen
@@ -57,9 +41,10 @@ export const openMovieOrArtistURL = async (id, isArtist = false) => {
     (isArtist ? TMDB_ARTIST_PAGE_URL : TMDB_MOVIE_PAGE_URL) + id
   )
     .then((result) => {
-      if (!result)
+      if (!result) {
         // tell the user URL can't be opened
-        showToastAlert(i18n.t("errors.web_page"));
+        Toast.show({ text2: i18n.t("errors.web_page") });
+      }
     })
-    .catch(() => showToastAlert(i18n.t("errors.web_page"), ToastAndroid.LONG));
+    .catch(() => Toast.show({ text2: i18n.t("errors.web_page") }));
 };

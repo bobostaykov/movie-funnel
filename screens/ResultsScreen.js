@@ -13,7 +13,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  ToastAndroid,
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -22,9 +21,15 @@ import MovieItem from "components/MovieItem.js";
 import MainButton from "components/MainButton.js";
 import i18n from "i18n";
 import bearerToken from "assets/bearerToken.json";
-import { colors, spacing, TMDB_API_MOVIES_URL } from "modules/constants.js";
-import { autoAnimate, showToastAlert } from "modules/utils.js";
+import {
+  colors,
+  spacing,
+  TMDB_API_MOVIES_URL,
+  TOAST_HIDE_DELAY_LONG,
+} from "modules/constants.js";
+import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
+import Toast from "react-native-toast-message";
 
 const statusBarHeight = StatusBar.currentHeight;
 const windowHeight = Dimensions.get("window").height;
@@ -67,7 +72,10 @@ const ResultsScreen = ({ navigation, route }) => {
       .catch(() => {
         setLoading(false);
         navigation.pop();
-        showToastAlert(i18n.t("errors.fetch_results"), ToastAndroid.LONG);
+        Toast.show({
+          text2: i18n.t("errors.fetch_results"),
+          visibilityTime: TOAST_HIDE_DELAY_LONG,
+        });
       });
   };
 
@@ -111,7 +119,7 @@ const ResultsScreen = ({ navigation, route }) => {
     } catch (error) {
       setLoading(false);
       navigation.pop();
-      showToastAlert(i18n.t("errors.fetch_results"), ToastAndroid.LONG);
+      Toast.show({ text2: i18n.t("errors.fetch_results") });
     }
   };
 
