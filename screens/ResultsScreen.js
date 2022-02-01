@@ -15,10 +15,8 @@ import {
   Text,
   View,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 import MovieItem from "components/MovieItem.js";
-import MainButton from "components/MainButton.js";
 import i18n from "i18n";
 import tmdbAccessToken from "assets/tmdb_access_token.json";
 import {

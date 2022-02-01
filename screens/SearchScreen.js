@@ -274,15 +274,12 @@ const SearchScreen = ({ navigation }) => {
    * Called on "apply" button press
    */
   const applySelection = () => {
-    if (selectedArtists.length < 2 || selectedArtists.length > 10) {
-      Toast.show({ text2: i18n.t("errors.too_few_artists") });
-      return;
+    if (selectedArtists.length >= 2 && selectedArtists.length <= 10) {
+      navigation.navigate("ResultsScreen", {
+        artistIds: getSelectedArtistIds(),
+        artistNames: getSelectedArtistNames(),
+      });
     }
-
-    navigation.navigate("ResultsScreen", {
-      artistIds: getSelectedArtistIds(),
-      artistNames: getSelectedArtistNames(),
-    });
   };
 
   /**
@@ -511,18 +508,18 @@ const SearchScreen = ({ navigation }) => {
         icon={{ name: "close" }}
         placement="right"
         onPress={clearSelection}
-        style={styles.clearSelectionFab}
+        style={{ marginBottom: selectedArtists.length > 1 ? 90 : 20 }}
       />
       <View>
         <FAB
-          visible={selectedArtists.length > 0}
+          visible={selectedArtists.length > 1}
           icon={{ name: "arrow-forward" }}
           color="#62cc16"
           placement="right"
           onPress={applySelection}
           style={styles.applyFab}
         />
-        {selectedArtists.length > 0 && (
+        {selectedArtists.length > 1 && (
           <Badge
             containerStyle={styles.artistCounterContainer}
             value={selectedArtists.length}
@@ -599,10 +596,6 @@ const styles = StyleSheet.create({
 
   applyFab: {
     marginEnd: 0,
-  },
-
-  clearSelectionFab: {
-    marginBottom: 90,
   },
 
   artistCounterContainer: {
