@@ -5,7 +5,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   Dimensions,
   Image,
   SafeAreaView,
@@ -28,9 +27,9 @@ import {
 import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
 import Toast from "react-native-toast-message";
+import AwesomeAlert from "react-native-awesome-alerts";
 
 const statusBarHeight = StatusBar.currentHeight;
-const windowHeight = Dimensions.get("window").height;
 
 const ResultsScreen = ({ navigation, route }) => {
   // a list of fetched movies
@@ -43,6 +42,7 @@ const ResultsScreen = ({ navigation, route }) => {
   const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
   // whether individual movies of selected artists are shown, due to the absence of common movies
   const [showingIndividualMovies, setShowingIndividualMovies] = useState(false);
+  const [noResultsAlertVisible, setNoResultsAlertVisible] = useState(false);
 
   useEffect(() => {
     getMovies();
@@ -82,23 +82,17 @@ const ResultsScreen = ({ navigation, route }) => {
    * Informs the user with an alert and fetches movies starring
    * the selected artists.
    */
-  const getAllIndividualMovies = async (artists) => {
-    const title = i18n.t("results_screen.alert_title");
-    const message =
-      getAllArtistsNames(artists) +
-      " " +
-      i18n.t("results_screen.no_common_movies");
-    const movies = [];
-
-    Alert.alert(title, message, undefined, { cancelable: true });
-
+  const getAllIndividualMovies = async () => {
+    setNoResultsAlertVisible(true);
     autoAnimate();
     setShowingIndividualMovies(true);
     setLoading(true);
+    const movies = [];
 
     // fetching individual movies for max three of the selected artists only
-    for (const id of route.params.artistIds.split(",").slice(0, 3))
+    for (const id of route.params.artistIds.split(",").slice(0, 3)) {
       movies.push(...(await getIndividualMoviesForArtist(id)));
+    }
 
     autoAnimate();
     setLoading(false);
@@ -146,17 +140,20 @@ const ResultsScreen = ({ navigation, route }) => {
 
     if (areIndividual) return results;
 
-    const artists = parseArtistNames();
+    parseArtistNames();
 
-    if (results.length > 0) setMovieResults(results);
-    else await getAllIndividualMovies(artists);
+    if (results.length > 0) {
+      setMovieResults(results);
+    } else {
+      await getAllIndividualMovies();
+    }
   };
 
   const parseArtistNames = () => {
     const artists = [];
-
-    for (const name of route.params.artistNames.split(",")) artists.push(name);
-
+    for (const name of route.params.artistNames.split(",")) {
+      artists.push(name);
+    }
     setArtistNames(artists);
     // also returning result to use before the next render
     return artists;
@@ -173,20 +170,15 @@ const ResultsScreen = ({ navigation, route }) => {
   /**
    * Returns a string of all artists' names joined with commas
    */
-  const getAllArtistsNames = (artistsArray) => {
-    let artists;
-
-    if (artistsArray) artists = artistsArray;
-    else artists = artistNames;
-
+  const getAllArtistsNames = () => {
     // deliberately not using string templates as in this case it is much less readable
-    return artists.length === 2
-      ? artists[0] + " " + i18n.t("helpers.and") + " " + artists[1]
-      : artists.slice(0, -1).join(", ") +
+    return artistNames.length === 2
+      ? artistNames[0] + " " + i18n.t("helpers.and") + " " + artistNames[1]
+      : artistNames.slice(0, -1).join(", ") +
           " " +
           i18n.t("helpers.and") +
           " " +
-          artists[artists.length - 1];
+          artistNames[artistNames.length - 1];
   };
 
   /**
@@ -295,6 +287,22 @@ const ResultsScreen = ({ navigation, route }) => {
           style={globalStyles.loadingIndicator}
         />
       )}
+
+      <AwesomeAlert
+        show={noResultsAlertVisible}
+        title={i18n.t("results_screen.alert_title")}
+        message={
+          getAllArtistsNames() + " " + i18n.t("results_screen.no_common_movies")
+        }
+        closeOnTouchOutside
+        showConfirmButton
+        confirmText="OK"
+        onConfirmPressed={()=>setNoResultsAlertVisible(false)}
+        titleStyle={styles.noResultsAlertText}
+        messageStyle={styles.noResultsAlertText}
+        confirmButtonColor={null}
+        confirmButtonTextStyle={styles.noResultsAlertButtonText}
+      />
     </SafeAreaView>
   );
 };
@@ -346,11 +354,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 
-  noResultsText: {
-    alignSelf: "center",
-    position: "absolute",
-    top: windowHeight / 2,
-    textAlign: "center",
+  noResultsAlertText:{
+    color: "grey",
+  },
+
+  noResultsAlertButtonText:{
+    color: "grey",
+    opacity:1
   },
 });
 

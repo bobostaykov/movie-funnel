@@ -521,8 +521,10 @@ const SearchScreen = ({ navigation }) => {
         />
         {selectedArtists.length > 1 && (
           <Badge
+            status="warning"
             containerStyle={styles.artistCounterContainer}
             value={selectedArtists.length}
+            textStyle={styles.artistCounterText}
           />
         )}
       </View>
@@ -603,6 +605,10 @@ const styles = StyleSheet.create({
     top: -80,
     end: 0,
     padding: 3,
+  },
+
+  artistCounterText: {
+    color: "black",
   },
 
   hintMoreThan20Results: {

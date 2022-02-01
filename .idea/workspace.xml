@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Keyboard remove all listeners">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+    <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Use custom alert">
+      <changelist_data name="Boris" email="bobostaykov@gmail.com" date="1643749781000" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/screens/ResultsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/ResultsScreen.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/screens/SearchScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/SearchScreen.js" afterDir="false" />
@@ -18,6 +16,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Boris &lt;bobostaykov@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="dev" />
@@ -100,7 +103,7 @@
       <option name="presentableId" value="Default" />
       <updated>1659534310564</updated>
       <workItem from="1659534313956" duration="1976000" />
-      <workItem from="1665171755760" duration="677000" />
+      <workItem from="1665171755760" duration="2435000" />
     </task>
     <task id="LOCAL-00001" summary="Keyboard remove all listeners">
       <created>1659535740276</created>
@@ -109,7 +112,35 @@
       <option name="project" value="LOCAL" />
       <updated>1659535740276</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Rename TMDB access token">
+      <created>1665172718621</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1665172718621</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Update packages">
+      <created>1665172747736</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1665172747736</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Idea files">
+      <created>1665172764353</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1665172764353</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Only show &quot;apply&quot; button when more than 1 artist selected">
+      <created>1665173571893</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1665173571893</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -128,6 +159,11 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Keyboard remove all listeners" />
-    <option name="LAST_COMMIT_MESSAGE" value="Keyboard remove all listeners" />
+    <MESSAGE value="Rename TMDB access token" />
+    <MESSAGE value="Update packages" />
+    <MESSAGE value="Idea files" />
+    <MESSAGE value="Only show &quot;apply&quot; button when more than 1 artist selected" />
+    <MESSAGE value="Use custom alert" />
+    <option name="LAST_COMMIT_MESSAGE" value="Use custom alert" />
   </component>
 </project>
