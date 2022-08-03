@@ -88,18 +88,18 @@ const SearchScreen = ({ navigation }) => {
   useEffect(() => {
     fetchPopularArtists();
 
-    const didShowSubscription = Keyboard.addListener("keyboardDidShow", () => {
+    Keyboard.addListener("keyboardDidShow", () => {
       autoAnimate();
       setKeyboardVisible(true);
     });
-    const didHideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+    Keyboard.addListener("keyboardDidHide", () => {
       autoAnimate();
       setKeyboardVisible(false);
     });
 
     return () => {
-      Keyboard.removeSubscription(didShowSubscription);
-      Keyboard.removeSubscription(didHideSubscription);
+      Keyboard.removeAllListeners("keyboardDidShow");
+      Keyboard.removeAllListeners('keyboardDidHide');
     };
   }, []);
 
