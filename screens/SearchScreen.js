@@ -25,7 +25,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import MainButton from "components/MainButton.js";
 import ArtistItem from "components/ArtistItem.js";
 import i18n from "i18n";
-import bearerToken from "assets/bearerToken.json";
+import tmdbAccessToken from "assets/tmdb_access_token.json";
 import {
   ANIMATION_DURATION,
   colors,
@@ -113,7 +113,7 @@ const SearchScreen = ({ navigation }) => {
 
     fetch(TMDB_POPULAR_ARTISTS_URL, {
       headers: {
-        Authorization: "Bearer " + bearerToken,
+        Authorization: "Bearer " + tmdbAccessToken,
       },
     })
       .then((result) => {
@@ -142,7 +142,7 @@ const SearchScreen = ({ navigation }) => {
 
     fetch(TMDB_API_ARTISTS_URL + encodeURI(term), {
       headers: {
-        Authorization: "Bearer " + bearerToken,
+        Authorization: "Bearer " + tmdbAccessToken,
       },
     })
       .then((result) => {

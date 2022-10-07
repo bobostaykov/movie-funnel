@@ -20,7 +20,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import MovieItem from "components/MovieItem.js";
 import MainButton from "components/MainButton.js";
 import i18n from "i18n";
-import bearerToken from "assets/bearerToken.json";
+import tmdbAccessToken from "assets/tmdb_access_token.json";
 import {
   colors,
   spacing,
@@ -60,7 +60,7 @@ const ResultsScreen = ({ navigation, route }) => {
 
     fetch(TMDB_API_MOVIES_URL + route.params.artistIds, {
       headers: {
-        Authorization: "Bearer " + bearerToken,
+        Authorization: "Bearer " + tmdbAccessToken,
       },
     })
       .then((result) => result.json())
@@ -111,7 +111,7 @@ const ResultsScreen = ({ navigation, route }) => {
     try {
       const result = await fetch(TMDB_API_MOVIES_URL + id, {
         headers: {
-          Authorization: "Bearer " + bearerToken,
+          Authorization: "Bearer " + tmdbAccessToken,
         },
       });
       const json = await result.json();
