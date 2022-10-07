@@ -8,6 +8,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
+  Button,
   Dimensions,
   Image,
   Keyboard,
@@ -40,7 +41,6 @@ import {
 } from "modules/constants.js";
 import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
-import { Badge, FAB } from "react-native-elements";
 import Toast from "react-native-toast-message";
 
 const windowWidth = Dimensions.get("window").width;
@@ -501,33 +501,31 @@ const SearchScreen = ({ navigation }) => {
         {isNoResultsVisible() && <NoResults />}
       </Animated.ScrollView>
 
-      <FAB
-        visible={selectedArtists.length > 0}
-        size="small"
-        color="red"
-        icon={{ name: "close" }}
-        placement="right"
-        onPress={clearSelection}
-        style={{ marginBottom: selectedArtists.length > 1 ? 90 : 20 }}
-      />
-      <View>
-        <FAB
-          visible={selectedArtists.length > 1}
-          icon={{ name: "arrow-forward" }}
-          color="#62cc16"
-          placement="right"
-          onPress={applySelection}
-          style={styles.applyFab}
+      {selectedArtists.length > 0 && (
+        <Button
+          style={{
+            backgroundColor: "red",
+            marginBottom: selectedArtists.length > 1 ? 90 : 20,
+            width: 20,
+            height: 20,
+            borderRadius: 10,
+          }}
+          title="clear"
+          onPress={clearSelection}
         />
-        {selectedArtists.length > 1 && (
-          <Badge
-            status="warning"
-            containerStyle={styles.artistCounterContainer}
-            value={selectedArtists.length}
-            textStyle={styles.artistCounterText}
-          />
-        )}
-      </View>
+      )}
+      {selectedArtists.length > 1 && (
+        <Button
+          style={{
+            backgroundColor: "green",
+            width: 20,
+            height: 20,
+            borderRadius: 10,
+          }}
+          title="go"
+          onPress={applySelection}
+        />
+      )}
 
       {loading && (
         <Image

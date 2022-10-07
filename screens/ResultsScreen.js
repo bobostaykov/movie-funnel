@@ -5,7 +5,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   Image,
   SafeAreaView,
   ScrollView,
@@ -28,6 +27,8 @@ import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
 import Toast from "react-native-toast-message";
 import AwesomeAlert from "react-native-awesome-alerts";
+import MainButton from "../components/MainButton";
+// import {Icon} from "react-native-vector-icons/index";
 
 const statusBarHeight = StatusBar.currentHeight;
 
@@ -256,7 +257,7 @@ const ResultsScreen = ({ navigation, route }) => {
         <View style={styles.header}>
           {!loading && (
             <MainButton
-              icon={<Icon name="arrow-back" size={20} color="black" />}
+              // icon={<Icon name="arrow-back" size={20} color="black" />}
               style={styles.backButton}
               onPress={() => navigation.pop()}
             />

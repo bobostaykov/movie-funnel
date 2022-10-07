@@ -18,11 +18,9 @@ import Toast, {
   InfoToast,
   SuccessToast,
 } from "react-native-toast-message";
-import { useTheme } from "react-native-elements";
 
 const App = () => {
   const Stack = createStackNavigator();
-  const { theme } = useTheme();
 
   const createStack = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -38,7 +36,7 @@ const App = () => {
     </Stack.Navigator>
   );
 
-  const text2Style = { fontSize: 14, color: theme.colors.grey1 };
+  const text2Style = { fontSize: 14, color: "grey" };
 
   const toastConfig = {
     info: (props) => <InfoToast {...props} text2Style={text2Style} />,

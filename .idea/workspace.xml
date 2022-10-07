@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Use custom alert">
-      <changelist_data name="Boris" email="bobostaykov@gmail.com" date="1643749781000" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/screens/ResultsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/ResultsScreen.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/screens/SearchScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/SearchScreen.js" afterDir="false" />
@@ -54,6 +56,10 @@
       </RecentBranches>
     </option>
   </component>
+  <component name="JiraServerManager">
+    <selected>-1</selected>
+    <servers />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -63,19 +69,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Project.color&quot;: &quot;39ca2c&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\bobos\\Documents\\Coding\\ActorParty\\node_modules\\prettier&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Project.color": "39ca2c",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\bobos\\Documents\\Coding\\ActorParty\\node_modules\\prettier",
+    "settings.editor.selected.configurable": "preferences.keymap"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -103,7 +110,7 @@
       <option name="presentableId" value="Default" />
       <updated>1659534310564</updated>
       <workItem from="1659534313956" duration="1976000" />
-      <workItem from="1665171755760" duration="2435000" />
+      <workItem from="1665171755760" duration="5831000" />
     </task>
     <task id="LOCAL-00001" summary="Keyboard remove all listeners">
       <created>1659535740276</created>
@@ -140,7 +147,21 @@
       <option name="project" value="LOCAL" />
       <updated>1665173571893</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Use custom alert">
+      <created>1665174353637</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1665174353637</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Use custom alert">
+      <created>1665174364658</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1665174364658</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -161,8 +182,8 @@
     <MESSAGE value="Keyboard remove all listeners" />
     <MESSAGE value="Rename TMDB access token" />
     <MESSAGE value="Update packages" />
-    <MESSAGE value="Idea files" />
     <MESSAGE value="Only show &quot;apply&quot; button when more than 1 artist selected" />
+    <MESSAGE value="Idea files" />
     <MESSAGE value="Use custom alert" />
     <option name="LAST_COMMIT_MESSAGE" value="Use custom alert" />
   </component>
