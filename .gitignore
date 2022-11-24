@@ -14,4 +14,4 @@ web-build/
 
 # other
 assets/tmdb_access_token.json
-.idea
+.history
