@@ -16,7 +16,7 @@ import {
 
 import MovieItem from "components/MovieItem.js";
 import i18n from "i18n";
-import tmdbAccessToken from "assets/tmdb_access_token.json";
+import tmdbAccessToken from "../assets/tmdb_access_token.json";
 import {
   colors,
   spacing,

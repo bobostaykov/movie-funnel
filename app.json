@@ -25,6 +25,11 @@
     "android": {
       "package": "com.bobostaykov.ActorParty"
     },
-    "description": ""
+    "description": "",
+    "extra": {
+      "eas": {
+        "projectId": "a2128e76-9994-45f3-a9c1-3f19e36ef67f"
+      }
+    }
   }
 }
