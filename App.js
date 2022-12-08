@@ -1,21 +1,59 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+/**
+ * Starting point of the app. Navigation is managed here.
+ */
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+import React from "react";
+import { StyleSheet } from "react-native";
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+} from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+
+import SearchScreen from "screens/SearchScreen.js";
+import ResultsScreen from "screens/ResultsScreen.js";
+import { SafeAreaProvider } from "react-native-safe-area-context/src/SafeAreaContext";
+import Toast, {
+  ErrorToast,
+  InfoToast,
+  SuccessToast,
+} from "react-native-toast-message";
+
+const App = () => {
+  const Stack = createStackNavigator();
+
+  const createStack = () => (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/*<Stack.Screen name='CustomSplashScreen' component={CustomSplashScreen}/>*/}
+      <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen
+        name="ResultsScreen"
+        component={ResultsScreen}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+    </Stack.Navigator>
   );
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  const text2Style = { fontSize: 14, color: "grey" };
+
+  const toastConfig = {
+    info: (props) => <InfoToast {...props} text2Style={text2Style} />,
+    success: (props) => <SuccessToast {...props} text2Style={text2Style} />,
+    error: (props) => <ErrorToast {...props} text2Style={text2Style} />,
+  };
+
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        {createStack()}
+        <Toast position="bottom" type="info" config={toastConfig} />
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
+};
+
+const styles = StyleSheet.create({});
+
+export default App;

@@ -1,2 +1,2 @@
-# MovieSpitter
-An app that spits a list of movies based on certain criteria
+# ActorParty
+An app that shows a list of movies based on certain criteria
