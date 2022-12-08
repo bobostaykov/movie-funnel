@@ -1,5 +1,5 @@
 /**
- * i18n-js is a library for internationalisation,
+ * i18n-js is a library for internationalization,
  * so the app can be easily translated to any language.
  *
  * JSON files with the translations of all strings in the
@@ -8,7 +8,7 @@
  */
 
 import i18n from "i18n-js";
-import * as Localization from "expo-localization";
+import * as Localization from "react-native-localization";
 
 import en from "./en.json";
 import bg from "./bg.json";

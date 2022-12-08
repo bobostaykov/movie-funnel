@@ -8,7 +8,7 @@ import {
   TMDB_ARTIST_PAGE_URL,
   TMDB_MOVIE_PAGE_URL,
 } from "modules/constants.js";
-import * as WebBrowser from "expo-web-browser";
+import { InAppBrowser } from 'react-native-inappbrowser-reborn'
 import i18n from "i18n";
 import Toast from "react-native-toast-message";
 
@@ -37,14 +37,16 @@ export const autoAnimate = (duration = ANIMATION_DURATION) => {
 };
 
 export const openMovieOrArtistURL = async (id, isArtist = false) => {
-  WebBrowser.openBrowserAsync(
-    (isArtist ? TMDB_ARTIST_PAGE_URL : TMDB_MOVIE_PAGE_URL) + id
-  )
-    .then((result) => {
-      if (!result) {
-        // tell the user URL can't be opened
-        Toast.show({ text2: i18n.t("errors.web_page") });
-      }
-    })
-    .catch(() => Toast.show({ text2: i18n.t("errors.web_page") }));
+  if (await InAppBrowser.isAvailable()) {
+    InAppBrowser.open(
+      (isArtist ? TMDB_ARTIST_PAGE_URL : TMDB_MOVIE_PAGE_URL) + id
+    )
+      .then((result) => {
+        if (!result) {
+          // tell the user URL can't be opened
+          Toast.show({ text2: i18n.t("errors.web_page") });
+        }
+      })
+      .catch(() => Toast.show({ text2: i18n.t("errors.web_page") }));
+  }
 };

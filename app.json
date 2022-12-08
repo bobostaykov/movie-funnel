@@ -1,35 +1,4 @@
 {
-  "expo": {
-    "name": "ActorParty",
-    "slug": "ActorParty",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "android": {
-      "package": "com.bobostaykov.ActorParty"
-    },
-    "description": "",
-    "extra": {
-      "eas": {
-        "projectId": "a2128e76-9994-45f3-a9c1-3f19e36ef67f"
-      }
-    }
-  }
+  "name": "ActorParty",
+  "displayName": "ActorParty"
 }

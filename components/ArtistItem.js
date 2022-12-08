@@ -52,7 +52,7 @@ const ArtistItem = ({
       .then((result) => {
         setHasPhoto(result.status !== 404);
       })
-      .catch(() => setHasPhoto(false));
+      .catch((e) => {console.log('error:', e.message); setHasPhoto(false)});
   };
 
   /**

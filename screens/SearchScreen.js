@@ -26,7 +26,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import MainButton from "components/MainButton.js";
 import ArtistItem from "components/ArtistItem.js";
 import i18n from "i18n";
-import tmdbAccessToken from "../assets/tmdb_access_token.json";
+import tmdbAccessToken from "assets/tmdb_access_token.json";
 import {
   ANIMATION_DURATION,
   colors,
@@ -334,7 +334,7 @@ const SearchScreen = ({ navigation }) => {
     !loading &&
     searchResults[searchResults.length - 1] &&
     searchResults[searchResults.length - 1].name ===
-      MORE_THAN_20_SEARCH_RESULTS;
+    MORE_THAN_20_SEARCH_RESULTS;
 
   // --- COMPONENTS ---
 
@@ -360,9 +360,9 @@ const SearchScreen = ({ navigation }) => {
       <Text style={styles.title}>
         {searchResults.length > 0 &&
           i18n.t("search_screen.title_showing_results") +
-            ' "' +
-            searchTerm +
-            '":'}
+          ' "' +
+          searchTerm +
+          '":'}
       </Text>
     ) : (
       <Text style={styles.title}>
