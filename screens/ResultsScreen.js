@@ -298,7 +298,7 @@ const ResultsScreen = ({ navigation, route }) => {
         closeOnTouchOutside
         showConfirmButton
         confirmText="OK"
-        onConfirmPressed={()=>setNoResultsAlertVisible(false)}
+        onConfirmPressed={() => setNoResultsAlertVisible(false)}
         titleStyle={styles.noResultsAlertText}
         messageStyle={styles.noResultsAlertText}
         confirmButtonColor={null}
@@ -355,13 +355,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 
-  noResultsAlertText:{
+  noResultsAlertText: {
     color: "grey",
   },
 
-  noResultsAlertButtonText:{
+  noResultsAlertButtonText: {
     color: "grey",
-    opacity:1
+    opacity: 1,
   },
 });
 

@@ -99,7 +99,7 @@ const SearchScreen = ({ navigation }) => {
 
     return () => {
       Keyboard.removeAllListeners("keyboardDidShow");
-      Keyboard.removeAllListeners('keyboardDidHide');
+      Keyboard.removeAllListeners("keyboardDidHide");
     };
   }, []);
 
@@ -334,7 +334,7 @@ const SearchScreen = ({ navigation }) => {
     !loading &&
     searchResults[searchResults.length - 1] &&
     searchResults[searchResults.length - 1].name ===
-    MORE_THAN_20_SEARCH_RESULTS;
+      MORE_THAN_20_SEARCH_RESULTS;
 
   // --- COMPONENTS ---
 
@@ -360,9 +360,9 @@ const SearchScreen = ({ navigation }) => {
       <Text style={styles.title}>
         {searchResults.length > 0 &&
           i18n.t("search_screen.title_showing_results") +
-          ' "' +
-          searchTerm +
-          '":'}
+            ' "' +
+            searchTerm +
+            '":'}
       </Text>
     ) : (
       <Text style={styles.title}>
