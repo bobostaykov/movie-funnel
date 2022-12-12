@@ -67,3 +67,4 @@ buck-out/
 /.history
 /dist
 /assets/tmdb_access_token.json
+/.vscode

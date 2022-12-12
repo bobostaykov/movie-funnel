@@ -8,7 +8,7 @@ import {
   TMDB_ARTIST_PAGE_URL,
   TMDB_MOVIE_PAGE_URL,
 } from "modules/constants.js";
-import { InAppBrowser } from 'react-native-inappbrowser-reborn'
+import { InAppBrowser } from "react-native-inappbrowser-reborn";
 import i18n from "i18n";
 import Toast from "react-native-toast-message";
 

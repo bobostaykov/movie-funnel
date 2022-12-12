@@ -4,13 +4,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 import {
@@ -52,7 +46,10 @@ const ArtistItem = ({
       .then((result) => {
         setHasPhoto(result.status !== 404);
       })
-      .catch((e) => {console.log('error:', e.message); setHasPhoto(false)});
+      .catch((e) => {
+        console.log("error:", e.message);
+        setHasPhoto(false);
+      });
   };
 
   /**
