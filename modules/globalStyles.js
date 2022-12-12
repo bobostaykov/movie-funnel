@@ -1,5 +1,5 @@
-import { Dimensions, StyleSheet } from "react-native";
 import { LOADING_INDICATOR_DIAMETER } from "modules/constants.js";
+import { Dimensions, StyleSheet } from "react-native";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;

@@ -16,19 +16,19 @@ import {
 
 import MovieItem from "components/MovieItem.js";
 import i18n from "i18n";
-import tmdbAccessToken from "../assets/tmdb_access_token.json";
 import {
   colors,
   spacing,
   TMDB_API_MOVIES_URL,
   TOAST_HIDE_DELAY_LONG,
 } from "modules/constants.js";
-import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
-import Toast from "react-native-toast-message";
+import { autoAnimate } from "modules/utils.js";
 import AwesomeAlert from "react-native-awesome-alerts";
-import MainButton from "../components/MainButton";
+import Toast from "react-native-toast-message";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import tmdbAccessToken from "../assets/tmdb_access_token.json";
+import MainButton from "../components/MainButton";
 
 const statusBarHeight = StatusBar.currentHeight;
 

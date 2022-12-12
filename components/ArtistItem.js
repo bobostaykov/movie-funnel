@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
+import i18n from "i18n";
 import {
   DEFAULT_BORDER_RADIUS,
   ITEM_TEXT_LINE_HEIGHT,
@@ -14,7 +15,6 @@ import {
   spacing,
   TMDB_IMAGE_URL,
 } from "modules/constants.js";
-import i18n from "i18n";
 import { openMovieOrArtistURL } from "modules/utils.js";
 
 const ITEM_HEIGHT = 150;

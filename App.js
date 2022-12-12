@@ -2,22 +2,22 @@
  * Starting point of the app. Navigation is managed here.
  */
 
-import React from "react";
-import { StyleSheet } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
 import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
+import React from "react";
+import { StyleSheet } from "react-native";
 
-import SearchScreen from "screens/SearchScreen.js";
-import ResultsScreen from "screens/ResultsScreen.js";
 import { SafeAreaProvider } from "react-native-safe-area-context/src/SafeAreaContext";
 import Toast, {
   ErrorToast,
   InfoToast,
   SuccessToast,
 } from "react-native-toast-message";
+import ResultsScreen from "screens/ResultsScreen.js";
+import SearchScreen from "screens/SearchScreen.js";
 
 const App = () => {
   const Stack = createStackNavigator();

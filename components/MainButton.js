@@ -3,13 +3,13 @@
  * with an option to adjust the style
  */
 
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
   DEFAULT_BORDER_RADIUS,
   OPACITY_ON_PRESS,
   spacing,
 } from "modules/constants.js";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const MainButton = ({ onPress, text, icon, style, getWidth }) => (
   <TouchableOpacity

@@ -4,6 +4,7 @@
     "paths": {
       "app": ["./App.js"],
       "i18n": ["./i18n/i18n.js"]
-    }
+    },
+    "jsx": "react-native"
   }
 }

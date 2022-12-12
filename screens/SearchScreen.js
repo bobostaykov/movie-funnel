@@ -23,10 +23,10 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-import MainButton from "components/MainButton.js";
-import ArtistItem from "components/ArtistItem.js";
-import i18n from "i18n";
 import tmdbAccessToken from "assets/tmdb_access_token.json";
+import ArtistItem from "components/ArtistItem.js";
+import MainButton from "components/MainButton.js";
+import i18n from "i18n";
 import {
   ANIMATION_DURATION,
   colors,
@@ -39,8 +39,8 @@ import {
   TMDB_API_ARTISTS_URL,
   TMDB_POPULAR_ARTISTS_URL,
 } from "modules/constants.js";
-import { autoAnimate } from "modules/utils.js";
 import { globalStyles } from "modules/globalStyles.js";
+import { autoAnimate } from "modules/utils.js";
 import Toast from "react-native-toast-message";
 
 const windowWidth = Dimensions.get("window").width;

@@ -2,14 +2,14 @@
  * File with global helper functions
  */
 
-import { LayoutAnimation, Platform, UIManager } from "react-native";
+import i18n from "i18n";
 import {
   ANIMATION_DURATION,
   TMDB_ARTIST_PAGE_URL,
   TMDB_MOVIE_PAGE_URL,
 } from "modules/constants.js";
+import { LayoutAnimation, Platform, UIManager } from "react-native";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
-import i18n from "i18n";
 import Toast from "react-native-toast-message";
 
 export const platformAndroid = Platform.OS === "android";
