@@ -13,25 +13,16 @@ import {
   Image,
   Keyboard,
   RefreshControl,
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 import tmdbAccessToken from "assets/tmdb_access_token.json";
 import ArtistItem from "components/ArtistItem.js";
-import MainButton from "components/MainButton.js";
 import i18n from "i18n";
 import {
   ANIMATION_DURATION,
-  colors,
-  DEFAULT_BORDER_RADIUS,
-  DEFAULT_HIT_SLOP,
   MAX_RESULTS_SHOWN,
   MORE_THAN_20_SEARCH_RESULTS,
   POPULAR_ARTISTS_NUMBER,
@@ -40,12 +31,11 @@ import {
   TMDB_POPULAR_ARTISTS_URL,
 } from "modules/constants.js";
 import { globalStyles } from "modules/globalStyles.js";
-import { autoAnimate } from "modules/utils.js";
+import { autoAnimate, platformAndroid } from "modules/utils.js";
+import { ArrowBackIcon, Box, IconButton, Input } from "native-base";
 import Toast from "react-native-toast-message";
 
 const windowWidth = Dimensions.get("window").width;
-const statusBarHeight = StatusBar.currentHeight;
-const backButtonMargin = 6;
 
 const SearchScreen = ({ navigation }) => {
   // storing the names and IDs of all the selected actors/directors
@@ -70,8 +60,6 @@ const SearchScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   // whether keyboard is currently on screen
   const [, setKeyboardVisible] = useState(false);
-  // search button width, calculated on button layout
-  const [backButtonWidth, setBackButtonWidth] = useState(0);
   /*
     whether results are fully fetched, used to show "no results"
     text with a delay, otherwise it shows for a moment before the
@@ -262,15 +250,6 @@ const SearchScreen = ({ navigation }) => {
   };
 
   /**
-   * Called on "clear" icon press
-   */
-  const clearSearchHandler = () => {
-    autoAnimate();
-    setIntermediateSearchValue("");
-    nameInput.current.focus();
-  };
-
-  /**
    * Called on "apply" button press
    */
   const applySelection = () => {
@@ -387,54 +366,32 @@ const SearchScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.outerContainer}>
-      {/* search bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          ref={nameInput}
-          value={intermediateSearchValue}
-          onChangeText={setIntermediateSearchValue}
-          placeholder={i18n.t("search_screen.input_placeholder")}
-          returnKeyType="search"
-          onSubmitEditing={searchHandler}
-          style={[
-            styles.nameInput,
-            {
-              paddingStart: searching
-                ? backButtonWidth + backButtonMargin * 2 + 4
-                : spacing.defaultPadding,
-            },
-          ]}
-        />
-
-        {searching && (
-          <MainButton
-            icon={<Icon name="arrow-back" size={20} color="black" />}
-            getWidth={setBackButtonWidth}
-            // make "search" and "back" buttons the same size
-            style={styles.backButton}
-            onPress={backHandler}
-          />
-        )}
-
-        {searching && (
-          <TouchableOpacity
-            onPress={clearSearchHandler}
-            hitSlop={DEFAULT_HIT_SLOP}
-            style={styles.clearSearchIcon}
-          >
-            <Icon name="backspace" size={20} color="grey" />
-          </TouchableOpacity>
-        )}
-
-        {(!searching || intermediateSearchValue !== searchTerm) && (
-          <MainButton
-            icon={<Icon name="search" size={20} color="black" />}
-            style={styles.searchButton}
-            onPress={searchHandler}
-          />
-        )}
-      </View>
+    <Box style={styles.outerContainer} safeAreaTop={platformAndroid && 4}>
+      <Input
+        ref={nameInput}
+        value={intermediateSearchValue}
+        onChangeText={setIntermediateSearchValue}
+        placeholder={i18n.t("search_screen.input_placeholder")}
+        returnKeyType="search"
+        onSubmitEditing={searchHandler}
+        blurOnSubmit
+        selectTextOnFocus
+        // Workaround for selectTextOnFocus not working on iOS
+        multiline
+        rounded="md"
+        py={platformAndroid ? 1.5 : 3}
+        InputLeftElement={
+          searching && (
+            <IconButton
+              icon={<ArrowBackIcon color="grey" />}
+              colorScheme="grey"
+              rounded="full"
+              onPress={backHandler}
+              mr={-1}
+            />
+          )
+        }
+      />
 
       {/* main container */}
       <Animated.ScrollView
@@ -533,7 +490,7 @@ const SearchScreen = ({ navigation }) => {
           style={globalStyles.loadingIndicator}
         />
       )}
-    </SafeAreaView>
+    </Box>
   );
 };
 
@@ -541,44 +498,7 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     justifyContent: "center",
-    marginTop: statusBarHeight,
     paddingHorizontal: spacing.defaultPadding,
-    paddingTop: 5,
-  },
-
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  nameInput: {
-    flex: 1,
-    borderWidth: 2,
-    borderColor: "grey",
-    borderRadius: DEFAULT_BORDER_RADIUS,
-    paddingVertical: 10,
-    paddingEnd: spacing.defaultPadding,
-  },
-
-  backButton: {
-    position: "absolute",
-    start: backButtonMargin,
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: colors.cyan,
-  },
-
-  searchButton: {
-    position: "absolute",
-    end: backButtonMargin,
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: colors.cyan,
-  },
-
-  clearSearchIcon: {
-    position: "absolute",
-    end: spacing.defaultMargin,
   },
 
   resultsContainer: {

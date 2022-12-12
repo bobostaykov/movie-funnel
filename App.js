@@ -16,6 +16,7 @@ import Toast, {
   InfoToast,
   SuccessToast,
 } from "react-native-toast-message";
+import { extendTheme, NativeBaseProvider } from "native-base";
 import ResultsScreen from "screens/ResultsScreen.js";
 import SearchScreen from "screens/SearchScreen.js";
 
@@ -45,12 +46,14 @@ const App = () => {
   };
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        {createStack()}
-        <Toast position="bottom" type="info" config={toastConfig} />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <NativeBaseProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          {createStack()}
+          <Toast position="bottom" type="info" config={toastConfig} />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </NativeBaseProvider>
   );
 };
 
