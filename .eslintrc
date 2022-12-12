@@ -1,0 +1,9 @@
+{
+  "root": true,
+  "extends": "@react-native-community",
+  "rules": {
+    "quotes": "off",
+    "curly": "off",
+    "react-hooks/exhaustive-deps": "off"
+  }
+}
