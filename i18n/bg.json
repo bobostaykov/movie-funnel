@@ -12,7 +12,7 @@
   "search_screen": {
     "title_loading_popular": "Зареждане на популярни актьори и режисьори...",
     "title_showing_popular": "Популярни актьори и режисьори:",
-    "input_placeholder": "Въведи име на актьор или режисьор на английски",
+    "input_placeholder": "Потърси актьор или режисьор на английски",
     "title_loading_results": "Търсене...",
     "title_showing_results": "Резултати за",
     "hint_showing_20_results": "Резултатите бяха скъсени до 20",

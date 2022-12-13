@@ -12,7 +12,7 @@
   "search_screen": {
     "title_loading_popular": "Loading popular actors and directors...",
     "title_showing_popular": "Popular actors and directors:",
-    "input_placeholder": "Enter an actor or director name",
+    "input_placeholder": "Search for an actor or director",
     "title_loading_results": "Searching...",
     "title_showing_results": "Results for",
     "hint_showing_20_results": "Results were truncated to 20",
