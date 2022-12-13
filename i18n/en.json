@@ -22,11 +22,11 @@
   },
   "results_screen": {
     "title_searching": "Searching...",
-    "title_common_movies": "Common movies of:",
+    "title_common_movies": "Movies in common for:",
     "title_individual_movies": "Movies starring:",
     "expand_names": "show all",
     "collapse_names": "hide",
-    "no_common_movies": "don't have any common movies yet... Check out their individual movies instead!",
+    "no_common_movies": "don't have any movies in common yet... Check out their individual movies instead!",
     "alert_title": "No results"
   },
   "helpers": {

@@ -4,33 +4,30 @@
  */
 
 import React, { useEffect, useState } from "react";
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 
 import MovieItem from "components/MovieItem.js";
 import i18n from "i18n";
 import {
-  colors,
-  spacing,
   TMDB_API_MOVIES_URL,
   TOAST_HIDE_DELAY_LONG,
 } from "modules/constants.js";
 import { globalStyles } from "modules/globalStyles.js";
-import { autoAnimate } from "modules/utils.js";
-import AwesomeAlert from "react-native-awesome-alerts";
+import { autoAnimate, platformAndroid } from "modules/utils.js";
+import {
+  AlertDialog,
+  ArrowBackIcon,
+  Box,
+  Button,
+  Center,
+  Heading,
+  IconButton,
+  Image,
+  Row,
+  ScrollView,
+  Text,
+} from "native-base";
 import Toast from "react-native-toast-message";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import tmdbAccessToken from "../assets/tmdb_access_token.json";
-import MainButton from "../components/MainButton";
-
-const statusBarHeight = StatusBar.currentHeight;
 
 const ResultsScreen = ({ navigation, route }) => {
   // a list of fetched movies
@@ -56,7 +53,6 @@ const ResultsScreen = ({ navigation, route }) => {
    */
   const getMovies = () => {
     setLoading(true);
-
     fetch(TMDB_API_MOVIES_URL + route.params.artistIds, {
       headers: {
         Authorization: "Bearer " + tmdbAccessToken,
@@ -211,21 +207,25 @@ const ResultsScreen = ({ navigation, route }) => {
   // --- COMPONENTS ---
 
   const ExpandedArtistNames = () => (
-    <View>
-      <Text style={styles.subtitle}>{getAllArtistsNames()}</Text>
+    <Center>
+      <Text mx="15%" fontSize={13} textAlign="center">
+        {getAllArtistsNames()}
+      </Text>
       {artistNames.length > 2 && <ToggleButton />}
-    </View>
+    </Center>
   );
 
   const CollapsedArtistNames = () => (
-    <View>
-      <Text style={styles.subtitle}>{getArtistsNamesShortened()}</Text>
+    <Center>
+      <Text mx="15%" fontSize={13} textAlign="center">
+        {getArtistsNamesShortened()}
+      </Text>
       {artistNames.length > 2 && <ToggleButton />}
-    </View>
+    </Center>
   );
 
   const ToggleButton = () => (
-    <Text style={styles.toggleButton} onPress={toggleArtistNamesExpanded}>
+    <Text color="blue.700" onPress={toggleArtistNamesExpanded}>
       {artistNamesExpanded
         ? i18n.t("results_screen.collapse_names")
         : i18n.t("results_screen.expand_names")}
@@ -233,136 +233,93 @@ const ResultsScreen = ({ navigation, route }) => {
   );
 
   const TitleResults = () => (
-    <View style={styles.titleResults}>
-      <Text style={styles.title}>
+    <Box flex={1} alignItems="center">
+      <Heading>
         {showingIndividualMovies
           ? i18n.t("results_screen.title_individual_movies")
           : i18n.t("results_screen.title_common_movies")}
-      </Text>
+      </Heading>
       {artistNamesExpanded || artistNames.length === 2 ? (
         <ExpandedArtistNames />
       ) : (
         <CollapsedArtistNames />
       )}
-    </View>
+    </Box>
   );
 
   const TitleSearching = () => (
-    <Text style={styles.title}>{i18n.t("results_screen.title_searching")}</Text>
+    <Heading flex={1} textAlign="center">
+      {i18n.t("results_screen.title_searching")}
+    </Heading>
   );
 
   return (
-    <SafeAreaView style={styles.pageContainer}>
-      <ScrollView contentContainerStyle={styles.resultsContainer}>
-        <View style={styles.header}>
-          {!loading && (
-            <MainButton
-              icon={<Icon name="arrow-back" size={20} color="black" />}
-              style={styles.backButton}
-              onPress={() => navigation.pop()}
-            />
-          )}
+    <Box safeAreaTop={platformAndroid && 2} flex={1} px={4}>
+      <Row mb={2} justifyContent="center">
+        {!loading && (
+          <IconButton
+            my="auto"
+            icon={<ArrowBackIcon size={5} color="gray.700" />}
+            rounded="md"
+            onPress={() => navigation.pop()}
+          />
+        )}
 
-          {loading ? (
-            <TitleSearching />
-          ) : (
-            movieResults.length > 0 && <TitleResults />
-          )}
-        </View>
+        {loading ? (
+          <TitleSearching />
+        ) : (
+          movieResults.length > 0 && <TitleResults />
+        )}
+      </Row>
 
+      <ScrollView>
         {movieResults.map((item, index) => (
           <MovieItem
+            key={index}
             title={item.title}
             overview={item.overview}
             posterPath={item.posterPath}
             id={item.id}
             rating={item.rating}
-            key={index}
           />
         ))}
       </ScrollView>
 
       {loading && (
         <Image
+          alt="Loading indicator"
           source={require("assets/loading_indicator.gif")}
           style={globalStyles.loadingIndicator}
         />
       )}
 
-      <AwesomeAlert
-        show={noResultsAlertVisible}
-        title={i18n.t("results_screen.alert_title")}
-        message={
-          getAllArtistsNames() + " " + i18n.t("results_screen.no_common_movies")
-        }
-        closeOnTouchOutside
-        showConfirmButton
-        confirmText="OK"
-        onConfirmPressed={() => setNoResultsAlertVisible(false)}
-        titleStyle={styles.noResultsAlertText}
-        messageStyle={styles.noResultsAlertText}
-        confirmButtonColor={null}
-        confirmButtonTextStyle={styles.noResultsAlertButtonText}
-      />
-    </SafeAreaView>
+      <AlertDialog
+        isOpen={noResultsAlertVisible}
+        onClose={() => setNoResultsAlertVisible(false)}
+        animationPreset="fade"
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Header alignItems="center" borderBottomWidth={0}>
+            {i18n.t("results_screen.alert_title")}
+          </AlertDialog.Header>
+          <AlertDialog.Body py={0}>
+            <Text textAlign="center">{`${getAllArtistsNames()} ${i18n.t(
+              "results_screen.no_common_movies"
+            )}`}</Text>
+          </AlertDialog.Body>
+          <AlertDialog.Footer justifyContent="center" borderTopWidth={0}>
+            <Button
+              variant="ghost"
+              colorScheme="black"
+              onPress={() => setNoResultsAlertVisible(false)}
+            >
+              OK
+            </Button>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
+    </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    paddingTop: statusBarHeight,
-    paddingHorizontal: spacing.defaultPadding,
-  },
-
-  header: {
-    flexDirection: "row",
-    marginBottom: spacing.defaultMargin,
-  },
-
-  backButton: {
-    backgroundColor: colors.cyan,
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-
-  titleResults: {
-    alignItems: "center",
-    flex: 1,
-  },
-
-  title: {
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-
-  subtitle: {
-    width: "auto",
-    height: "auto",
-    marginHorizontal: "15%",
-    fontSize: 15,
-    textAlign: "center",
-  },
-
-  toggleButton: {
-    alignSelf: "center",
-    color: "blue",
-    marginBottom: spacing.defaultMargin,
-  },
-
-  resultsContainer: {
-    alignItems: "center",
-    width: "100%",
-  },
-
-  noResultsAlertText: {
-    color: "grey",
-  },
-
-  noResultsAlertButtonText: {
-    color: "grey",
-    opacity: 1,
-  },
-});
 
 export default ResultsScreen;
