@@ -8,14 +8,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Button,
   Dimensions,
-  Image,
   Keyboard,
   RefreshControl,
   StyleSheet,
-  Text,
-  View,
 } from "react-native";
 
 import tmdbAccessToken from "assets/tmdb_access_token.json";
@@ -26,13 +22,25 @@ import {
   MAX_RESULTS_SHOWN,
   MORE_THAN_20_SEARCH_RESULTS,
   POPULAR_ARTISTS_NUMBER,
-  spacing,
   TMDB_API_ARTISTS_URL,
   TMDB_POPULAR_ARTISTS_URL,
 } from "modules/constants.js";
 import { globalStyles } from "modules/globalStyles.js";
 import { autoAnimate, platformAndroid } from "modules/utils.js";
-import { ArrowBackIcon, Box, IconButton, Input } from "native-base";
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  Box,
+  Center,
+  CloseIcon,
+  Fab,
+  Heading,
+  IconButton,
+  Image,
+  Input,
+  PresenceTransition,
+  Text,
+} from "native-base";
 import Toast from "react-native-toast-message";
 
 const windowWidth = Dimensions.get("window").width;
@@ -317,61 +325,54 @@ const SearchScreen = ({ navigation }) => {
 
   // --- COMPONENTS ---
 
-  /**
-   * Title text shown when loading
-   */
-  const TitleLoading = () =>
-    searching ? (
-      <Text style={styles.title}>
-        {i18n.t("search_screen.title_loading_results")}
-      </Text>
-    ) : (
-      <Text style={styles.title}>
-        {i18n.t("search_screen.title_loading_popular")}
-      </Text>
-    );
-
-  /**
-   * Title text shown when showing popular artists/search results
-   */
-  const TitleNotLoading = () =>
-    searching ? (
-      <Text style={styles.title}>
-        {searchResults.length > 0 &&
+  function Title() {
+    let text;
+    if (loading) {
+      if (searching) {
+        text = i18n.t("search_screen.title_loading_results");
+      } else {
+        text = i18n.t("search_screen.title_loading_popular");
+      }
+    } else {
+      if (searching) {
+        text =
+          searchResults.length > 0 &&
           i18n.t("search_screen.title_showing_results") +
             ' "' +
             searchTerm +
-            '":'}
-      </Text>
-    ) : (
-      <Text style={styles.title}>
-        {i18n.t("search_screen.title_showing_popular")}
-      </Text>
-    );
+            '":';
+      } else {
+        text = i18n.t("search_screen.title_showing_popular");
+      }
+    }
+    return <Heading my="4">{text}</Heading>;
+  }
 
-  /**
-   * Image and text telling the user no results were found
-   */
-  const NoResults = () => (
-    <View style={styles.noResultsContainer}>
-      <Image
-        resizeMode="contain"
-        style={styles.noResultsImage}
-        source={require("assets/no_results.png")}
-      />
-      <Text style={styles.noResultsText}>
-        {i18n.t("errors.no_results") + ' "' + searchTerm + '"'}
-      </Text>
-    </View>
-  );
+  function NoResults() {
+    return (
+      <Center mt={10}>
+        <Image
+          resizeMode="contain"
+          source={require("assets/no_results.png")}
+          w={windowWidth}
+          alt="No results"
+        />
+        <Text fontSize="xl" fontWeight="bold">
+          {`${i18n.t("errors.no_results")} "${searchTerm}"`}
+        </Text>
+      </Center>
+    );
+  }
 
   return (
-    <Box style={styles.outerContainer} safeAreaTop={platformAndroid && 4}>
+    <Box flex={1} safeAreaTop={platformAndroid && 4} px={4}>
       <Input
         ref={nameInput}
         value={intermediateSearchValue}
         onChangeText={setIntermediateSearchValue}
         placeholder={i18n.t("search_screen.input_placeholder")}
+        placeholderTextColor="light.500"
+        fontSize="sm"
         returnKeyType="search"
         onSubmitEditing={searchHandler}
         blurOnSubmit
@@ -396,7 +397,7 @@ const SearchScreen = ({ navigation }) => {
       {/* main container */}
       <Animated.ScrollView
         ref={scrollView}
-        style={{ opacity: animatedOpacity }}
+        opacity={animatedOpacity}
         contentContainerStyle={styles.resultsContainer}
         keyboardShouldPersistTaps="handled"
         refreshControl={
@@ -407,15 +408,7 @@ const SearchScreen = ({ navigation }) => {
           />
         }
       >
-        {loading ? (
-          <View>
-            <TitleLoading />
-          </View>
-        ) : (
-          <View>
-            <TitleNotLoading />
-          </View>
-        )}
+        <Title />
 
         {popularVisible &&
           !loading &&
@@ -450,7 +443,7 @@ const SearchScreen = ({ navigation }) => {
           ))}
 
         {isHintShowing20Visible() && (
-          <Text style={styles.hintMoreThan20Results}>
+          <Text mt={-3} mb={platformAndroid ? 1 : 4}>
             {i18n.t("search_screen.hint_showing_20_results")}
           </Text>
         )}
@@ -458,36 +451,61 @@ const SearchScreen = ({ navigation }) => {
         {isNoResultsVisible() && <NoResults />}
       </Animated.ScrollView>
 
-      {selectedArtists.length > 0 && (
-        <Button
-          style={{
-            backgroundColor: "red",
-            marginBottom: selectedArtists.length > 1 ? 90 : 20,
-            width: 20,
-            height: 20,
-            borderRadius: 10,
-          }}
-          title="clear"
+      <PresenceTransition
+        visible={selectedArtists.length > 0}
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: 1,
+          transition: { duration: 120 },
+        }}
+        exit={{
+          opacity: 0,
+          transition: { duration: 80 },
+        }}
+      >
+        <Fab
           onPress={clearSelection}
-        />
-      )}
-      {selectedArtists.length > 1 && (
-        <Button
-          style={{
-            backgroundColor: "green",
-            width: 20,
-            height: 20,
-            borderRadius: 10,
+          icon={<CloseIcon />}
+          size="xs"
+          renderInPortal={false}
+          bg="red.500"
+          placement="bottom-left"
+          _pressed={{
+            bg: "red.500",
+            transform: [{ scale: 0.9 }],
           }}
-          title="go"
-          onPress={applySelection}
         />
-      )}
+      </PresenceTransition>
+      <PresenceTransition
+        visible={selectedArtists.length > 1}
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: 1,
+          transition: { duration: 120 },
+        }}
+        exit={{
+          opacity: 0,
+          transition: { duration: 80 },
+        }}
+      >
+        <Fab
+          onPress={applySelection}
+          icon={<ArrowForwardIcon />}
+          size="lg"
+          renderInPortal={false}
+          bg="green.500"
+          _pressed={{
+            bg: "green.500",
+            transform: [{ scale: 0.9 }],
+          }}
+        />
+      </PresenceTransition>
 
       {loading && (
         <Image
           source={require("assets/loading_indicator.gif")}
           style={globalStyles.loadingIndicator}
+          alt="Loading indicator"
         />
       )}
     </Box>
@@ -495,57 +513,9 @@ const SearchScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: spacing.defaultPadding,
-  },
-
   resultsContainer: {
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  title: {
-    fontWeight: "bold",
-    fontSize: 26,
-    alignSelf: "center",
-    marginVertical: spacing.marginS,
-    textAlign: "center",
-  },
-
-  applyFab: {
-    marginEnd: 0,
-  },
-
-  artistCounterContainer: {
-    position: "absolute",
-    top: -80,
-    end: 0,
-    padding: 3,
-  },
-
-  artistCounterText: {
-    color: "black",
-  },
-
-  hintMoreThan20Results: {
-    marginTop: -10,
-  },
-
-  noResultsContainer: {
-    width: "100%",
-    alignItems: "center",
-    marginBottom: "50%",
-  },
-
-  noResultsImage: {
-    width: windowWidth,
-  },
-
-  noResultsText: {
-    fontWeight: "bold",
-    fontSize: 17,
   },
 });
 
