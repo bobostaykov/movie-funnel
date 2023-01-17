@@ -26,7 +26,7 @@ const MovieItem = ({ title, overview, posterPath, id, rating }) => {
     <Pressable
       onPress={() => openMovieOrArtistURL(id)}
       _pressed={{
-        transform: [{ scale: 0.99 }],
+        transform: [{ scale: 0.985 }],
       }}
       mb={4}
       rounded="lg"

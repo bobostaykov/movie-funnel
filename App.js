@@ -8,17 +8,19 @@ import {
   createStackNavigator,
 } from "@react-navigation/stack";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { LogBox } from "react-native";
 
+import { NativeBaseProvider } from "native-base";
 import { SafeAreaProvider } from "react-native-safe-area-context/src/SafeAreaContext";
 import Toast, {
   ErrorToast,
   InfoToast,
   SuccessToast,
 } from "react-native-toast-message";
-import { extendTheme, NativeBaseProvider } from "native-base";
 import ResultsScreen from "screens/ResultsScreen.js";
 import SearchScreen from "screens/SearchScreen.js";
+
+LogBox.ignoreLogs(["Failed to load http://image.tmdb.org"]);
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -37,12 +39,14 @@ const App = () => {
     </Stack.Navigator>
   );
 
-  const text2Style = { fontSize: 14, color: "grey" };
+  const toastText2Style = { fontSize: 14, color: "#2e2e2e" };
 
   const toastConfig = {
-    info: (props) => <InfoToast {...props} text2Style={text2Style} />,
-    success: (props) => <SuccessToast {...props} text2Style={text2Style} />,
-    error: (props) => <ErrorToast {...props} text2Style={text2Style} />,
+    info: (props) => <InfoToast {...props} text2Style={toastText2Style} />,
+    success: (props) => (
+      <SuccessToast {...props} text2Style={toastText2Style} />
+    ),
+    error: (props) => <ErrorToast {...props} text2Style={toastText2Style} />,
   };
 
   return (
@@ -56,7 +60,5 @@ const App = () => {
     </NativeBaseProvider>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default App;

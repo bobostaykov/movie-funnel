@@ -31,7 +31,7 @@ const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
     <Pressable
       onPress={() => onPress(id, name, !selected)}
       _pressed={{
-        transform: [{ scale: 0.99 }],
+        transform: [{ scale: 0.985 }],
       }}
       mb={4}
       rounded="lg"
