@@ -233,7 +233,7 @@ const ResultsScreen = ({ navigation, route }) => {
   );
 
   const TitleResults = () => (
-    <Box flex={1} alignItems="center">
+    <Box flex={1} alignItems="center" mr={10}>
       <Heading>
         {showingIndividualMovies
           ? i18n.t("results_screen.title_individual_movies")
