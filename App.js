@@ -8,7 +8,7 @@ import {
   createStackNavigator,
 } from "@react-navigation/stack";
 import React from "react";
-import { LogBox } from "react-native";
+import { LogBox, StatusBar } from "react-native";
 
 import { NativeBaseProvider } from "native-base";
 import { SafeAreaProvider } from "react-native-safe-area-context/src/SafeAreaContext";
@@ -21,6 +21,8 @@ import ResultsScreen from "screens/ResultsScreen.js";
 import SearchScreen from "screens/SearchScreen.js";
 
 LogBox.ignoreLogs(["Failed to load http://image.tmdb.org"]);
+
+StatusBar.setBarStyle("dark-content", true);
 
 const App = () => {
   const Stack = createStackNavigator();
