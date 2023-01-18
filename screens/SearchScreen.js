@@ -193,7 +193,10 @@ const SearchScreen = ({ navigation }) => {
         // add to list
         setSelectedArtists((current) => [...current, { id, name }]);
       } else {
-        Toast.show({ text2: i18n.t("errors.too_many_artists") });
+        Toast.show({
+          text2: i18n.t("errors.too_many_artists"),
+          bottomOffset: 80,
+        });
       }
     } else {
       // remove from list
@@ -235,7 +238,12 @@ const SearchScreen = ({ navigation }) => {
    * Called on "apply" button press
    */
   const applySelection = () => {
-    if (selectedArtists.length >= 2 && selectedArtists.length <= 10) {
+    if (selectedArtists.length < 2) {
+      Toast.show({
+        text2: i18n.t("errors.too_few_artists"),
+        bottomOffset: 80,
+      });
+    } else {
       navigation.navigate("ResultsScreen", {
         artistIds: getSelectedArtistIds(),
         artistNames: getSelectedArtistNames(),
@@ -248,7 +256,10 @@ const SearchScreen = ({ navigation }) => {
    */
   const searchHandler = () => {
     if (!intermediateSearchValue.trim()) {
-      Toast.show({ text2: i18n.t("errors.empty_search") });
+      Toast.show({
+        text2: i18n.t("errors.empty_search"),
+        bottomOffset: selectedArtists.length > 0 && 80,
+      });
       setIntermediateSearchValue("");
       return;
     }
@@ -425,7 +436,7 @@ const SearchScreen = ({ navigation }) => {
       </Animated.ScrollView>
 
       <PresenceTransition
-        visible={selectedArtists.length > 1}
+        visible={selectedArtists.length > 0}
         initial={{ opacity: 0 }}
         animate={{
           opacity: 1,

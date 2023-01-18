@@ -6,6 +6,7 @@
     "fetch_popular": "There was an error fetching popular artists",
     "fetch_search_results": "There was an error fetching search results",
     "too_many_artists": "Please select up to 10 artists",
+    "too_few_artists": "Please select at least 2 artists",
     "empty_search": "Please search for a real name",
     "no_results": "No results found for"
   },
