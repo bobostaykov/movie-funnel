@@ -12,14 +12,27 @@ import {
   Box,
   Button,
   CheckCircleIcon,
+  Column,
   Heading,
   Image,
   Pressable,
+  Row,
+  Skeleton,
   Text,
 } from "native-base";
 
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;
+
+export const ArtistItemSkeleton = () => (
+  <Row h={ITEM_HEIGHT} w="full" mb={4} rounded="lg">
+    <Skeleton h={ITEM_HEIGHT} w={IMAGE_RATIO * ITEM_HEIGHT} rounded="lg" />
+    <Column flex={1} px={4} py={2} justifyContent="space-between">
+      <Skeleton.Text />
+      <Skeleton h={25} w={60} rounded="md" alignSelf="flex-end" />
+    </Column>
+  </Row>
+);
 
 const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
   // the number of lines which the "known for" text can span, calculated on layout

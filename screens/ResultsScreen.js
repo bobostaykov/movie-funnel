@@ -5,13 +5,12 @@
 
 import React, { useEffect, useState } from "react";
 
-import MovieItem from "components/MovieItem.js";
+import MovieItem, { MovieItemSkeleton } from "components/MovieItem.js";
 import i18n from "i18n";
 import {
   TMDB_API_MOVIES_URL,
   TOAST_HIDE_DELAY_LONG,
 } from "modules/constants.js";
-import { globalStyles } from "modules/globalStyles.js";
 import { autoAnimate, platformAndroid } from "modules/utils.js";
 import {
   AlertDialog,
@@ -22,7 +21,6 @@ import {
   FlatList,
   Heading,
   IconButton,
-  Image,
   Row,
   Text,
 } from "native-base";
@@ -285,13 +283,10 @@ const ResultsScreen = ({ navigation, route }) => {
         )}
       />
 
-      {loading && (
-        <Image
-          alt="Loading indicator"
-          source={require("assets/loading_indicator.gif")}
-          style={globalStyles.loadingIndicator}
-        />
-      )}
+      {loading &&
+        Array.from(Array(10)).map((_, index) => (
+          <MovieItemSkeleton key={index} />
+        ))}
 
       <AlertDialog
         isOpen={noResultsAlertVisible}

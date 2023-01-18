@@ -15,7 +15,7 @@ import {
 } from "react-native";
 
 import tmdbAccessToken from "assets/tmdb_access_token.json";
-import ArtistItem from "components/ArtistItem.js";
+import ArtistItem, { ArtistItemSkeleton } from "components/ArtistItem.js";
 import i18n from "i18n";
 import {
   ANIMATION_DURATION,
@@ -25,7 +25,6 @@ import {
   TMDB_API_ARTISTS_URL,
   TMDB_POPULAR_ARTISTS_URL,
 } from "modules/constants.js";
-import { globalStyles } from "modules/globalStyles.js";
 import { platformAndroid } from "modules/utils.js";
 import {
   ArrowBackIcon,
@@ -411,6 +410,11 @@ const SearchScreen = ({ navigation }) => {
             />
           ))}
 
+        {loading &&
+          Array.from(Array(10)).map((_, index) => (
+            <ArtistItemSkeleton key={index} />
+          ))}
+
         {isHintShowing20Visible() && (
           <Text mt={-3} mb={platformAndroid ? 1 : 4}>
             {i18n.t("search_screen.hint_showing_20_results")}
@@ -456,14 +460,6 @@ const SearchScreen = ({ navigation }) => {
           }}
         />
       </PresenceTransition>
-
-      {loading && (
-        <Image
-          source={require("assets/loading_indicator.gif")}
-          style={globalStyles.loadingIndicator}
-          alt="Loading indicator"
-        />
-      )}
     </Box>
   );
 };

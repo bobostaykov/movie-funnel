@@ -10,11 +10,27 @@ import {
   TMDB_IMAGE_URL,
 } from "modules/constants.js";
 import { openMovieOrArtistURL } from "modules/utils.js";
-import { Box, Heading, Image, Pressable, Row, Text } from "native-base";
+import {
+  Box,
+  Heading,
+  Image,
+  Pressable,
+  Row,
+  Skeleton,
+  Text,
+} from "native-base";
 
 const ITEM_HEIGHT = 150;
-// aspect ratio of regular movie poster images
 const IMAGE_RATIO = 0.66;
+
+export const MovieItemSkeleton = () => (
+  <Row h={ITEM_HEIGHT} w="full" mb={4} rounded="lg">
+    <Skeleton h={ITEM_HEIGHT} w={IMAGE_RATIO * ITEM_HEIGHT} rounded="lg" />
+    <Box flex={1} px={4} py={2}>
+      <Skeleton.Text lines={5} />
+    </Box>
+  </Row>
+);
 
 const MovieItem = ({ title, overview, posterPath, id, rating }) => {
   // the width of the rating text, calculated on layout and used to add proper margin to title
