@@ -345,6 +345,13 @@ const SearchScreen = ({ navigation }) => {
         multiline
         rounded="md"
         py={platformAndroid ? 1.5 : 3}
+        // Next two attributes: so the artist items can go behind the input and the rounded corners are not white
+        mb={-1}
+        zIndex={1}
+        bg="light.100"
+        _focus={{
+          bg: "light.100",
+        }}
         InputLeftElement={
           searching && (
             <IconButton
