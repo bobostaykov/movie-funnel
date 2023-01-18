@@ -26,7 +26,7 @@ import {
   TMDB_POPULAR_ARTISTS_URL,
 } from "modules/constants.js";
 import { globalStyles } from "modules/globalStyles.js";
-import { autoAnimate, platformAndroid } from "modules/utils.js";
+import { platformAndroid } from "modules/utils.js";
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
@@ -66,8 +66,6 @@ const SearchScreen = ({ navigation }) => {
   const [searchResults, setSearchResults] = useState([]);
   // whether fetching is in progress
   const [loading, setLoading] = useState(false);
-  // whether keyboard is currently on screen
-  const [, setKeyboardVisible] = useState(false);
   /*
     whether results are fully fetched, used to show "no results"
     text with a delay, otherwise it shows for a moment before the
@@ -83,20 +81,6 @@ const SearchScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchPopularArtists();
-
-    Keyboard.addListener("keyboardDidShow", () => {
-      autoAnimate();
-      setKeyboardVisible(true);
-    });
-    Keyboard.addListener("keyboardDidHide", () => {
-      autoAnimate();
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      Keyboard.removeAllListeners("keyboardDidShow");
-      Keyboard.removeAllListeners("keyboardDidHide");
-    };
   }, []);
 
   // --- FUNCTIONS ---
@@ -113,7 +97,6 @@ const SearchScreen = ({ navigation }) => {
       },
     })
       .then((result) => {
-        autoAnimate();
         setLoading(false);
         return result.json();
       })
@@ -122,7 +105,6 @@ const SearchScreen = ({ navigation }) => {
       )
       .catch(() => {
         Toast.show({ text2: i18n.t("errors.fetch_popular") });
-        autoAnimate();
         setLoading(false);
         setSearching(false);
         setPopularVisible(true);
@@ -133,7 +115,6 @@ const SearchScreen = ({ navigation }) => {
    * Fetch actor and director results for search term
    */
   const fetchResultsForSearchTerm = (term) => {
-    autoAnimate();
     setLoading(true);
 
     fetch(TMDB_API_ARTISTS_URL + encodeURI(term), {
@@ -142,10 +123,8 @@ const SearchScreen = ({ navigation }) => {
       },
     })
       .then((result) => {
-        autoAnimate();
         setLoading(false);
         setTimeout(() => {
-          autoAnimate();
           setResultsFetched(true);
         }, 500);
         return result.json();
@@ -153,7 +132,6 @@ const SearchScreen = ({ navigation }) => {
       .then((json) => parseArtistResults(json.results, json.total_results))
       .catch(() => {
         Toast.show({ text2: i18n.t("errors.fetch_search_results") });
-        autoAnimate();
         setLoading(false);
         setSearching(false);
         setPopularVisible(true);
@@ -231,13 +209,10 @@ const SearchScreen = ({ navigation }) => {
    */
   const backHandler = () => {
     Keyboard.dismiss();
-
-    autoAnimate();
     setSearching(false);
     setIntermediateSearchValue("");
 
     setTimeout(() => {
-      autoAnimate();
       setPopularVisible(true);
       scrollResultsToTop();
     }, 0);
@@ -270,15 +245,7 @@ const SearchScreen = ({ navigation }) => {
   };
 
   /**
-   * Called on "clear" button press
-   */
-  const clearSelection = () => {
-    autoAnimate();
-    setSelectedArtists([]);
-  };
-
-  /**
-   * Called on "search" button and keyboard "return" key press
+   * Called on keyboard "return" key press
    */
   const searchHandler = () => {
     if (!intermediateSearchValue.trim()) {
@@ -287,9 +254,6 @@ const SearchScreen = ({ navigation }) => {
       return;
     }
 
-    Keyboard.dismiss();
-
-    autoAnimate();
     setSearching(true);
     setPopularVisible(false);
     setSearchTerm(intermediateSearchValue);
@@ -394,12 +358,10 @@ const SearchScreen = ({ navigation }) => {
         }
       />
 
-      {/* main container */}
       <Animated.ScrollView
         ref={scrollView}
         opacity={animatedOpacity}
         contentContainerStyle={styles.resultsContainer}
-        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl
             refreshing={refreshingPopular}
@@ -452,31 +414,6 @@ const SearchScreen = ({ navigation }) => {
       </Animated.ScrollView>
 
       <PresenceTransition
-        visible={selectedArtists.length > 0}
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          transition: { duration: 120 },
-        }}
-        exit={{
-          opacity: 0,
-          transition: { duration: 80 },
-        }}
-      >
-        <Fab
-          onPress={clearSelection}
-          icon={<CloseIcon />}
-          size="xs"
-          renderInPortal={false}
-          bg="red.500"
-          placement="bottom-left"
-          _pressed={{
-            bg: "red.500",
-            transform: [{ scale: 0.9 }],
-          }}
-        />
-      </PresenceTransition>
-      <PresenceTransition
         visible={selectedArtists.length > 1}
         initial={{ opacity: 0 }}
         animate={{
@@ -488,6 +425,18 @@ const SearchScreen = ({ navigation }) => {
           transition: { duration: 80 },
         }}
       >
+        <Fab
+          onPress={() => setSelectedArtists([])}
+          icon={<CloseIcon />}
+          size="xs"
+          renderInPortal={false}
+          bg="red.500"
+          placement="bottom-left"
+          _pressed={{
+            bg: "red.500",
+            transform: [{ scale: 0.9 }],
+          }}
+        />
         <Fab
           onPress={applySelection}
           icon={<ArrowForwardIcon />}

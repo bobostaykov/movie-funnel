@@ -19,11 +19,11 @@ import {
   Box,
   Button,
   Center,
+  FlatList,
   Heading,
   IconButton,
   Image,
   Row,
-  ScrollView,
   Text,
 } from "native-base";
 import Toast from "react-native-toast-message";
@@ -272,18 +272,18 @@ const ResultsScreen = ({ navigation, route }) => {
         )}
       </Row>
 
-      <ScrollView>
-        {movieResults.map((item, index) => (
+      <FlatList
+        data={movieResults}
+        renderItem={({ item }) => (
           <MovieItem
-            key={index}
             title={item.title}
             overview={item.overview}
             posterPath={item.posterPath}
             id={item.id}
             rating={item.rating}
           />
-        ))}
-      </ScrollView>
+        )}
+      />
 
       {loading && (
         <Image
