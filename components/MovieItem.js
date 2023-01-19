@@ -10,15 +10,9 @@ import {
   TMDB_IMAGE_URL,
 } from "modules/constants.js";
 import { openMovieOrArtistURL } from "modules/utils.js";
-import {
-  Box,
-  Heading,
-  Image,
-  Pressable,
-  Row,
-  Skeleton,
-  Text,
-} from "native-base";
+import { Box, Heading, Pressable, Row, Skeleton, Text } from "native-base";
+import { StyleSheet } from "react-native";
+import FastImage from "react-native-fast-image";
 
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;
@@ -52,14 +46,11 @@ const MovieItem = ({ title, overview, posterPath, id, rating }) => {
       alignItems="center"
       backgroundColor="#f3e2d7"
     >
-      <Image
-        alt="Movie poster"
-        resizeMode="cover"
+      <FastImage
+        resizeMode={FastImage.resizeMode.cover}
         source={{ uri: TMDB_IMAGE_URL + posterPath }}
-        fallbackSource={require("assets/dummy_movie_image.png")}
-        h={ITEM_HEIGHT}
-        w={IMAGE_RATIO * ITEM_HEIGHT}
-        rounded="lg"
+        defaultSource={require("assets/dummy_movie_image.png")}
+        style={styles.image}
       />
       <Box px={4} py={3} flex={1}>
         <Row pb={2}>
@@ -95,5 +86,13 @@ const MovieItem = ({ title, overview, posterPath, id, rating }) => {
     </Pressable>
   );
 };
+
+const styles = StyleSheet.create({
+  image: {
+    height: ITEM_HEIGHT,
+    width: IMAGE_RATIO * ITEM_HEIGHT,
+    borderRadius: 8,
+  },
+});
 
 export default MovieItem;

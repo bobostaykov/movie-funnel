@@ -14,12 +14,13 @@ import {
   CheckCircleIcon,
   Column,
   Heading,
-  Image,
   Pressable,
   Row,
   Skeleton,
   Text,
 } from "native-base";
+import { StyleSheet } from "react-native";
+import FastImage from "react-native-fast-image";
 
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;
@@ -54,14 +55,11 @@ const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
       bgColor="#dbe3fa"
       flexDir="row"
     >
-      <Image
+      <FastImage
         resizeMode="cover"
         source={{ uri: TMDB_IMAGE_URL + photoPath }}
-        fallbackSource={require("assets/dummy_artist_image.png")}
-        alt="Artist photo"
-        h={ITEM_HEIGHT}
-        w={IMAGE_RATIO * ITEM_HEIGHT}
-        rounded="lg"
+        defaultSource={require("assets/dummy_artist_image.png")}
+        style={styles.image}
       />
       <Box ml={4} flex={1}>
         <Heading size="md" mr={4} my={2}>
@@ -121,5 +119,13 @@ const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
     </Pressable>
   );
 };
+
+const styles = StyleSheet.create({
+  image: {
+    height: ITEM_HEIGHT,
+    width: IMAGE_RATIO * ITEM_HEIGHT,
+    borderRadius: 8,
+  },
+});
 
 export default ArtistItem;
