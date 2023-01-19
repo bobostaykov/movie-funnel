@@ -281,6 +281,7 @@ const ResultsScreen = ({ navigation, route }) => {
             rating={item.rating}
           />
         )}
+        scrollIndicatorInsets={{ right: 1 }}
       />
 
       {loading &&
