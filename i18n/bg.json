@@ -16,7 +16,7 @@
     "input_placeholder": "Потърси актьор или режисьор на английски",
     "title_loading_results": "Търсене...",
     "title_showing_results": "Резултати за",
-    "hint_showing_20_results": "Резултатите бяха скъсени до 20",
+    "truncated_results": "Резултатите бяха скъсени, пробвай с по-точно търсене",
     "artist_profile": "Профил",
     "clear_selection_button": "Изчисти",
     "apply_button": "Напред"

@@ -427,8 +427,11 @@ const SearchScreen = ({ navigation }) => {
           ))}
 
         {isHintShowing20Visible() && (
-          <Text mt={-3} mb={platformAndroid ? 1 : 4}>
-            {i18n.t("search_screen.hint_showing_20_results")}
+          <Text
+            mt={-3}
+            mb={selectedArtists.length > 0 ? 20 : platformAndroid ? 1 : 4}
+          >
+            {i18n.t("search_screen.truncated_results")}
           </Text>
         )}
 

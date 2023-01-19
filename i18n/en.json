@@ -16,7 +16,7 @@
     "input_placeholder": "Search for an actor or director",
     "title_loading_results": "Searching...",
     "title_showing_results": "Results for",
-    "hint_showing_20_results": "Results were truncated to 20",
+    "truncated_results": "Results were truncated, try a more specific search",
     "artist_profile": "Profile",
     "clear_selection_button": "Clear",
     "apply_button": "Apply"
