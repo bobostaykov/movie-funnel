@@ -327,7 +327,7 @@ const SearchScreen = ({ navigation }) => {
       <Center>
         <Image
           resizeMode="contain"
-          source={require("assets/no_results.png")}
+          source={require("assets/images/no_results.png")}
           alt="No results"
           height={300}
           mt={15}

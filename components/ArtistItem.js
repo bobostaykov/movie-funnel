@@ -58,7 +58,7 @@ const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
       <FastImage
         resizeMode="cover"
         source={{ uri: TMDB_IMAGE_URL + photoPath }}
-        defaultSource={require("assets/dummy_artist_image.png")}
+        defaultSource={require("assets/images/dummy_artist_image.png")}
         style={styles.image}
       />
       <Box ml={4} flex={1}>

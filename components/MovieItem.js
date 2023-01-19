@@ -49,7 +49,7 @@ const MovieItem = ({ title, overview, posterPath, id, rating }) => {
       <FastImage
         resizeMode={FastImage.resizeMode.cover}
         source={{ uri: TMDB_IMAGE_URL + posterPath }}
-        defaultSource={require("assets/dummy_movie_image.png")}
+        defaultSource={require("assets/images/dummy_movie_image.png")}
         style={styles.image}
       />
       <Box px={4} py={3} flex={1}>
