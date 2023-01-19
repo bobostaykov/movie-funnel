@@ -324,12 +324,13 @@ const SearchScreen = ({ navigation }) => {
 
   function NoResults() {
     return (
-      <Center mt={10}>
+      <Center>
         <Image
           resizeMode="contain"
           source={require("assets/no_results.png")}
-          w={windowWidth}
           alt="No results"
+          height={300}
+          mt={15}
         />
         <Text fontSize="xl" fontWeight="bold">
           {`${i18n.t("errors.no_results")} "${searchTerm}"`}
