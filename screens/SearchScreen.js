@@ -6,21 +6,14 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Dimensions,
-  Keyboard,
-  RefreshControl,
-  StyleSheet,
-} from "react-native";
+import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
 
 import tmdbAccessToken from "assets/tmdb_access_token.json";
 import ArtistItem, { ArtistItemSkeleton } from "components/ArtistItem.js";
 import i18n from "i18n";
 import {
   ANIMATION_DURATION,
-  MAX_RESULTS_SHOWN,
-  MORE_THAN_20_SEARCH_RESULTS,
+  MAX_RESULTS_TO_SHOW,
   POPULAR_ARTISTS_NUMBER,
   TMDB_API_ARTISTS_URL,
   TMDB_POPULAR_ARTISTS_URL,
@@ -41,8 +34,6 @@ import {
   Text,
 } from "native-base";
 import Toast from "react-native-toast-message";
-
-const windowWidth = Dimensions.get("window").width;
 
 const SearchScreen = ({ navigation }) => {
   // storing the names and IDs of all the selected actors/directors
@@ -71,6 +62,7 @@ const SearchScreen = ({ navigation }) => {
     results appear
    */
   const [resultsFetched, setResultsFetched] = useState(false);
+  const [resultsTruncated, setResultsTruncated] = useState(false);
   // a reference to the scroll view
   const scrollView = useRef(null);
   // a reference to the text input
@@ -105,7 +97,6 @@ const SearchScreen = ({ navigation }) => {
       .catch(() => {
         Toast.show({ text2: i18n.t("errors.fetch_popular") });
         setLoading(false);
-        setSearching(false);
         setPopularVisible(true);
       });
   };
@@ -114,21 +105,22 @@ const SearchScreen = ({ navigation }) => {
    * Fetch actor and director results for search term
    */
   const fetchResultsForSearchTerm = (term) => {
-    setLoading(true);
-
     fetch(TMDB_API_ARTISTS_URL + encodeURI(term), {
       headers: {
         Authorization: "Bearer " + tmdbAccessToken,
       },
     })
       .then((result) => {
-        setLoading(false);
         setTimeout(() => {
           setResultsFetched(true);
         }, 500);
         return result.json();
       })
-      .then((json) => parseArtistResults(json.results, json.total_results))
+      .then((json) => {
+        setResultsTruncated(json.total_results > MAX_RESULTS_TO_SHOW);
+        parseArtistResults(json.results, json.total_results);
+        setLoading(false);
+      })
       .catch(() => {
         Toast.show({ text2: i18n.t("errors.fetch_search_results") });
         setLoading(false);
@@ -143,26 +135,18 @@ const SearchScreen = ({ navigation }) => {
    *    parsed; if false -> then search results are parsed
    */
   const parseArtistResults = (resultsJSON, resultCount, isPopular = false) => {
-    const results = [];
-    let data;
-
-    for (const result of resultsJSON.slice(
-      0,
-      isPopular ? POPULAR_ARTISTS_NUMBER : MAX_RESULTS_SHOWN
-    )) {
-      data = {};
-      data.name = result.name;
-      data.id = result.id;
-      data.photoPath = result.profile_path;
-      data.knownFor = parseKnownFor(result.known_for);
-
-      results.push(data);
-    }
+    const results = resultsJSON
+      .slice(0, isPopular ? POPULAR_ARTISTS_NUMBER : MAX_RESULTS_TO_SHOW)
+      .map((result) => ({
+        name: result.name,
+        id: result.id,
+        photoPath: result.profile_path,
+        knownFor: parseKnownFor(result.known_for),
+      }));
 
     if (isPopular) {
       setPopularArtists(results);
     } else {
-      if (resultCount > 20) results.push({ name: MORE_THAN_20_SEARCH_RESULTS });
       setSearchResults(results);
     }
 
@@ -265,8 +249,12 @@ const SearchScreen = ({ navigation }) => {
     }
 
     setSearching(true);
+    setLoading(true);
     setPopularVisible(false);
     setSearchTerm(intermediateSearchValue);
+    setSearchResults([]);
+    setResultsFetched(false);
+    setResultsTruncated(false);
 
     fetchResultsForSearchTerm(intermediateSearchValue);
   };
@@ -286,16 +274,6 @@ const SearchScreen = ({ navigation }) => {
   const scrollResultsToTop = () => {
     scrollView.current?.scrollTo({ y: 0 });
   };
-
-  const isNoResultsVisible = () =>
-    searching && resultsFetched && searchResults.length === 0;
-
-  const isHintShowing20Visible = () =>
-    searching &&
-    !loading &&
-    searchResults[searchResults.length - 1] &&
-    searchResults[searchResults.length - 1].name ===
-      MORE_THAN_20_SEARCH_RESULTS;
 
   // --- COMPONENTS ---
 
@@ -427,7 +405,7 @@ const SearchScreen = ({ navigation }) => {
             <ArtistItemSkeleton key={index} />
           ))}
 
-        {isHintShowing20Visible() && (
+        {resultsTruncated && (
           <Text
             mt={-3}
             mb={selectedArtists.length > 0 ? 20 : platformAndroid ? 1 : 4}
@@ -436,7 +414,9 @@ const SearchScreen = ({ navigation }) => {
           </Text>
         )}
 
-        {isNoResultsVisible() && <NoResults />}
+        {searching && resultsFetched && searchResults.length === 0 && (
+          <NoResults />
+        )}
       </Animated.ScrollView>
 
       <PresenceTransition

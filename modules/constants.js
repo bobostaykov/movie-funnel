@@ -26,15 +26,13 @@ export const DEFAULT_HIT_SLOP = {
 export const SPLASH_SCREEN_MIN_DELAY = 1000;
 export const ANIMATION_DURATION = 250;
 export const POPULAR_ARTISTS_NUMBER = 20;
-export const MAX_RESULTS_SHOWN = 20;
+export const MAX_RESULTS_TO_SHOW = 20;
 export const DEFAULT_BORDER_RADIUS = 10;
 export const OPACITY_ON_PRESS = 0.5;
 export const ITEM_TEXT_LINE_HEIGHT = 16;
 export const LOADING_INDICATOR_DIAMETER = 60;
 export const TOAST_HIDE_DELAY_LONG = 6000;
 export const TOAST_HIDE_DELAY_SHORT = 3000;
-
-export const MORE_THAN_20_SEARCH_RESULTS = "MORE_THAN_20_SEARCH_RESULTS";
 
 // --- TMDb URLs ---
 export const TMDB_API_BASE_URL = "https://api.themoviedb.org/3/";
