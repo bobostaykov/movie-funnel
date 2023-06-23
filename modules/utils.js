@@ -3,14 +3,14 @@
  */
 
 import i18n from "i18n";
+import { LayoutAnimation, Platform, UIManager } from "react-native";
+import { InAppBrowser } from "react-native-inappbrowser-reborn";
+import Toast from "react-native-toast-message";
 import {
   ANIMATION_DURATION,
   TMDB_ARTIST_PAGE_URL,
   TMDB_MOVIE_PAGE_URL,
-} from "modules/constants.js";
-import { LayoutAnimation, Platform, UIManager } from "react-native";
-import { InAppBrowser } from "react-native-inappbrowser-reborn";
-import Toast from "react-native-toast-message";
+} from "../modules/constants";
 
 export const platformAndroid = Platform.OS === "android";
 export const platformIOS = Platform.OS === "ios";

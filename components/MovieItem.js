@@ -2,17 +2,16 @@
  * Component representing an item in the movie results list
  */
 
+import { Box, Heading, Pressable, Row, Text } from "native-base";
 import React, { useState } from "react";
-
+import { StyleSheet } from "react-native";
+import FastImage from "react-native-fast-image";
 import {
   ITEM_TEXT_LINE_HEIGHT,
   spacing,
   TMDB_IMAGE_URL,
-} from "modules/constants.js";
-import { openMovieOrArtistURL } from "modules/utils.js";
-import { Box, Heading, Pressable, Row, Skeleton, Text } from "native-base";
-import { StyleSheet } from "react-native";
-import FastImage from "react-native-fast-image";
+} from "../modules/constants";
+import { openMovieOrArtistURL } from "../modules/utils";
 
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;

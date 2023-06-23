@@ -6,8 +6,6 @@
 import React, { useState } from "react";
 
 import i18n from "i18n";
-import { ITEM_TEXT_LINE_HEIGHT, TMDB_IMAGE_URL } from "modules/constants.js";
-import { openMovieOrArtistURL } from "modules/utils.js";
 import {
   Box,
   Button,
@@ -21,6 +19,8 @@ import {
 } from "native-base";
 import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
+import { ITEM_TEXT_LINE_HEIGHT, TMDB_IMAGE_URL } from "../modules/constants";
+import { openMovieOrArtistPage } from "../modules/utils";
 
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;

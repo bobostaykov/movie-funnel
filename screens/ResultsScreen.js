@@ -3,15 +3,7 @@
  * information and a link to the corresponding TMDB page
  */
 
-import React, { useEffect, useState } from "react";
-
-import MovieItem, { MovieItemSkeleton } from "components/MovieItem.js";
 import i18n from "i18n";
-import {
-  TMDB_API_MOVIES_URL,
-  TOAST_HIDE_DELAY_LONG,
-} from "modules/constants.js";
-import { autoAnimate, platformAndroid } from "modules/utils.js";
 import {
   AlertDialog,
   ArrowBackIcon,
@@ -24,8 +16,15 @@ import {
   Row,
   Text,
 } from "native-base";
+import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import tmdbAccessToken from "../assets/tmdb_access_token.json";
+import MovieItem, { MovieItemSkeleton } from "../components/MovieItem";
+import {
+  TMDB_API_MOVIES_URL,
+  TOAST_HIDE_DELAY_LONG,
+} from "../modules/constants";
+import { autoAnimate, platformAndroid } from "../modules/utils";
 
 const ResultsScreen = ({ navigation, route }) => {
   // a list of fetched movies

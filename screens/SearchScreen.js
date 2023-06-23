@@ -5,20 +5,7 @@
  * are shown, ready to be selected.
  */
 
-import React, { useEffect, useRef, useState } from "react";
-import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
-
-import tmdbAccessToken from "assets/tmdb_access_token.json";
-import ArtistItem, { ArtistItemSkeleton } from "components/ArtistItem.js";
 import i18n from "i18n";
-import {
-  ANIMATION_DURATION,
-  MAX_RESULTS_TO_SHOW,
-  POPULAR_ARTISTS_NUMBER,
-  TMDB_API_ARTISTS_URL,
-  TMDB_POPULAR_ARTISTS_URL,
-} from "modules/constants.js";
-import { platformAndroid } from "modules/utils.js";
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
@@ -33,7 +20,19 @@ import {
   PresenceTransition,
   Text,
 } from "native-base";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
 import Toast from "react-native-toast-message";
+import tmdbAccessToken from "../assets/tmdb_access_token.json";
+import ArtistItem, { ArtistItemSkeleton } from "../components/ArtistItem";
+import {
+  ANIMATION_DURATION,
+  MAX_RESULTS_TO_SHOW,
+  POPULAR_ARTISTS_NUMBER,
+  TMDB_API_ARTISTS_URL,
+  TMDB_POPULAR_ARTISTS_URL,
+} from "../modules/constants";
+import { platformAndroid } from "../modules/utils";
 
 const SearchScreen = ({ navigation }) => {
   // storing the names and IDs of all the selected actors/directors

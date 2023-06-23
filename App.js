@@ -17,8 +17,8 @@ import Toast, {
   InfoToast,
   SuccessToast,
 } from "react-native-toast-message";
-import ResultsScreen from "screens/ResultsScreen.js";
-import SearchScreen from "screens/SearchScreen.js";
+import ResultsScreen from "./screens/ResultsScreen";
+import SearchScreen from "./screens/SearchScreen";
 
 LogBox.ignoreLogs(["Failed to load http://image.tmdb.org"]);
 
