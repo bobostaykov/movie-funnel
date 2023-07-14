@@ -1,10 +1,3 @@
-/**
- * On this screen the user searches for and chooses up to 10
- * actors/directors and makes a search request which sends them
- * to the results screen. Initially, the 20 most popular actors
- * are shown, ready to be selected.
- */
-
 import i18n from "i18n";
 import {
   ArrowBackIcon,
@@ -34,6 +27,13 @@ import {
 } from "../modules/constants";
 import { platformAndroid } from "../modules/utils";
 
+/**
+ * On this screen the user selects up to 10 artists or movies,
+ * depending on the selected mode on the welcome screen and makes
+ * a search request which sends him/her to the results screen.
+ * Initially, the 20 most popular artists/movies are shown, ready
+ * to be selected.
+ */
 const SearchScreen = ({ navigation }) => {
   // storing the names and IDs of all the selected actors/directors
   const [selectedArtists, setSelectedArtists] = useState([]);
@@ -81,11 +81,7 @@ const SearchScreen = ({ navigation }) => {
   const fetchPopularArtists = () => {
     setLoading(true);
 
-    fetch(TMDB_POPULAR_ARTISTS_URL, {
-      headers: {
-        Authorization: "Bearer " + tmdbAccessToken,
-      },
-    })
+    fetchFromTmdb(TMDB_POPULAR_ARTISTS_URL)
       .then((result) => {
         setLoading(false);
         return result.json();

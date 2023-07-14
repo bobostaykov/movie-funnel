@@ -1,8 +1,3 @@
-/**
- * On this screen the resulting list of movies is shown with
- * information and a link to the corresponding TMDB page
- */
-
 import i18n from "i18n";
 import {
   AlertDialog,
@@ -26,8 +21,11 @@ import {
 } from "../modules/constants";
 import { autoAnimate, platformAndroid } from "../modules/utils";
 
+/**
+ * On this screen the resulting list of movies is shown with
+ * information and a link to the corresponding TMDB page
+ */
 const ResultsScreen = ({ navigation, route }) => {
-  // a list of fetched movies
   const [movieResults, setMovieResults] = useState([]);
   // a list of selected artists' names to show above results
   const [artistNames, setArtistNames] = useState([]);
@@ -50,29 +48,27 @@ const ResultsScreen = ({ navigation, route }) => {
    */
   const getMovies = () => {
     setLoading(true);
-    fetch(TMDB_API_MOVIES_URL + route.params.artistIds, {
-      headers: {
-        Authorization: "Bearer " + tmdbAccessToken,
-      },
-    })
+    fetchFromTmdb(TMDB_API_MOVIES_URL + route.params.artistIds)
       .then((result) => result.json())
       .then((json) => {
         autoAnimate();
         setLoading(false);
         return parseMovies(json.results);
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error("error:", e);
         setLoading(false);
         navigation.pop();
         Toast.show({
           text2: i18n.t("errors.fetch_results"),
           visibilityTime: TOAST_HIDE_DELAY_LONG,
+          bottomOffset: 80,
         });
       });
   };
 
   /**
-   * Called when no common movies for selected artists are found.
+   * Called when no common movies for the selected artists are found.
    * Informs the user with an alert and fetches movies starring
    * the selected artists.
    */
@@ -93,19 +89,19 @@ const ResultsScreen = ({ navigation, route }) => {
     setMovieResults(movies);
   };
 
-  const getIndividualMoviesForArtist = async (id) => {
+  /**
+   * Gets movies the provided artist stars in
+   */
+  const getIndividualMoviesForArtist = async (artistId) => {
     try {
-      const result = await fetch(TMDB_API_MOVIES_URL + id, {
-        headers: {
-          Authorization: "Bearer " + tmdbAccessToken,
-        },
-      });
+      const result = await fetchFromTmdb(TMDB_API_MOVIES_URL + artistId);
       const json = await result.json();
       return await parseMovies(json.results, true);
     } catch (error) {
+      console.error("error:", error);
       setLoading(false);
       navigation.pop();
-      Toast.show({ text2: i18n.t("errors.fetch_results") });
+      Toast.show({ text2: i18n.t("errors.fetch_results"), bottomOffset: 80 });
     }
   };
 

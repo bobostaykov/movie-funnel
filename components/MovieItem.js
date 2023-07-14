@@ -11,7 +11,7 @@ import {
   spacing,
   TMDB_IMAGE_URL,
 } from "../modules/constants";
-import { openMovieOrArtistURL } from "../modules/utils";
+import { openMovieOrArtistPage } from "../modules/utils";
 
 const ITEM_HEIGHT = 150;
 const IMAGE_RATIO = 0.66;
@@ -39,6 +39,7 @@ const MovieItem = ({ title, overview, posterPath, id, rating }) => {
       }}
       mb={4}
       rounded="lg"
+      overflow="hidden"
       h={ITEM_HEIGHT}
       w="full"
       flexDir="row"

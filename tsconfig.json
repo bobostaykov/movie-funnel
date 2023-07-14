@@ -1,4 +1,5 @@
 {
+  "comment": "THIS FILE IS NEEDED FOR CORRECT LINTING",
   "compilerOptions": {
     "jsx": "react-native"
   }
