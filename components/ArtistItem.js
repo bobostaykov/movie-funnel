@@ -8,45 +8,91 @@ import React, { useState } from "react";
 import i18n from "i18n";
 import {
   Box,
-  Button,
   CheckCircleIcon,
-  Column,
   Heading,
+  IconButton,
+  InfoIcon,
   Pressable,
   Row,
-  Skeleton,
   Text,
 } from "native-base";
 import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
-import { ITEM_TEXT_LINE_HEIGHT, TMDB_IMAGE_URL } from "../modules/constants";
+import {
+  IMAGE_RATIO,
+  ITEM_HEIGHT,
+  ITEM_TEXT_LINE_HEIGHT,
+  TMDB_IMAGE_URL,
+} from "../modules/constants";
 import { openMovieOrArtistPage } from "../modules/utils";
 
-const ITEM_HEIGHT = 150;
-const IMAGE_RATIO = 0.66;
-
-export const ArtistItemSkeleton = () => (
-  <Row h={ITEM_HEIGHT} w="full" mb={4} rounded="lg">
-    <Skeleton h={ITEM_HEIGHT} w={IMAGE_RATIO * ITEM_HEIGHT} rounded="lg" />
-    <Column flex={1} px={4} py={2} justifyContent="space-between">
-      <Skeleton.Text />
-      <Skeleton h={25} w={60} rounded="md" alignSelf="flex-end" />
-    </Column>
-  </Row>
-);
-
-const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
+const ArtistItem = ({
+  name,
+  id,
+  photoPath,
+  knownFor,
+  onPress,
+  selected,
+  isActor,
+  as,
+}) => {
   // the number of lines which the "known for" text can span, calculated on layout
   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
 
   if (!id) return null;
 
+  const photo =
+    photoPath === null
+      ? require("assets/images/dummy_artist_image.png")
+      : { uri: TMDB_IMAGE_URL + photoPath };
+
+  if (as !== undefined) {
+    const asValues = Object.values(as);
+    const allTheSame = asValues.every((elem) => elem === asValues[0]);
+    if (allTheSame) {
+      as = asValues[0];
+    }
+  }
+
+  const body = knownFor ? (
+    <Text>
+      <Text italic>{i18n.t("misc.known_for")}</Text>
+      {knownFor.join(", ")}
+    </Text>
+  ) : (
+    <Text>
+      {typeof as === "string" ? (
+        isActor ? (
+          <Text>
+            <Text italic>{`${i18n.t("helpers.as")} `}</Text>
+            {as}
+          </Text>
+        ) : (
+          as
+        )
+      ) : (
+        Object.keys(as).map((movie) => (
+          <Text key={movie}>
+            <Text italic fontSize="13">
+              {`${i18n.t("helpers.in")} ${movie} ${i18n.t("helpers.as")}: `}
+            </Text>
+            {`${as[movie]}\n`}
+          </Text>
+        ))
+      )}
+    </Text>
+  );
+
   return (
     <Pressable
-      onPress={() => onPress(id, name, !selected)}
-      _pressed={{
-        transform: [{ scale: 0.985 }],
-      }}
+      onPress={onPress}
+      _pressed={
+        onPress !== undefined
+          ? {
+              transform: [{ scale: 0.985 }],
+            }
+          : undefined
+      }
       mb={4}
       rounded="lg"
       overflow="hidden"
@@ -55,66 +101,57 @@ const ArtistItem = ({ name, id, photoPath, knownFor, onPress, selected }) => {
       bgColor="#dbe3fa"
       flexDir="row"
     >
-      <FastImage
-        resizeMode="cover"
-        source={{ uri: TMDB_IMAGE_URL + photoPath }}
-        defaultSource={require("assets/images/dummy_artist_image.png")}
-        style={styles.image}
-      />
+      <FastImage resizeMode="cover" source={photo} style={styles.image} />
       <Box ml={4} flex={1}>
         <Heading size="md" mr={4} my={2}>
           {name}
         </Heading>
-        <Text
-          numberOfLines={knownForNumberOfLines}
-          onLayout={(event) =>
-            setKnownForNumberOfLines(
-              Math.floor(
-                (event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT
+        <Row flex={1}>
+          <Text
+            flex={1}
+            numberOfLines={knownForNumberOfLines}
+            onLayout={(event) =>
+              setKnownForNumberOfLines(
+                Math.floor(
+                  (event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT
+                )
               )
-            )
-          }
-          flex={1}
-          flexWrap="wrap"
-          mr={4}
-          lineHeight={ITEM_TEXT_LINE_HEIGHT}
-        >
-          {i18n.t("misc.known_for") + knownFor.join(", ")}
-        </Text>
-        <Button
-          onPress={() => openMovieOrArtistURL(id, true)}
-          rounded="md"
-          bgColor="#c3c3ea"
-          m="3"
-          ml="auto"
-          py={1}
-          _pressed={{
-            transform: [{ scale: 0.95 }],
-          }}
-        >
-          <Text>{i18n.t("search_screen.artist_profile")}</Text>
-        </Button>
+            }
+            flexWrap="wrap"
+            mb={4}
+            lineHeight={ITEM_TEXT_LINE_HEIGHT}
+          >
+            {body}
+          </Text>
+          <IconButton
+            icon={<InfoIcon color="#9797cc" />}
+            onPress={() => openMovieOrArtistPage(id, true)}
+            m={1}
+            mt="auto"
+            rounded="full"
+          />
+        </Row>
       </Box>
       {selected && (
-        <Box
-          pointerEvents="none"
-          position="absolute"
-          start={0}
-          end={0}
-          w="full"
-          h="full"
-          opacity={0.4}
-          backgroundColor="blue.700"
-        />
-      )}
-      {selected && (
-        <CheckCircleIcon
-          size={7}
-          color="green.300"
-          position="absolute"
-          top={2}
-          end={8}
-        />
+        <>
+          <Box
+            pointerEvents="none"
+            position="absolute"
+            start={0}
+            end={0}
+            w="full"
+            h="full"
+            opacity={0.4}
+            backgroundColor="blue.700"
+          />
+          <CheckCircleIcon
+            size={7}
+            color="green.400"
+            position="absolute"
+            top={2}
+            start={8}
+          />
+        </>
       )}
     </Pressable>
   );

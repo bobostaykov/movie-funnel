@@ -4,6 +4,7 @@
 
 export const colors = {
   cyan: "#99e2c8",
+  pageBackground: "#f2f2f2",
 };
 
 export const spacing = {
@@ -25,29 +26,33 @@ export const DEFAULT_HIT_SLOP = {
 // the minimum time (in milliseconds) the splash screen is visible
 export const SPLASH_SCREEN_MIN_DELAY = 1000;
 export const ANIMATION_DURATION = 250;
-export const POPULAR_ARTISTS_NUMBER = 20;
+export const MAX_ARTISTS = 10;
+export const MAX_MOVIES = 10;
+export const POPULAR_ARTISTS_TO_SHOW = 20;
+export const POPULAR_MOVIES_TO_SHOW = 20;
 export const MAX_RESULTS_TO_SHOW = 20;
 export const DEFAULT_BORDER_RADIUS = 10;
 export const OPACITY_ON_PRESS = 0.5;
+export const ITEM_HEIGHT = 150;
+export const IMAGE_RATIO = 0.66;
 export const ITEM_TEXT_LINE_HEIGHT = 16;
 export const LOADING_INDICATOR_DIAMETER = 60;
 export const TOAST_HIDE_DELAY_LONG = 6000;
 export const TOAST_HIDE_DELAY_SHORT = 3000;
 
 // --- TMDb URLs ---
-export const TMDB_API_BASE_URL = "https://api.themoviedb.org/3/";
-// endpoint to get most popular artists
-export const TMDB_POPULAR_ARTISTS_URL =
-  "https://api.themoviedb.org/3/person/popular";
-// endpoint to search for artists by name
-export const TMDB_API_ARTISTS_URL =
-  "https://api.themoviedb.org/3/search/person?query=";
+export const TMDB_API_BASE_URL = "https://api.themoviedb.org/3";
+export const TMDB_POPULAR_ARTISTS_URL = TMDB_API_BASE_URL + "/person/popular";
+export const TMDB_MOVIE_BASE_URL = TMDB_API_BASE_URL + "/movie";
+export const TMDB_POPULAR_MOVIES_URL = TMDB_MOVIE_BASE_URL + "/popular";
+export const TMDB_SEARCH_ARTISTS_URL =
+  TMDB_API_BASE_URL + "/search/person?query=";
+export const TMDB_SEARCH_MOVIES_URL =
+  TMDB_API_BASE_URL + "/search/movie?query=";
 // endpoint to get movies by artist IDs
 export const TMDB_API_MOVIES_URL =
-  "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&with_people=";
+  TMDB_API_BASE_URL + "/discover/movie?sort_by=popularity.desc&with_people=";
 // URL to get movie poster
 export const TMDB_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
-// URL to TMDb movie page
 export const TMDB_MOVIE_PAGE_URL = "https://www.themoviedb.org/movie/";
-// URL to artist TMDb page
 export const TMDB_ARTIST_PAGE_URL = "https://www.themoviedb.org/person/";

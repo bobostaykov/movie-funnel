@@ -3,21 +3,30 @@
     "web_page": "Имаше проблем при отваряне на линка към този филм",
     "fetch_results": "Имаше проблем при получаване на резултатите",
     "fetch_individual": "Имаше проблем при получаване на индивидуални филми",
-    "fetch_popular": "Имаше проблем при получаване на информация за популярни актьори",
+    "fetch_popular_artists": "Имаше проблем при получаване на информация за популярни актьори",
+    "fetch_popular_movies": "Имаше проблем при получаване на информация за популярни филми",
     "fetch_search_results": "Имаше проблем при получаване на резултати",
     "too_many_artists": "Моля избери не повече от 10 човека",
     "too_few_artists": "Моля избери поне 2 човека",
+    "too_many_movies": "Моля избери не повече от 10 филма",
+    "too_few_movies": "Моля избери поне 2 филма",
     "empty_search": "Моля потърси истинско име",
     "no_results": "Няма намерени резултати за"
   },
+  "welcome_screen": {
+    "find_movies": "Намери общи филми на избрани актьори",
+    "find_artists": "Намери общи актьори в избрани филми"
+  },
   "search_screen": {
-    "title_loading_popular": "Зареждане на популярни актьори и режисьори...",
-    "title_showing_popular": "Популярни актьори и режисьори:",
-    "input_placeholder": "Потърси актьор или режисьор на английски",
+    "title_loading_popular_artists": "Зареждане на популярни актьори и режисьори...",
+    "title_showing_popular_artists": "Популярни актьори и режисьори",
+    "title_loading_popular_movies": "Зареждане на популярни филми...",
+    "title_showing_popular_movies": "Популярни филми",
+    "input_placeholder_artists": "Потърси актьор или режисьор на английски",
+    "input_placeholder_movies": "Потърси филм на английски",
     "title_loading_results": "Търсене...",
     "title_showing_results": "Резултати за",
     "truncated_results": "Резултатите бяха скъсени, пробвай с по-точно търсене",
-    "artist_profile": "Профил",
     "clear_selection_button": "Изчисти",
     "apply_button": "Напред"
   },
@@ -25,15 +34,24 @@
     "title_searching": "Търсене...",
     "title_common_movies": "Общи филми на:",
     "title_individual_movies": "Филми с:",
+    "title_common_artists": "Общи артисти за:",
+    "title_individual_artists": "Артисти, участващи в:",
+    "common_cast": "Актьорски състав",
+    "common_crew": "Филмов екип",
     "expand_names": "покажи всички",
     "collapse_names": "скрий",
-    "no_common_movies": "все още нямат общи филми... Вместо това виж техни индивидуални филми!",
+    "alert_no_movies": "все още нямат общи филми... Вместо това виж техни индивидуални филми!",
+    "alert_no_artists": "нямат общи членове на актьорския състав или на филмовия екип... Вместо това, ето някои от участниците във всеки от тях!",
+    "no_common_cast": "Няма общи актьори",
+    "no_common_crew": "Няма общи членове на филмовия екип",
     "alert_title": "Няма резултати"
   },
   "helpers": {
     "and": "и",
     "other": "друг",
-    "others": "други"
+    "others": "други",
+    "as": "като",
+    "in": "В"
   },
   "misc": {
     "known_for": "Известен с: "

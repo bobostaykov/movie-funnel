@@ -16,16 +16,27 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
 import Toast from "react-native-toast-message";
-import tmdbAccessToken from "../assets/tmdb_access_token.json";
-import ArtistItem, { ArtistItemSkeleton } from "../components/ArtistItem";
+import ArtistItem from "../components/ArtistItem";
+import ItemSkeleton from "../components/ItemSkeleton";
+import MovieItem from "../components/MovieItem";
 import {
   ANIMATION_DURATION,
+  MAX_ARTISTS,
+  MAX_MOVIES,
   MAX_RESULTS_TO_SHOW,
-  POPULAR_ARTISTS_NUMBER,
-  TMDB_API_ARTISTS_URL,
+  POPULAR_ARTISTS_TO_SHOW,
+  POPULAR_MOVIES_TO_SHOW,
   TMDB_POPULAR_ARTISTS_URL,
+  TMDB_POPULAR_MOVIES_URL,
+  TMDB_SEARCH_ARTISTS_URL,
+  TMDB_SEARCH_MOVIES_URL,
 } from "../modules/constants";
-import { platformAndroid } from "../modules/utils";
+import {
+  extractArtistInfo,
+  extractMovieInfo,
+  fetchFromTmdb,
+  platformAndroid,
+} from "../modules/utils";
 
 /**
  * On this screen the user selects up to 10 artists or movies,
@@ -34,11 +45,13 @@ import { platformAndroid } from "../modules/utils";
  * Initially, the 20 most popular artists/movies are shown, ready
  * to be selected.
  */
-const SearchScreen = ({ navigation }) => {
-  // storing the names and IDs of all the selected actors/directors
-  const [selectedArtists, setSelectedArtists] = useState([]);
+const SearchScreen = ({ navigation, route }) => {
+  // storing the names and IDs of all the selected artists or movies
+  const [selectedItems, setSelectedItems] = useState([]);
   // list of fetched popular artists to show initially on search screen
   const [popularArtists, setPopularArtists] = useState([]);
+  // list of fetched popular movies to show initially on search screen
+  const [popularMovies, setPopularMovies] = useState([]);
   // search term, value changing as user types
   const [intermediateSearchValue, setIntermediateSearchValue] = useState("");
   // value of search field after pressing search button
@@ -70,7 +83,11 @@ const SearchScreen = ({ navigation }) => {
   const animatedOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    fetchPopularArtists();
+    if (route.params.findMovies) {
+      fetchPopularArtists();
+    } else {
+      fetchPopularMovies();
+    }
   }, []);
 
   // --- FUNCTIONS ---
@@ -86,25 +103,48 @@ const SearchScreen = ({ navigation }) => {
         setLoading(false);
         return result.json();
       })
-      .then((json) =>
-        parseArtistResults(json.results, json.total_results, true)
-      )
+      .then((json) => parseArtistResults(json.results, true))
       .catch(() => {
-        Toast.show({ text2: i18n.t("errors.fetch_popular") });
+        Toast.show({
+          text2: i18n.t("errors.fetch_popular_artists"),
+          bottomOffset: selectedItems.length > 0 && 80,
+        });
         setLoading(false);
         setPopularVisible(true);
       });
   };
 
   /**
-   * Fetch actor and director results for search term
+   * Fetches most popular movies on TMDb
+   */
+  const fetchPopularMovies = () => {
+    setLoading(true);
+
+    fetchFromTmdb(TMDB_POPULAR_MOVIES_URL)
+      .then((result) => {
+        setLoading(false);
+        return result.json();
+      })
+      .then((json) => parseMovieResults(json.results, true))
+      .catch(() => {
+        Toast.show({
+          text2: i18n.t("errors.fetch_popular_movies"),
+          bottomOffset: selectedItems.length > 0 && 80,
+        });
+        setLoading(false);
+        setPopularVisible(true);
+      });
+  };
+
+  /**
+   * Fetch artist or movie results for search term
    */
   const fetchResultsForSearchTerm = (term) => {
-    fetch(TMDB_API_ARTISTS_URL + encodeURI(term), {
-      headers: {
-        Authorization: "Bearer " + tmdbAccessToken,
-      },
-    })
+    fetchFromTmdb(
+      (route.params.findMovies
+        ? TMDB_SEARCH_ARTISTS_URL
+        : TMDB_SEARCH_MOVIES_URL) + encodeURI(term)
+    )
       .then((result) => {
         setTimeout(() => {
           setResultsFetched(true);
@@ -113,11 +153,18 @@ const SearchScreen = ({ navigation }) => {
       })
       .then((json) => {
         setResultsTruncated(json.total_results > MAX_RESULTS_TO_SHOW);
-        parseArtistResults(json.results, json.total_results);
+        if (route.params.findMovies) {
+          parseArtistResults(json.results);
+        } else {
+          parseMovieResults(json.results);
+        }
         setLoading(false);
       })
       .catch(() => {
-        Toast.show({ text2: i18n.t("errors.fetch_search_results") });
+        Toast.show({
+          text2: i18n.t("errors.fetch_search_results"),
+          bottomOffset: selectedItems.length > 0 && 80,
+        });
         setLoading(false);
         setSearching(false);
         setPopularVisible(true);
@@ -129,15 +176,13 @@ const SearchScreen = ({ navigation }) => {
    * @param isPopular: whether popular artists results are
    *    parsed; if false -> then search results are parsed
    */
-  const parseArtistResults = (resultsJSON, resultCount, isPopular = false) => {
-    const results = resultsJSON
-      .slice(0, isPopular ? POPULAR_ARTISTS_NUMBER : MAX_RESULTS_TO_SHOW)
-      .map((result) => ({
-        name: result.name,
-        id: result.id,
-        photoPath: result.profile_path,
-        knownFor: parseKnownFor(result.known_for),
-      }));
+  const parseArtistResults = (resultsJSON, isPopular = false) => {
+    const results = extractArtistInfo(
+      resultsJSON.slice(
+        0,
+        isPopular ? POPULAR_ARTISTS_TO_SHOW : MAX_RESULTS_TO_SHOW
+      )
+    );
 
     if (isPopular) {
       setPopularArtists(results);
@@ -149,47 +194,66 @@ const SearchScreen = ({ navigation }) => {
   };
 
   /**
-   * Gets the titles of the 'known for' movies
+   * Extracts relevant information from the results
+   * @param isPopular: whether popular movie results are
+   *    parsed; if false -> then search results are parsed
    */
-  const parseKnownFor = (knownForJSON) => {
-    const movies = [];
+  const parseMovieResults = (resultsJSON, isPopular = false) => {
+    const results = extractMovieInfo(
+      resultsJSON.slice(
+        0,
+        isPopular ? POPULAR_MOVIES_TO_SHOW : MAX_RESULTS_TO_SHOW
+      )
+    );
 
-    for (const movie of knownForJSON) {
-      movie.media_type === "movie"
-        ? movies.push(movie.title)
-        : movies.push(movie.original_name);
+    if (isPopular) {
+      setPopularMovies(results);
+    } else {
+      setSearchResults(results);
     }
 
-    return movies;
+    scrollResultsToTop();
   };
 
   /**
-   * Called on artist item press
+   * Called on artist/movie item press
    */
-  const selectArtist = (id, name, selected) => {
+  const selectItem = (id, name, selected) => {
     if (selected) {
-      if (selectedArtists.length < 10) {
-        // add to list
-        setSelectedArtists((current) => [...current, { id, name }]);
+      if (
+        selectedItems.length < route.params.findMovies
+          ? MAX_ARTISTS
+          : MAX_MOVIES
+      ) {
+        setSelectedItems((current) => [...current, { id, name }]);
       } else {
         Toast.show({
-          text2: i18n.t("errors.too_many_artists"),
+          text2: route.params.findMovies
+            ? i18n.t("errors.too_many_artists")
+            : i18n.t("errors.too_many_movies"),
           bottomOffset: 80,
         });
       }
     } else {
-      // remove from list
-      setSelectedArtists((current) => current.filter((item) => item.id !== id));
+      setSelectedItems((current) => current.filter((item) => item.id !== id));
     }
   };
 
   /**
-   * Called on "back" button press. Exits "search" mode and shows
+   * Called on "back" button press.
+   * -> If in "search" mode, exits it and shows
    * initial screen with popular artists. Fades artist items out
    * and in to make the transition smooth.
+   * -> If not, navigates back to Welcome screen.
    */
   const backHandler = () => {
     Keyboard.dismiss();
+
+    if (!searching) {
+      navigation.pop();
+      return;
+    }
+
     setSearching(false);
     setIntermediateSearchValue("");
 
@@ -217,15 +281,18 @@ const SearchScreen = ({ navigation }) => {
    * Called on "apply" button press
    */
   const applySelection = () => {
-    if (selectedArtists.length < 2) {
+    if (selectedItems.length < 2) {
       Toast.show({
-        text2: i18n.t("errors.too_few_artists"),
+        text2: route.params.findMovies
+          ? i18n.t("errors.too_few_artists")
+          : i18n.t("errors.too_few_movies"),
         bottomOffset: 80,
       });
     } else {
       navigation.navigate("ResultsScreen", {
-        artistIds: getSelectedArtistIds(),
-        artistNames: getSelectedArtistNames(),
+        ids: getSelectedItemIds(),
+        names: getSelectedItemNames(),
+        findMovies: route.params.findMovies,
       });
     }
   };
@@ -237,7 +304,7 @@ const SearchScreen = ({ navigation }) => {
     if (!intermediateSearchValue.trim()) {
       Toast.show({
         text2: i18n.t("errors.empty_search"),
-        bottomOffset: selectedArtists.length > 0 && 80,
+        bottomOffset: selectedItems.length > 0 && 80,
       });
       setIntermediateSearchValue("");
       return;
@@ -254,15 +321,17 @@ const SearchScreen = ({ navigation }) => {
     fetchResultsForSearchTerm(intermediateSearchValue);
   };
 
-  const getSelectedArtistIds = () => {
+  const getSelectedItemIds = () => {
     const ids = [];
-    for (const artist of selectedArtists) ids.push(artist.id);
+    for (const artist of selectedItems) ids.push(artist.id);
     return ids.join(",");
   };
 
-  const getSelectedArtistNames = () => {
+  const getSelectedItemNames = () => {
     const names = [];
-    for (const artist of selectedArtists) names.push(artist.name);
+    for (const item of selectedItems) {
+      names.push(item.name);
+    }
     return names.join(",");
   };
 
@@ -278,7 +347,11 @@ const SearchScreen = ({ navigation }) => {
       if (searching) {
         text = i18n.t("search_screen.title_loading_results");
       } else {
-        text = i18n.t("search_screen.title_loading_popular");
+        if (route.params.findMovies) {
+          text = i18n.t("search_screen.title_loading_popular_artists");
+        } else {
+          text = i18n.t("search_screen.title_loading_popular_movies");
+        }
       }
     } else {
       if (searching) {
@@ -289,7 +362,11 @@ const SearchScreen = ({ navigation }) => {
             searchTerm +
             '":';
       } else {
-        text = i18n.t("search_screen.title_showing_popular");
+        if (route.params.findMovies) {
+          text = i18n.t("search_screen.title_showing_popular_artists");
+        } else {
+          text = i18n.t("search_screen.title_showing_popular_movies");
+        }
       }
     }
     return <Heading my="4">{text}</Heading>;
@@ -318,7 +395,11 @@ const SearchScreen = ({ navigation }) => {
         ref={nameInput}
         value={intermediateSearchValue}
         onChangeText={setIntermediateSearchValue}
-        placeholder={i18n.t("search_screen.input_placeholder")}
+        placeholder={i18n.t(
+          route.params.findMovies
+            ? "search_screen.input_placeholder_artists"
+            : "search_screen.input_placeholder_movies"
+        )}
         placeholderTextColor="light.500"
         fontSize="sm"
         returnKeyType="search"
@@ -329,7 +410,7 @@ const SearchScreen = ({ navigation }) => {
         multiline
         rounded="md"
         py={platformAndroid ? 1.5 : 3}
-        // Next two attributes: so the artist items can go behind the input and the rounded corners are not white
+        // Next two attributes: so the items can go behind the input and the rounded corners are not white
         mb={-1}
         zIndex={1}
         bg="light.100"
@@ -337,15 +418,14 @@ const SearchScreen = ({ navigation }) => {
           bg: "light.100",
         }}
         InputLeftElement={
-          searching && (
-            <IconButton
-              icon={<ArrowBackIcon color="grey" />}
-              colorScheme="grey"
-              rounded="full"
-              onPress={backHandler}
-              mr={-1}
-            />
-          )
+          <IconButton
+            icon={<ArrowBackIcon color="grey" />}
+            rounded="md"
+            onPress={backHandler}
+            mr={-1}
+            p={1.5}
+            ml={1}
+          />
         }
       />
 
@@ -356,7 +436,9 @@ const SearchScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl
             refreshing={refreshingPopular}
-            onRefresh={fetchPopularArtists}
+            onRefresh={
+              route.params.findMovies ? fetchPopularArtists : fetchPopularMovies
+            }
             enabled={!searching}
           />
         }
@@ -365,45 +447,96 @@ const SearchScreen = ({ navigation }) => {
 
         {popularVisible &&
           !loading &&
-          popularArtists.map((item, index) => (
+          route.params.findMovies &&
+          popularArtists.map((item) => (
             <ArtistItem
-              name={item.name}
-              id={item.id}
-              photoPath={item.photoPath}
-              knownFor={item.knownFor}
-              onPress={selectArtist}
-              selected={selectedArtists
+              {...item}
+              onPress={() =>
+                selectItem(
+                  item.id,
+                  item.name,
+                  !selectedItems.map((artist) => artist.id).includes(item.id)
+                )
+              }
+              selected={selectedItems
                 .map((artist) => artist.id)
                 .includes(item.id)}
-              key={index}
+              key={item.id}
             />
           ))}
 
         {!popularVisible &&
           !loading &&
-          searchResults.map((item, index) => (
+          route.params.findMovies &&
+          searchResults.map((item) => (
             <ArtistItem
-              name={item.name}
-              id={item.id}
-              photoPath={item.photoPath}
-              knownFor={item.knownFor}
-              onPress={selectArtist}
-              selected={selectedArtists
+              {...item}
+              onPress={() =>
+                selectItem(
+                  item.id,
+                  item.name,
+                  !selectedItems.map((artist) => artist.id).includes(item.id)
+                )
+              }
+              selected={selectedItems
                 .map((artist) => artist.id)
                 .includes(item.id)}
-              key={index}
+              key={item.id}
+            />
+          ))}
+
+        {popularVisible &&
+          !loading &&
+          !route.params.findMovies &&
+          popularMovies.map((item) => (
+            <MovieItem
+              {...item}
+              onPress={() =>
+                selectItem(
+                  item.id,
+                  item.name,
+                  !selectedItems.map((movie) => movie.id).includes(item.id)
+                )
+              }
+              selected={selectedItems
+                .map((movie) => movie.id)
+                .includes(item.id)}
+              key={item.id}
+            />
+          ))}
+
+        {!popularVisible &&
+          !loading &&
+          !route.params.findMovies &&
+          searchResults.map((item) => (
+            <MovieItem
+              {...item}
+              onPress={() =>
+                selectItem(
+                  item.id,
+                  item.name,
+                  !selectedItems.map((movie) => movie.id).includes(item.id)
+                )
+              }
+              selected={selectedItems
+                .map((movie) => movie.id)
+                .includes(item.id)}
+              key={item.id}
             />
           ))}
 
         {loading &&
-          Array.from(Array(10)).map((_, index) => (
-            <ArtistItemSkeleton key={index} />
-          ))}
+          route.params.findMovies &&
+          Array.from(Array(10)).map((_, index) => <ItemSkeleton key={index} />)}
+
+        {loading &&
+          !route.params.findMovies &&
+          Array.from(Array(10)).map((_, index) => <ItemSkeleton key={index} />)}
 
         {resultsTruncated && (
           <Text
             mt={-3}
-            mb={selectedArtists.length > 0 ? 20 : platformAndroid ? 1 : 4}
+            mb={selectedItems.length > 0 ? 20 : platformAndroid ? 1 : 4}
           >
             {i18n.t("search_screen.truncated_results")}
           </Text>
@@ -415,7 +548,7 @@ const SearchScreen = ({ navigation }) => {
       </Animated.ScrollView>
 
       <PresenceTransition
-        visible={selectedArtists.length > 0}
+        visible={selectedItems.length > 0}
         initial={{ opacity: 0 }}
         animate={{
           opacity: 1,
@@ -427,7 +560,7 @@ const SearchScreen = ({ navigation }) => {
         }}
       >
         <Fab
-          onPress={() => setSelectedArtists([])}
+          onPress={() => setSelectedItems([])}
           icon={<CloseIcon />}
           size="xs"
           renderInPortal={false}

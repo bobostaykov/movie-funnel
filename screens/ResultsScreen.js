@@ -5,21 +5,30 @@ import {
   Box,
   Button,
   Center,
-  FlatList,
   Heading,
   IconButton,
   Row,
+  SectionList,
   Text,
 } from "native-base";
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
-import tmdbAccessToken from "../assets/tmdb_access_token.json";
-import MovieItem, { MovieItemSkeleton } from "../components/MovieItem";
+import ArtistItem from "../components/ArtistItem";
+import ItemSkeleton from "../components/ItemSkeleton";
+import MovieItem from "../components/MovieItem";
 import {
+  colors,
   TMDB_API_MOVIES_URL,
+  TMDB_MOVIE_BASE_URL,
   TOAST_HIDE_DELAY_LONG,
 } from "../modules/constants";
-import { autoAnimate, platformAndroid } from "../modules/utils";
+import {
+  autoAnimate,
+  extractArtistInfo,
+  extractMovieInfo,
+  fetchFromTmdb,
+  platformAndroid,
+} from "../modules/utils";
 
 /**
  * On this screen the resulting list of movies is shown with
@@ -27,28 +36,34 @@ import { autoAnimate, platformAndroid } from "../modules/utils";
  */
 const ResultsScreen = ({ navigation, route }) => {
   const [movieResults, setMovieResults] = useState([]);
-  // a list of selected artists' names to show above results
-  const [artistNames, setArtistNames] = useState([]);
+  const [artistResults, setArtistResults] = useState([]);
+  // whether all artist names are shown (when more than 2)
+  const [searchNamesExpanded, setSearchNamesExpanded] = useState(false);
+  // no common movies for selected artists or common artists for selected movies are found
+  const [noResults, setNoResults] = useState(false);
+  const [noResultsAlertVisible, setNoResultsAlertVisible] = useState(false);
   // whether fetching is in progress
   const [loading, setLoading] = useState(false);
-  // whether all artist names are shown (when more than 2)
-  const [artistNamesExpanded, setArtistNamesExpanded] = useState(false);
-  // whether individual movies of selected artists are shown, due to the absence of common movies
-  const [showingIndividualMovies, setShowingIndividualMovies] = useState(false);
-  const [noResultsAlertVisible, setNoResultsAlertVisible] = useState(false);
+  const ids = route.params.ids.split(",");
+  const names = route.params.names.split(",");
+  const findMovies = route.params.findMovies;
 
   useEffect(() => {
-    getMovies();
+    if (findMovies) {
+      getCommonMovies();
+    } else {
+      getCommonArtists();
+    }
   }, []);
 
   // --- FUNCTIONS ---
 
   /**
-   * Fetch movies from TMDb API, using their IDs
+   * Finds the movies in common for the selected artists
    */
-  const getMovies = () => {
+  const getCommonMovies = () => {
     setLoading(true);
-    fetchFromTmdb(TMDB_API_MOVIES_URL + route.params.artistIds)
+    fetchFromTmdb(TMDB_API_MOVIES_URL + route.params.ids)
       .then((result) => result.json())
       .then((json) => {
         autoAnimate();
@@ -72,16 +87,19 @@ const ResultsScreen = ({ navigation, route }) => {
    * Informs the user with an alert and fetches movies starring
    * the selected artists.
    */
-  const getAllIndividualMovies = async () => {
+  const getIndividualMoviesForAllArtists = async () => {
     setNoResultsAlertVisible(true);
     autoAnimate();
-    setShowingIndividualMovies(true);
+    setNoResults(true);
     setLoading(true);
+
     const movies = [];
 
-    // fetching individual movies for max three of the selected artists only
-    for (const id of route.params.artistIds.split(",").slice(0, 3)) {
-      movies.push(...(await getIndividualMoviesForArtist(id)));
+    for (let i = 0; i < ids.length; i++) {
+      movies.push({
+        title: names[i],
+        data: await getIndividualMoviesForArtist(ids[i]),
+      });
     }
 
     autoAnimate();
@@ -111,178 +129,300 @@ const ResultsScreen = ({ navigation, route }) => {
    *    being parsed or the common
    */
   const parseMovies = async (resultsJSON, areIndividual = false) => {
-    const results = [];
-    let resultData;
-
-    for (const [index, result] of resultsJSON.entries()) {
-      resultData = {};
-      resultData.title = result.title;
-      resultData.overview = result.overview;
-      resultData.posterPath = result.poster_path;
-      resultData.id = result.id;
-      resultData.rating = result.vote_average;
-
-      results.push(resultData);
-
-      // fetching max three individual movies per selected artist
-      if (areIndividual && index === 2) break;
-    }
+    const results = extractMovieInfo(
+      resultsJSON.slice(0, areIndividual ? 3 : undefined)
+    );
 
     if (areIndividual) return results;
 
-    parseArtistNames();
-
     if (results.length > 0) {
-      setMovieResults(results);
+      setMovieResults([{ title: "", data: results }]);
     } else {
-      await getAllIndividualMovies();
+      await getIndividualMoviesForAllArtists();
     }
-  };
-
-  const parseArtistNames = () => {
-    const artists = [];
-    for (const name of route.params.artistNames.split(",")) {
-      artists.push(name);
-    }
-    setArtistNames(artists);
-    // also returning result to use before the next render
-    return artists;
   };
 
   /**
-   * Toggles the expanded/collapsed view of the artist names
+   * Finds the cast and crew part of the selected movies/series
    */
-  const toggleArtistNamesExpanded = () => {
+  async function getCommonArtists() {
+    setLoading(true);
+    if (findMovies) return;
+
+    const artistsForFirstMovie = await getArtistsForMovie(ids[0]);
+    let commonCast = artistsForFirstMovie.cast;
+    // Store the character for all movies in the 'character' attribute
+    for (const actor of commonCast) {
+      actor.character = { [names[0]]: actor.character };
+    }
+    let commonCrew = deduplicateCrew(artistsForFirstMovie.crew);
+    // Store the job for all movies in the 'job' attribute
+    for (const member of commonCrew) {
+      member.job = { [names[0]]: member.job };
+    }
+
+    for (let i = 1; i < ids.length; i++) {
+      const artistsForMovie = await getArtistsForMovie(ids[i]);
+      commonCast = commonCast.filter((artist) =>
+        artistsForMovie.cast.map((member) => member.id).includes(artist.id)
+      );
+      for (const actor of commonCast) {
+        actor.character[names[i]] = artistsForMovie.cast.find(
+          (a) => a.id === actor.id
+        ).character;
+      }
+      commonCrew = commonCrew.filter((artist) =>
+        artistsForMovie.crew.map((member) => member.id).includes(artist.id)
+      );
+      for (const member of commonCrew) {
+        member.job[names[i]] = deduplicateCrew(artistsForMovie.crew).find(
+          (a) => a.id === member.id
+        ).job;
+      }
+    }
+
+    if (commonCast.length > 0 || commonCrew.length > 0) {
+      setArtistResults([
+        {
+          title: i18n.t("results_screen.common_cast"),
+          data: extractArtistInfo(commonCast),
+        },
+        {
+          title: i18n.t("results_screen.common_crew"),
+          data: extractArtistInfo(commonCrew),
+        },
+      ]);
+    } else {
+      await getIndividualArtistsForAllMovies();
+    }
+
+    setLoading(false);
+  }
+
+  /**
+   * Combine crew duplicates with different jobs
+   */
+  function deduplicateCrew(crew) {
+    return crew.reduce((result, artist) => {
+      const existing = result.find((a) => a.id === artist.id);
+      if (existing) {
+        existing.job += `, ${artist.job}`;
+      } else {
+        result.push({ ...artist });
+      }
+      return result;
+    }, []);
+  }
+
+  /**
+   * Gets gets artists taking part in the selected movies.
+   * Called when no common artists for the selected movies are found.
+   * Informs the user with an alert and fetches artists taking
+   * part in the selected movies.
+   */
+  async function getIndividualArtistsForAllMovies() {
+    setNoResultsAlertVisible(true);
     autoAnimate();
-    setArtistNamesExpanded((current) => !current);
+    setNoResults(true);
+    const result = [];
+    for (let i = 0; i < ids.length; i++) {
+      const artists = await getArtistsForMovie(ids[i]);
+      const director = artists.crew.find((member) => member.job === "Director");
+      const popularCast = artists.cast.slice(0, director !== undefined ? 2 : 3);
+      const data = [];
+      if (director !== undefined) {
+        data.push(director);
+      }
+      data.push(...popularCast);
+      result.push({ title: names[i], data: extractArtistInfo(data) });
+    }
+    setArtistResults(result);
+  }
+
+  /**
+   * Finds the cast and crew part of the movie with the given ID
+   */
+  async function getArtistsForMovie(movieId) {
+    try {
+      const url = `${TMDB_MOVIE_BASE_URL}/${movieId}?append_to_response=credits`;
+      const result = await fetchFromTmdb(url);
+      const json = await result.json();
+      return json.credits;
+    } catch (error) {
+      console.error("error:", error);
+      setLoading(false);
+    }
+  }
+
+  /**
+   * Toggles the expanded/collapsed view of the search names
+   */
+  const toggleSearchNamesExpanded = () => {
+    autoAnimate();
+    setSearchNamesExpanded((current) => !current);
   };
 
   /**
-   * Returns a string of all artists' names joined with commas
+   * Returns a string of all artists'/movies' names joined with commas
    */
-  const getAllArtistsNames = () => {
-    // deliberately not using string templates as in this case it is much less readable
-    return artistNames.length === 2
-      ? artistNames[0] + " " + i18n.t("helpers.and") + " " + artistNames[1]
-      : artistNames.slice(0, -1).join(", ") +
-          " " +
-          i18n.t("helpers.and") +
-          " " +
-          artistNames[artistNames.length - 1];
-  };
-
-  /**
-   * Returns a string of the first two artists' names
-   * and an indicator of how many are hidden
-   */
-  const getArtistsNamesShortened = (artistsArray) => {
-    let artists;
-
-    if (artistsArray) artists = artistsArray;
-    else artists = artistNames;
-
-    // deliberately not using string templates as in this case it is much less readable
+  const getAllSearchNames = () => {
     return (
-      artists[0] +
-      ", " +
-      artists[1] +
+      names.slice(0, -1).join(", ") +
       " " +
       i18n.t("helpers.and") +
       " " +
-      (artists.length - 2) +
+      names[names.length - 1]
+    );
+  };
+
+  /**
+   * Returns a string of the first two artists'/movies' names
+   * and an indicator of how many are hidden
+   */
+  const getSearchNamesShortened = () => {
+    return (
+      names[0] +
+      ", " +
+      names[1] +
       " " +
-      (artists.length === 3
-        ? i18n.t("helpers.other")
-        : i18n.t("helpers.others"))
+      i18n.t("helpers.and") +
+      " " +
+      (names.length - 2) +
+      " " +
+      (names.length === 3 ? i18n.t("helpers.other") : i18n.t("helpers.others"))
     );
   };
 
   // --- COMPONENTS ---
 
-  const ExpandedArtistNames = () => (
+  const ExpandedSearchNames = () => (
     <Center>
       <Text mx="15%" fontSize={13} textAlign="center">
-        {getAllArtistsNames()}
+        {getAllSearchNames()}
       </Text>
-      {artistNames.length > 2 && <ToggleButton />}
+      {names.length > 2 && <ToggleButton />}
     </Center>
   );
 
-  const CollapsedArtistNames = () => (
+  const CollapsedSearchNames = () => (
     <Center>
       <Text mx="15%" fontSize={13} textAlign="center">
-        {getArtistsNamesShortened()}
+        {getSearchNamesShortened()}
       </Text>
-      {artistNames.length > 2 && <ToggleButton />}
+      {names.length > 2 && <ToggleButton />}
     </Center>
   );
+
+  const SearchNames = () => {
+    return searchNamesExpanded || names.length === 2 ? (
+      <ExpandedSearchNames />
+    ) : (
+      <CollapsedSearchNames />
+    );
+  };
 
   const ToggleButton = () => (
-    <Text color="blue.700" onPress={toggleArtistNamesExpanded}>
-      {artistNamesExpanded
+    <Text color="blue.700" onPress={toggleSearchNamesExpanded}>
+      {searchNamesExpanded
         ? i18n.t("results_screen.collapse_names")
         : i18n.t("results_screen.expand_names")}
     </Text>
   );
 
-  const TitleResults = () => (
+  const TitleMovieResults = () => (
     <Box flex={1} alignItems="center" mr={10}>
       <Heading>
-        {showingIndividualMovies
+        {noResults
           ? i18n.t("results_screen.title_individual_movies")
           : i18n.t("results_screen.title_common_movies")}
       </Heading>
-      {artistNamesExpanded || artistNames.length === 2 ? (
-        <ExpandedArtistNames />
-      ) : (
-        <CollapsedArtistNames />
-      )}
+      {!noResults && <SearchNames />}
+    </Box>
+  );
+
+  const TitleArtistResults = () => (
+    <Box flex={1} alignItems="center" mr={10}>
+      <Heading>
+        {noResults
+          ? i18n.t("results_screen.title_individual_artists")
+          : i18n.t("results_screen.title_common_artists")}
+      </Heading>
+      {!noResults && <SearchNames />}
     </Box>
   );
 
   const TitleSearching = () => (
-    <Heading flex={1} textAlign="center">
+    <Heading flex={1} textAlign="center" alignItems="center" mr={10}>
       {i18n.t("results_screen.title_searching")}
     </Heading>
   );
 
+  const SectionTitle = ({ section }) => {
+    return (
+      <Heading
+        size="md"
+        py={2}
+        style={{ backgroundColor: colors.pageBackground }}
+      >
+        {section.title}
+      </Heading>
+    );
+  };
+
   return (
-    <Box safeAreaTop={platformAndroid && 2} flex={1} px={4}>
+    <Box safeAreaTop={platformAndroid && 2} px={4} flex={1}>
       <Row mb={2} justifyContent="center">
-        {!loading && (
-          <IconButton
-            my="auto"
-            icon={<ArrowBackIcon size={5} color="gray.700" />}
-            rounded="md"
-            onPress={() => navigation.pop()}
-          />
-        )}
+        <IconButton
+          mb="auto"
+          icon={<ArrowBackIcon size={5} color="gray.700" />}
+          rounded="md"
+          onPress={() => navigation.pop()}
+        />
 
         {loading ? (
           <TitleSearching />
+        ) : movieResults.length > 0 ? (
+          <TitleMovieResults />
         ) : (
-          movieResults.length > 0 && <TitleResults />
+          artistResults.length > 0 && <TitleArtistResults />
         )}
       </Row>
 
-      <FlatList
-        data={movieResults}
-        renderItem={({ item }) => (
-          <MovieItem
-            title={item.title}
-            overview={item.overview}
-            posterPath={item.posterPath}
-            id={item.id}
-            rating={item.rating}
-          />
-        )}
-        scrollIndicatorInsets={{ right: 1 }}
-      />
+      {movieResults.length > 0 && (
+        <SectionList
+          sections={movieResults}
+          renderSectionHeader={SectionTitle}
+          renderItem={({ item }) => <MovieItem {...item} />}
+          keyExtractor={(item) => item.id.toString()}
+          listKey="MovieList"
+          stickySectionHeadersEnabled={false}
+        />
+      )}
+
+      {artistResults.length > 0 && (
+        <SectionList
+          sections={artistResults}
+          renderSectionHeader={SectionTitle}
+          renderSectionFooter={({ section }) => {
+            if (section.data.length === 0) {
+              return (
+                <Text italic alignSelf="center" mb={2}>
+                  {section.title === i18n.t("results_screen.common_cast")
+                    ? i18n.t("results_screen.no_common_cast")
+                    : i18n.t("results_screen.no_common_crew")}
+                </Text>
+              );
+            }
+          }}
+          renderItem={({ item }) => <ArtistItem {...item} />}
+          keyExtractor={(item) => item.id.toString()}
+          listKey="ArtistList"
+          stickySectionHeadersEnabled={false}
+        />
+      )}
 
       {loading &&
-        Array.from(Array(10)).map((_, index) => (
-          <MovieItemSkeleton key={index} />
-        ))}
+        Array.from(Array(10)).map((_, index) => <ItemSkeleton key={index} />)}
 
       <AlertDialog
         isOpen={noResultsAlertVisible}
@@ -294,8 +434,10 @@ const ResultsScreen = ({ navigation, route }) => {
             {i18n.t("results_screen.alert_title")}
           </AlertDialog.Header>
           <AlertDialog.Body py={0}>
-            <Text textAlign="center">{`${getAllArtistsNames()} ${i18n.t(
-              "results_screen.no_common_movies"
+            <Text textAlign="center">{`${getAllSearchNames()} ${i18n.t(
+              findMovies
+                ? "results_screen.alert_no_movies"
+                : "results_screen.alert_no_artists"
             )}`}</Text>
           </AlertDialog.Body>
           <AlertDialog.Footer justifyContent="center" borderTopWidth={0}>

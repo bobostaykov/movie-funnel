@@ -19,6 +19,7 @@ import Toast, {
 } from "react-native-toast-message";
 import ResultsScreen from "./screens/ResultsScreen";
 import SearchScreen from "./screens/SearchScreen";
+import WelcomeScreen from "./screens/WelcomeScreen";
 
 LogBox.ignoreLogs(["Failed to load http://image.tmdb.org"]);
 
@@ -30,6 +31,7 @@ const App = () => {
   const createStack = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/*<Stack.Screen name='CustomSplashScreen' component={CustomSplashScreen}/>*/}
+      <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
       <Stack.Screen
         name="ResultsScreen"

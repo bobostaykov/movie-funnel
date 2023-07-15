@@ -6,6 +6,7 @@ import i18n from "i18n";
 import { LayoutAnimation, Platform, UIManager } from "react-native";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
 import Toast from "react-native-toast-message";
+import tmdbAccessToken from "../assets/tmdb_access_token.json";
 import {
   ANIMATION_DURATION,
   TMDB_ARTIST_PAGE_URL,
@@ -52,6 +53,54 @@ export const openMovieOrArtistPage = async (id, isArtist = false) => {
       .catch(() => Toast.show({ text2: i18n.t("errors.web_page") }));
   }
 };
+
+/**
+ * Gets the titles of the 'known for' movies
+ */
+const parseKnownFor = (knownForJSON) => {
+  if (knownForJSON === undefined) return undefined;
+
+  const movies = [];
+
+  for (const movie of knownForJSON) {
+    movie.media_type === "movie"
+      ? movies.push(movie.title)
+      : movies.push(movie.original_name);
+  }
+
+  return movies;
+};
+
+/**
+ * Gets relevant artist info from TMDB API results
+ * and sorts it by popularity
+ */
+export function extractArtistInfo(results) {
+  return results
+    .map((result) => ({
+      name: result.name,
+      id: result.id,
+      photoPath: result.profile_path,
+      knownFor: parseKnownFor(result.known_for),
+      as: result.character ? result.character : result.job,
+      isActor: result.character ? true : false,
+      popularity: result.popularity,
+    }))
+    .sort((a, b) => b.popularity - a.popularity);
+}
+
+/**
+ * Gets relevant movie info from TMDB API results
+ */
+export function extractMovieInfo(results) {
+  return results.map((result) => ({
+    name: result.title,
+    overview: result.overview,
+    posterPath: result.poster_path,
+    id: result.id,
+    rating: result.vote_average.toFixed(1),
+  }));
+}
 
 export const fetchFromTmdb = (url) => {
   return fetch(url, {
