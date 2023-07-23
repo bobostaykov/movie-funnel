@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import i18n from "i18n";
 import {
   Box,
+  Button,
   CheckCircleIcon,
   Heading,
   IconButton,
@@ -38,6 +39,7 @@ const ArtistItem = ({
 }) => {
   // the number of lines which the "known for" text can span, calculated on layout
   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
+  const [knownForRef, setKnownForRef] = useState(knownFor);
 
   if (!id) return null;
 
@@ -54,13 +56,60 @@ const ArtistItem = ({
     }
   }
 
-  const body = knownFor ? (
-    <Text>
-      <Text italic>{i18n.t("misc.known_for")}</Text>
-      {knownFor.join(", ")}
-    </Text>
+  const bodyHeight = 107;
+
+  const body = knownForRef ? (
+    <Box flex={1} mt={-1.5} mb={2}>
+      <Row
+        alignItems="center"
+        flexWrap="wrap"
+        onLayout={(event) => {
+          if (event.nativeEvent.layout.height > bodyHeight) {
+            setKnownForRef(knownForRef.slice(0, 2));
+          }
+        }}
+      >
+        <Text italic ml={1}>
+          {i18n.t("misc.known_for")}
+        </Text>
+        {knownForRef.map((movie) => (
+          <Button
+            key={movie.id}
+            onPress={() => openMovieOrArtistPage(movie.id)}
+            bg="#ceceeb"
+            m={0.5}
+            py={1}
+            px="6px"
+            rounded="md"
+            _pressed={{
+              bg: "#ceceeb",
+              opacity: 0.5,
+            }}
+            _text={{
+              lineHeight: 15,
+              color: "text.800",
+            }}
+          >
+            {movie.title}
+          </Button>
+        ))}
+      </Row>
+    </Box>
   ) : (
-    <Text>
+    <Text
+      flex={1}
+      numberOfLines={knownForNumberOfLines}
+      onLayout={(event) =>
+        setKnownForNumberOfLines(
+          Math.floor(
+            (event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT
+          )
+        )
+      }
+      flexWrap="wrap"
+      mb={4}
+      lineHeight={ITEM_TEXT_LINE_HEIGHT}
+    >
       {typeof as === "string" ? (
         isActor ? (
           <Text>
@@ -98,7 +147,7 @@ const ArtistItem = ({
       overflow="hidden"
       h={ITEM_HEIGHT}
       w="full"
-      bgColor="#dbe3fa"
+      bg="#dbe3fa"
       flexDir="row"
     >
       <FastImage resizeMode="cover" source={photo} style={styles.image} />
@@ -107,22 +156,7 @@ const ArtistItem = ({
           {name}
         </Heading>
         <Row flex={1}>
-          <Text
-            flex={1}
-            numberOfLines={knownForNumberOfLines}
-            onLayout={(event) =>
-              setKnownForNumberOfLines(
-                Math.floor(
-                  (event.nativeEvent.layout.height - 10) / ITEM_TEXT_LINE_HEIGHT
-                )
-              )
-            }
-            flexWrap="wrap"
-            mb={4}
-            lineHeight={ITEM_TEXT_LINE_HEIGHT}
-          >
-            {body}
-          </Text>
+          {body}
           <IconButton
             icon={<InfoIcon color="#9797cc" />}
             onPress={() => openMovieOrArtistPage(id, true)}

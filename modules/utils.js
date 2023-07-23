@@ -64,8 +64,8 @@ const parseKnownFor = (knownForJSON) => {
 
   for (const movie of knownForJSON) {
     movie.media_type === "movie"
-      ? movies.push(movie.title)
-      : movies.push(movie.original_name);
+      ? movies.push({ title: movie.title, id: movie.id })
+      : movies.push({ title: movie.name, id: movie.id });
   }
 
   return movies;
