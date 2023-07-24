@@ -215,7 +215,7 @@ const ResultsScreen = ({ navigation, route }) => {
   }
 
   /**
-   * Gets gets artists taking part in the selected movies.
+   * Gets artists taking part in the selected movies.
    * Called when no common artists for the selected movies are found.
    * Informs the user with an alert and fetches artists taking
    * part in the selected movies.
@@ -415,7 +415,7 @@ const ResultsScreen = ({ navigation, route }) => {
             }
           }}
           renderItem={({ item }) => <ArtistItem {...item} />}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id.toString() + item.as}
           listKey="ArtistList"
           stickySectionHeadersEnabled={false}
         />
