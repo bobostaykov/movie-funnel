@@ -18,11 +18,11 @@
     "find_artists": "Search for common artists of selected movies"
   },
   "search_screen": {
-    "title_loading_popular_artists": "Loading popular actors and directors...",
-    "title_showing_popular_artists": "Popular actors and directors",
+    "title_loading_popular_artists": "Loading popular cast and crew...",
+    "title_showing_popular_artists": "Popular cast and crew",
     "title_loading_popular_movies": "Loading popular movies...",
     "title_showing_popular_movies": "Popular movies",
-    "input_placeholder_artists": "Search for an actor or director",
+    "input_placeholder_artists": "Search for cast and crew",
     "input_placeholder_movies": "Search for a movie",
     "title_loading_results": "Searching...",
     "title_showing_results": "Results for",

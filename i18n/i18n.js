@@ -8,14 +8,22 @@
  */
 
 import i18n from "i18n-js";
-import * as Localization from "react-native-localization";
+import { NativeModules, Platform } from "react-native";
 
 import bg from "./bg.json";
 import en from "./en.json";
 
-i18n.defaultLocale = "en";
-i18n.locale = Localization.locale;
+let locale;
+if (Platform.OS === "ios") {
+  locale =
+    NativeModules.SettingsManager.settings.AppleLocale ||
+    NativeModules.SettingsManager.settings.AppleLanguages[0];
+} else {
+  locale = NativeModules.I18nManager.localeIdentifier;
+}
+i18n.locale = locale.split("_")[0];
 i18n.fallbacks = true;
+i18n.defaultLocale = "en";
 i18n.translations = { en, bg };
 
 export default i18n;

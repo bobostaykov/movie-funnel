@@ -369,7 +369,11 @@ const SearchScreen = ({ navigation, route }) => {
         }
       }
     }
-    return <Heading my="4">{text}</Heading>;
+    return (
+      <Heading textAlign="center" my="4">
+        {text}
+      </Heading>
+    );
   }
 
   function NoResults() {
