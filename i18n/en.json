@@ -2,28 +2,28 @@
   "errors": {
     "web_page": "There was an error opening the web page",
     "fetch_results": "There was an error fetching results",
-    "fetch_individual": "There was an error fetching individual movies",
+    "fetch_individual": "There was an error fetching individual movies and shows",
     "fetch_popular_artists": "There was an error fetching popular artists",
-    "fetch_popular_movies": "There was an error fetching popular movies",
+    "fetch_popular_movies_and_shows": "There was an error fetching popular movies and shows",
     "fetch_search_results": "There was an error fetching search results",
     "too_many_artists": "Please select up to 10 artists",
     "too_few_artists": "Please select at least 2 artists",
-    "too_many_movies": "Please select up to 10 movies",
-    "too_few_movies": "Please select at least 2 movies",
+    "too_many_movies_and_shows": "Please select up to 10 movies and shows",
+    "too_few_movies_and_shows": "Please select at least 2 movies or shows",
     "empty_search": "Please search for a real name",
     "no_results": "No results found for"
   },
   "welcome_screen": {
-    "find_movies": "Search for common movies of selected artists",
-    "find_artists": "Search for common artists of selected movies"
+    "find_movies_and_shows": "Search for common movies and shows of selected artists",
+    "find_artists": "Search for common artists of selected movies and shows"
   },
   "search_screen": {
     "title_loading_popular_artists": "Loading popular cast and crew...",
     "title_showing_popular_artists": "Popular cast and crew",
-    "title_loading_popular_movies": "Loading popular movies...",
-    "title_showing_popular_movies": "Popular movies",
+    "title_loading_popular_movies_and_shows": "Loading popular movies and shows...",
+    "title_showing_popular_movies_and_shows": "Popular movies and shows",
     "input_placeholder_artists": "Search for cast and crew",
-    "input_placeholder_movies": "Search for a movie",
+    "input_placeholder_movies_and_shows": "Search for a movie or a show",
     "title_loading_results": "Searching...",
     "title_showing_results": "Results for",
     "truncated_results": "Results were truncated, try a more specific search",
@@ -32,8 +32,8 @@
   },
   "results_screen": {
     "title_searching": "Searching...",
-    "title_common_movies": "Movies in common for:",
-    "title_individual_movies": "Movies starring:",
+    "title_common_movies_and_shows": "Movies and shows in common for:",
+    "title_individual_movies_and_shows": "Movies and shows starring:",
     "title_common_artists": "Artists in common for:",
     "title_individual_artists": "Artists part of:",
     "common_cast": "Cast",
@@ -43,7 +43,7 @@
     "no_common_cast": "No cast in common",
     "no_common_crew": "No crew in common",
     "alert_title": "No results",
-    "alert_no_movies": "don't have any movies in common yet... Here are some of their individual movies instead!",
+    "alert_no_movies_or_shows": "don't have any movies or shows in common yet... Here are some of their individual movies and shows instead!",
     "alert_no_artists": "don't have any cast or crew in common... Here are some of the artists in each of them instead!"
   },
   "helpers": {

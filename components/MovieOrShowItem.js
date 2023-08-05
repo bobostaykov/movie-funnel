@@ -1,7 +1,3 @@
-/**
- * Component representing an item in the movie results list
- */
-
 import {
   Box,
   CheckCircleIcon,
@@ -15,6 +11,8 @@ import {
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
+import FeatherIcon from "react-native-vector-icons/Feather";
+import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import {
   IMAGE_RATIO,
   ITEM_HEIGHT,
@@ -22,9 +20,12 @@ import {
   spacing,
   TMDB_IMAGE_URL,
 } from "../modules/constants";
-import { openMovieOrArtistPage } from "../modules/utils";
+import { openMovieShowOrArtistPage, platformAndroid } from "../modules/utils";
 
-const MovieItem = ({
+/**
+ * Component representing an item in the movie and show results list
+ */
+const MovieOrShowItem = ({
   name,
   overview,
   posterPath,
@@ -32,6 +33,7 @@ const MovieItem = ({
   rating,
   onPress,
   selected,
+  isShow,
 }) => {
   // the width of the rating text, calculated on layout and used to add proper margin to title
   const [ratingTextWidth, setRatingTextWidth] = useState(0);
@@ -60,7 +62,7 @@ const MovieItem = ({
       w="full"
       flexDir="row"
       alignItems="center"
-      backgroundColor="#f3e2d7"
+      bg="#f3e2d7"
     >
       <FastImage
         resizeMode={FastImage.resizeMode.cover}
@@ -69,11 +71,26 @@ const MovieItem = ({
       />
       <Box px={4} py={3} flex={1}>
         <Row pb={2}>
-          <Heading size="md" mr={ratingTextWidth + 2 * spacing.defaultMargin}>
+          <Heading size="md" mr={ratingTextWidth + spacing.marginS}>
+            <Box pr={isShow ? 1 : 1.5}>
+              {isShow ? (
+                <FeatherIcon
+                  name="tv"
+                  size={platformAndroid ? 17 : 20}
+                  color="#a6a6a6"
+                />
+              ) : (
+                <FontAwesomeIcon
+                  name="film"
+                  size={platformAndroid ? 16 : 20}
+                  color="#a6a6a6"
+                />
+              )}
+            </Box>
             {name}
           </Heading>
           <Heading
-            size="md"
+            size="xs"
             ml="auto"
             onLayout={(event) =>
               setRatingTextWidth(event.nativeEvent.layout.width)
@@ -100,7 +117,7 @@ const MovieItem = ({
           </Text>
           <IconButton
             icon={<InfoIcon color="#c48f6c" />}
-            onPress={() => openMovieOrArtistPage(id)}
+            onPress={() => openMovieShowOrArtistPage(id, false, isShow)}
             mb={-2}
             mr={-3}
             alignSelf="flex-end"
@@ -141,4 +158,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MovieItem;
+export default MovieOrShowItem;

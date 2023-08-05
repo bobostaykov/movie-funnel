@@ -1,8 +1,3 @@
-/**
- * Component representing an item in the actors
- * and directors results list
- */
-
 import React, { useState } from "react";
 
 import i18n from "i18n";
@@ -25,8 +20,12 @@ import {
   ITEM_TEXT_LINE_HEIGHT,
   TMDB_IMAGE_URL,
 } from "../modules/constants";
-import { openMovieOrArtistPage } from "../modules/utils";
+import { openMovieShowOrArtistPage } from "../modules/utils";
 
+/**
+ * Component representing an item in the cast
+ * and crew results list
+ */
 const ArtistItem = ({
   name,
   id,
@@ -75,7 +74,7 @@ const ArtistItem = ({
         {knownForRef.map((movie) => (
           <Button
             key={movie.id}
-            onPress={() => openMovieOrArtistPage(movie.id)}
+            onPress={() => openMovieShowOrArtistPage(movie.id)}
             bg="#ceceeb"
             m={0.5}
             py={1}
@@ -159,7 +158,7 @@ const ArtistItem = ({
           {body}
           <IconButton
             icon={<InfoIcon color="#9797cc" />}
-            onPress={() => openMovieOrArtistPage(id, true)}
+            onPress={() => openMovieShowOrArtistPage(id, true)}
             m={1}
             mt="auto"
             rounded="full"

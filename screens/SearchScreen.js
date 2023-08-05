@@ -18,22 +18,24 @@ import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
 import Toast from "react-native-toast-message";
 import ArtistItem from "../components/ArtistItem";
 import ItemSkeleton from "../components/ItemSkeleton";
-import MovieItem from "../components/MovieItem";
+import MovieOrShowItem from "../components/MovieOrShowItem";
 import {
   ANIMATION_DURATION,
   MAX_ARTISTS,
-  MAX_MOVIES,
+  MAX_MOVIES_AND_SHOWS,
   MAX_RESULTS_TO_SHOW,
   POPULAR_ARTISTS_TO_SHOW,
-  POPULAR_MOVIES_TO_SHOW,
+  POPULAR_MOVIES_AND_SHOWS_TO_SHOW,
   TMDB_POPULAR_ARTISTS_URL,
   TMDB_POPULAR_MOVIES_URL,
+  TMDB_POPULAR_SHOWS_URL,
   TMDB_SEARCH_ARTISTS_URL,
   TMDB_SEARCH_MOVIES_URL,
+  TMDB_SEARCH_SHOWS_URL,
 } from "../modules/constants";
 import {
   extractArtistInfo,
-  extractMovieInfo,
+  extractMovieOrShowInfo,
   fetchFromTmdb,
   platformAndroid,
 } from "../modules/utils";
@@ -51,7 +53,7 @@ const SearchScreen = ({ navigation, route }) => {
   // list of fetched popular artists to show initially on search screen
   const [popularArtists, setPopularArtists] = useState([]);
   // list of fetched popular movies to show initially on search screen
-  const [popularMovies, setPopularMovies] = useState([]);
+  const [popularMovies, setPopularMoviesAndShows] = useState([]);
   // search term, value changing as user types
   const [intermediateSearchValue, setIntermediateSearchValue] = useState("");
   // value of search field after pressing search button
@@ -83,10 +85,10 @@ const SearchScreen = ({ navigation, route }) => {
   const animatedOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (route.params.findMovies) {
+    if (route.params.findMoviesAndShows) {
       fetchPopularArtists();
     } else {
-      fetchPopularMovies();
+      fetchPopularMoviesAndShows();
     }
   }, []);
 
@@ -115,36 +117,36 @@ const SearchScreen = ({ navigation, route }) => {
   };
 
   /**
-   * Fetches most popular movies on TMDb
+   * Fetches most popular movies and shows on TMDb
    */
-  const fetchPopularMovies = () => {
+  const fetchPopularMoviesAndShows = async () => {
     setLoading(true);
 
-    fetchFromTmdb(TMDB_POPULAR_MOVIES_URL)
-      .then((result) => {
-        setLoading(false);
-        return result.json();
-      })
-      .then((json) => parseMovieResults(json.results, true))
-      .catch(() => {
-        Toast.show({
-          text2: i18n.t("errors.fetch_popular_movies"),
-          bottomOffset: selectedItems.length > 0 && 80,
-        });
-        setLoading(false);
-        setPopularVisible(true);
+    try {
+      const movieResults = await fetchFromTmdb(TMDB_POPULAR_MOVIES_URL);
+      const showResults = await fetchFromTmdb(TMDB_POPULAR_SHOWS_URL);
+      setLoading(false);
+      const movieJson = await movieResults.json();
+      const showJson = await showResults.json();
+      const combinedResults = [...movieJson.results, ...showJson.results].sort(
+        (a, b) => b.popularity - a.popularity
+      );
+      parseMovieAndShowResults(combinedResults, true);
+    } catch (error) {
+      Toast.show({
+        text2: i18n.t("errors.fetch_popular_movies_and_shows"),
+        bottomOffset: selectedItems.length > 0 && 80,
       });
+      setLoading(false);
+      setPopularVisible(true);
+    }
   };
 
   /**
-   * Fetch artist or movie results for search term
+   * Fetch artist results for search term
    */
-  const fetchResultsForSearchTerm = (term) => {
-    fetchFromTmdb(
-      (route.params.findMovies
-        ? TMDB_SEARCH_ARTISTS_URL
-        : TMDB_SEARCH_MOVIES_URL) + encodeURI(term)
-    )
+  const fetchArtistsForSearchTerm = (term) => {
+    fetchFromTmdb(TMDB_SEARCH_ARTISTS_URL + encodeURI(term))
       .then((result) => {
         setTimeout(() => {
           setResultsFetched(true);
@@ -153,11 +155,7 @@ const SearchScreen = ({ navigation, route }) => {
       })
       .then((json) => {
         setResultsTruncated(json.total_results > MAX_RESULTS_TO_SHOW);
-        if (route.params.findMovies) {
-          parseArtistResults(json.results);
-        } else {
-          parseMovieResults(json.results);
-        }
+        parseArtistResults(json.results);
         setLoading(false);
       })
       .catch(() => {
@@ -169,6 +167,39 @@ const SearchScreen = ({ navigation, route }) => {
         setSearching(false);
         setPopularVisible(true);
       });
+  };
+
+  /**
+   * Fetch movie and show results for search term
+   */
+  const fetchMoviesAndShowsForSearchTerm = async (term) => {
+    try {
+      const movieResults = await fetchFromTmdb(
+        TMDB_SEARCH_MOVIES_URL + encodeURI(term)
+      );
+      const showResults = await fetchFromTmdb(
+        TMDB_SEARCH_SHOWS_URL + encodeURI(term)
+      );
+      setTimeout(() => {
+        setResultsFetched(true);
+      }, 500);
+      const movieJson = await movieResults.json();
+      const showJson = await showResults.json();
+      const combinedResults = [...movieJson.results, ...showJson.results].sort(
+        (a, b) => b.popularity - a.popularity
+      );
+      setResultsTruncated(combinedResults.length > MAX_RESULTS_TO_SHOW);
+      parseMovieAndShowResults(combinedResults);
+      setLoading(false);
+    } catch (error) {
+      Toast.show({
+        text2: i18n.t("errors.fetch_search_results"),
+        bottomOffset: selectedItems.length > 0 && 80,
+      });
+      setLoading(false);
+      setSearching(false);
+      setPopularVisible(true);
+    }
   };
 
   /**
@@ -195,19 +226,19 @@ const SearchScreen = ({ navigation, route }) => {
 
   /**
    * Extracts relevant information from the results
-   * @param isPopular: whether popular movie results are
+   * @param isPopular: whether popular movie and show results are
    *    parsed; if false -> then search results are parsed
    */
-  const parseMovieResults = (resultsJSON, isPopular = false) => {
-    const results = extractMovieInfo(
+  const parseMovieAndShowResults = (resultsJSON, isPopular = false) => {
+    const results = extractMovieOrShowInfo(
       resultsJSON.slice(
         0,
-        isPopular ? POPULAR_MOVIES_TO_SHOW : MAX_RESULTS_TO_SHOW
+        isPopular ? POPULAR_MOVIES_AND_SHOWS_TO_SHOW : MAX_RESULTS_TO_SHOW
       )
     );
 
     if (isPopular) {
-      setPopularMovies(results);
+      setPopularMoviesAndShows(results);
     } else {
       setSearchResults(results);
     }
@@ -216,21 +247,21 @@ const SearchScreen = ({ navigation, route }) => {
   };
 
   /**
-   * Called on artist/movie item press
+   * Called on artist or movie/show item press
    */
-  const selectItem = (id, name, selected) => {
+  const selectItem = (id, name, selected, isShow = false) => {
     if (selected) {
       if (
-        selectedItems.length < route.params.findMovies
+        selectedItems.length < route.params.findMoviesAndShows
           ? MAX_ARTISTS
-          : MAX_MOVIES
+          : MAX_MOVIES_AND_SHOWS
       ) {
-        setSelectedItems((current) => [...current, { id, name }]);
+        setSelectedItems((current) => [...current, { id, name, isShow }]);
       } else {
         Toast.show({
-          text2: route.params.findMovies
+          text2: route.params.findMoviesAndShows
             ? i18n.t("errors.too_many_artists")
-            : i18n.t("errors.too_many_movies"),
+            : i18n.t("errors.too_many_movies_and_shows"),
           bottomOffset: 80,
         });
       }
@@ -283,16 +314,16 @@ const SearchScreen = ({ navigation, route }) => {
   const applySelection = () => {
     if (selectedItems.length < 2) {
       Toast.show({
-        text2: route.params.findMovies
+        text2: route.params.findMoviesAndShows
           ? i18n.t("errors.too_few_artists")
-          : i18n.t("errors.too_few_movies"),
+          : i18n.t("errors.too_few_movies_and_shows"),
         bottomOffset: 80,
       });
     } else {
       navigation.navigate("ResultsScreen", {
         ids: getSelectedItemIds(),
         names: getSelectedItemNames(),
-        findMovies: route.params.findMovies,
+        findMoviesAndShows: route.params.findMoviesAndShows,
       });
     }
   };
@@ -318,12 +349,23 @@ const SearchScreen = ({ navigation, route }) => {
     setResultsFetched(false);
     setResultsTruncated(false);
 
-    fetchResultsForSearchTerm(intermediateSearchValue);
+    if (route.params.findMoviesAndShows) {
+      fetchArtistsForSearchTerm(intermediateSearchValue);
+    } else {
+      fetchMoviesAndShowsForSearchTerm(intermediateSearchValue);
+    }
   };
 
   const getSelectedItemIds = () => {
     const ids = [];
-    for (const artist of selectedItems) ids.push(artist.id);
+    for (const item of selectedItems) {
+      let id = item.id;
+      // Differentiating between movies and shows
+      if (item.isShow) {
+        id = "s" + id;
+      }
+      ids.push(id);
+    }
     return ids.join(",");
   };
 
@@ -347,10 +389,10 @@ const SearchScreen = ({ navigation, route }) => {
       if (searching) {
         text = i18n.t("search_screen.title_loading_results");
       } else {
-        if (route.params.findMovies) {
+        if (route.params.findMoviesAndShows) {
           text = i18n.t("search_screen.title_loading_popular_artists");
         } else {
-          text = i18n.t("search_screen.title_loading_popular_movies");
+          text = i18n.t("search_screen.title_loading_popular_movies_and_shows");
         }
       }
     } else {
@@ -362,10 +404,10 @@ const SearchScreen = ({ navigation, route }) => {
             searchTerm +
             '":';
       } else {
-        if (route.params.findMovies) {
+        if (route.params.findMoviesAndShows) {
           text = i18n.t("search_screen.title_showing_popular_artists");
         } else {
-          text = i18n.t("search_screen.title_showing_popular_movies");
+          text = i18n.t("search_screen.title_showing_popular_movies_and_shows");
         }
       }
     }
@@ -400,9 +442,9 @@ const SearchScreen = ({ navigation, route }) => {
         value={intermediateSearchValue}
         onChangeText={setIntermediateSearchValue}
         placeholder={i18n.t(
-          route.params.findMovies
+          route.params.findMoviesAndShows
             ? "search_screen.input_placeholder_artists"
-            : "search_screen.input_placeholder_movies"
+            : "search_screen.input_placeholder_movies_and_shows"
         )}
         placeholderTextColor="light.500"
         fontSize="sm"
@@ -441,7 +483,9 @@ const SearchScreen = ({ navigation, route }) => {
           <RefreshControl
             refreshing={refreshingPopular}
             onRefresh={
-              route.params.findMovies ? fetchPopularArtists : fetchPopularMovies
+              route.params.findMoviesAndShows
+                ? fetchPopularArtists
+                : fetchPopularMoviesAndShows
             }
             enabled={!searching}
           />
@@ -451,7 +495,7 @@ const SearchScreen = ({ navigation, route }) => {
 
         {popularVisible &&
           !loading &&
-          route.params.findMovies &&
+          route.params.findMoviesAndShows &&
           popularArtists.map((item) => (
             <ArtistItem
               {...item}
@@ -459,19 +503,17 @@ const SearchScreen = ({ navigation, route }) => {
                 selectItem(
                   item.id,
                   item.name,
-                  !selectedItems.map((artist) => artist.id).includes(item.id)
+                  !selectedItems.map((i) => i.id).includes(item.id)
                 )
               }
-              selected={selectedItems
-                .map((artist) => artist.id)
-                .includes(item.id)}
+              selected={selectedItems.map((i) => i.id).includes(item.id)}
               key={item.id}
             />
           ))}
 
         {!popularVisible &&
           !loading &&
-          route.params.findMovies &&
+          route.params.findMoviesAndShows &&
           searchResults.map((item) => (
             <ArtistItem
               {...item}
@@ -479,62 +521,58 @@ const SearchScreen = ({ navigation, route }) => {
                 selectItem(
                   item.id,
                   item.name,
-                  !selectedItems.map((artist) => artist.id).includes(item.id)
+                  !selectedItems.map((i) => i.id).includes(item.id)
                 )
               }
-              selected={selectedItems
-                .map((artist) => artist.id)
-                .includes(item.id)}
+              selected={selectedItems.map((i) => i.id).includes(item.id)}
               key={item.id}
             />
           ))}
 
         {popularVisible &&
           !loading &&
-          !route.params.findMovies &&
+          !route.params.findMoviesAndShows &&
           popularMovies.map((item) => (
-            <MovieItem
+            <MovieOrShowItem
               {...item}
               onPress={() =>
                 selectItem(
                   item.id,
                   item.name,
-                  !selectedItems.map((movie) => movie.id).includes(item.id)
+                  !selectedItems.map((i) => i.id).includes(item.id),
+                  item.isShow
                 )
               }
-              selected={selectedItems
-                .map((movie) => movie.id)
-                .includes(item.id)}
+              selected={selectedItems.map((i) => i.id).includes(item.id)}
               key={item.id}
             />
           ))}
 
         {!popularVisible &&
           !loading &&
-          !route.params.findMovies &&
+          !route.params.findMoviesAndShows &&
           searchResults.map((item) => (
-            <MovieItem
+            <MovieOrShowItem
               {...item}
               onPress={() =>
                 selectItem(
                   item.id,
                   item.name,
-                  !selectedItems.map((movie) => movie.id).includes(item.id)
+                  !selectedItems.map((i) => i.id).includes(item.id),
+                  item.isShow
                 )
               }
-              selected={selectedItems
-                .map((movie) => movie.id)
-                .includes(item.id)}
+              selected={selectedItems.map((i) => i.id).includes(item.id)}
               key={item.id}
             />
           ))}
 
         {loading &&
-          route.params.findMovies &&
+          route.params.findMoviesAndShows &&
           Array.from(Array(10)).map((_, index) => <ItemSkeleton key={index} />)}
 
         {loading &&
-          !route.params.findMovies &&
+          !route.params.findMoviesAndShows &&
           Array.from(Array(10)).map((_, index) => <ItemSkeleton key={index} />)}
 
         {resultsTruncated && (

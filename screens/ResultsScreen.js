@@ -15,17 +15,19 @@ import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import ArtistItem from "../components/ArtistItem";
 import ItemSkeleton from "../components/ItemSkeleton";
-import MovieItem from "../components/MovieItem";
+import MovieOrShowItem from "../components/MovieOrShowItem";
 import {
   colors,
   TMDB_API_MOVIES_URL,
+  TMDB_ARTIST_BASE_URL,
   TMDB_MOVIE_BASE_URL,
+  TMDB_SHOW_BASE_URL,
   TOAST_HIDE_DELAY_LONG,
 } from "../modules/constants";
 import {
   autoAnimate,
   extractArtistInfo,
-  extractMovieInfo,
+  extractMovieOrShowInfo,
   fetchFromTmdb,
   platformAndroid,
 } from "../modules/utils";
@@ -35,7 +37,7 @@ import {
  * information and a link to the corresponding TMDB page
  */
 const ResultsScreen = ({ navigation, route }) => {
-  const [movieResults, setMovieResults] = useState([]);
+  const [movieAndShowResults, setMovieAndShowResults] = useState([]);
   const [artistResults, setArtistResults] = useState([]);
   // whether all artist names are shown (when more than 2)
   const [searchNamesExpanded, setSearchNamesExpanded] = useState(false);
@@ -44,13 +46,14 @@ const ResultsScreen = ({ navigation, route }) => {
   const [noResultsAlertVisible, setNoResultsAlertVisible] = useState(false);
   // whether fetching is in progress
   const [loading, setLoading] = useState(false);
+
   const ids = route.params.ids.split(",");
   const names = route.params.names.split(",");
-  const findMovies = route.params.findMovies;
+  const findMoviesAndShows = route.params.findMoviesAndShows;
 
   useEffect(() => {
-    if (findMovies) {
-      getCommonMovies();
+    if (findMoviesAndShows) {
+      getCommonMoviesAndShows();
     } else {
       getCommonArtists();
     }
@@ -59,28 +62,61 @@ const ResultsScreen = ({ navigation, route }) => {
   // --- FUNCTIONS ---
 
   /**
-   * Finds the movies in common for the selected artists
+   * Finds the movies and shows in common for the selected artists
    */
-  const getCommonMovies = () => {
+  const getCommonMoviesAndShows = async () => {
     setLoading(true);
-    fetchFromTmdb(TMDB_API_MOVIES_URL + route.params.ids)
-      .then((result) => result.json())
-      .then((json) => {
-        autoAnimate();
-        setLoading(false);
-        return parseMovies(json.results);
-      })
-      .catch((e) => {
-        console.error("error:", e);
-        setLoading(false);
-        navigation.pop();
-        Toast.show({
-          text2: i18n.t("errors.fetch_results"),
-          visibilityTime: TOAST_HIDE_DELAY_LONG,
-          bottomOffset: 80,
-        });
+    try {
+      const movieResults = await fetchFromTmdb(
+        TMDB_API_MOVIES_URL + route.params.ids
+      );
+      const movieJson = await movieResults.json();
+      const commonShows = await getCommonShows(ids);
+      const combinedResults = [...movieJson.results, ...commonShows];
+      const uniqueResults = combinedResults.filter(
+        (value, index, self) =>
+          self.map((item) => item.id).indexOf(value.id) === index
+      );
+      uniqueResults.sort((a, b) => b.popularity - a.popularity);
+
+      autoAnimate();
+      setLoading(false);
+      parseMoviesAndShows(uniqueResults);
+    } catch (error) {
+      console.error("error:", error);
+      setLoading(false);
+      navigation.pop();
+      Toast.show({
+        text2: i18n.t("errors.fetch_results"),
+        visibilityTime: TOAST_HIDE_DELAY_LONG,
+        bottomOffset: 80,
       });
+    }
   };
+
+  /**
+   * Finds the shows in common for the given artists.
+   * A possible error is propagated to the catch clause
+   * in the caller.
+   */
+  async function getCommonShows(artistIds) {
+    let currentShows;
+    for (let i = 0; i < artistIds.length; i++) {
+      const result = await fetchFromTmdb(
+        `${TMDB_ARTIST_BASE_URL}/${artistIds[i]}/tv_credits`
+      );
+      const json = await result.json();
+      const newShows = [...json.cast, ...json.crew];
+      if (i === 0) {
+        currentShows = newShows;
+      } else {
+        currentShows = currentShows.filter((show) =>
+          newShows.map((s) => s.id).includes(show.id)
+        );
+      }
+    }
+    return currentShows;
+  }
 
   /**
    * Called when no common movies for the selected artists are found.
@@ -104,7 +140,7 @@ const ResultsScreen = ({ navigation, route }) => {
 
     autoAnimate();
     setLoading(false);
-    setMovieResults(movies);
+    setMovieAndShowResults(movies);
   };
 
   /**
@@ -114,7 +150,7 @@ const ResultsScreen = ({ navigation, route }) => {
     try {
       const result = await fetchFromTmdb(TMDB_API_MOVIES_URL + artistId);
       const json = await result.json();
-      return await parseMovies(json.results, true);
+      return await parseMoviesAndShows(json.results, true);
     } catch (error) {
       console.error("error:", error);
       setLoading(false);
@@ -128,41 +164,43 @@ const ResultsScreen = ({ navigation, route }) => {
    * @param areIndividual: are the individual artist movies
    *    being parsed or the common
    */
-  const parseMovies = async (resultsJSON, areIndividual = false) => {
-    const results = extractMovieInfo(
+  const parseMoviesAndShows = async (resultsJSON, areIndividual = false) => {
+    const results = extractMovieOrShowInfo(
       resultsJSON.slice(0, areIndividual ? 3 : undefined)
     );
 
     if (areIndividual) return results;
 
     if (results.length > 0) {
-      setMovieResults([{ title: "", data: results }]);
+      setMovieAndShowResults([{ title: "", data: results }]);
     } else {
       await getIndividualMoviesForAllArtists();
     }
   };
 
   /**
-   * Finds the cast and crew part of the selected movies/series
+   * Finds the cast and crew part of the selected movies/shows
    */
   async function getCommonArtists() {
     setLoading(true);
-    if (findMovies) return;
+    if (findMoviesAndShows) {
+      return;
+    }
 
-    const artistsForFirstMovie = await getArtistsForMovie(ids[0]);
-    let commonCast = artistsForFirstMovie.cast;
+    const artistsForFirstMovieOrShow = await getArtistsForMovieOrShow(ids[0]);
+    let commonCast = artistsForFirstMovieOrShow.cast;
     // Store the character for all movies in the 'character' attribute
     for (const actor of commonCast) {
       actor.character = { [names[0]]: actor.character };
     }
-    let commonCrew = deduplicateCrew(artistsForFirstMovie.crew);
+    let commonCrew = deduplicateCrew(artistsForFirstMovieOrShow.crew);
     // Store the job for all movies in the 'job' attribute
     for (const member of commonCrew) {
       member.job = { [names[0]]: member.job };
     }
 
     for (let i = 1; i < ids.length; i++) {
-      const artistsForMovie = await getArtistsForMovie(ids[i]);
+      const artistsForMovie = await getArtistsForMovieOrShow(ids[i]);
       commonCast = commonCast.filter((artist) =>
         artistsForMovie.cast.map((member) => member.id).includes(artist.id)
       );
@@ -193,7 +231,7 @@ const ResultsScreen = ({ navigation, route }) => {
         },
       ]);
     } else {
-      await getIndividualArtistsForAllMovies();
+      await getIndividualArtistsForAllMoviesAndShows();
     }
 
     setLoading(false);
@@ -215,18 +253,18 @@ const ResultsScreen = ({ navigation, route }) => {
   }
 
   /**
-   * Gets artists taking part in the selected movies.
-   * Called when no common artists for the selected movies are found.
+   * Called when no common artists for the selected movies and
+   * shows are found.
    * Informs the user with an alert and fetches artists taking
-   * part in the selected movies.
+   * part in the selected movies ans shows.
    */
-  async function getIndividualArtistsForAllMovies() {
+  async function getIndividualArtistsForAllMoviesAndShows() {
     setNoResultsAlertVisible(true);
     autoAnimate();
     setNoResults(true);
     const result = [];
     for (let i = 0; i < ids.length; i++) {
-      const artists = await getArtistsForMovie(ids[i]);
+      const artists = await getArtistsForMovieOrShow(ids[i]);
       const director = artists.crew.find((member) => member.job === "Director");
       const popularCast = artists.cast.slice(0, director !== undefined ? 2 : 3);
       const data = [];
@@ -240,11 +278,18 @@ const ResultsScreen = ({ navigation, route }) => {
   }
 
   /**
-   * Finds the cast and crew part of the movie with the given ID
+   * Finds the cast and crew part of the movie or show with the given ID
    */
-  async function getArtistsForMovie(movieId) {
+  async function getArtistsForMovieOrShow(movieOrShowId) {
     try {
-      const url = `${TMDB_MOVIE_BASE_URL}/${movieId}?append_to_response=credits`;
+      let baseUrl;
+      if (movieOrShowId.startsWith("s")) {
+        baseUrl = TMDB_SHOW_BASE_URL;
+        movieOrShowId = movieOrShowId.slice(1);
+      } else {
+        baseUrl = TMDB_MOVIE_BASE_URL;
+      }
+      const url = `${baseUrl}/${movieOrShowId}?append_to_response=credits`;
       const result = await fetchFromTmdb(url);
       const json = await result.json();
       return json.credits;
@@ -329,12 +374,12 @@ const ResultsScreen = ({ navigation, route }) => {
     </Text>
   );
 
-  const TitleMovieResults = () => (
+  const TitleMovieAndShowResults = () => (
     <Box flex={1} alignItems="center" mr={10}>
-      <Heading>
+      <Heading textAlign="center">
         {noResults
-          ? i18n.t("results_screen.title_individual_movies")
-          : i18n.t("results_screen.title_common_movies")}
+          ? i18n.t("results_screen.title_individual_movies_and_shows")
+          : i18n.t("results_screen.title_common_movies_and_shows")}
       </Heading>
       {!noResults && <SearchNames />}
     </Box>
@@ -358,7 +403,7 @@ const ResultsScreen = ({ navigation, route }) => {
   );
 
   const SectionTitle = ({ section }) => {
-    return (
+    return typeof section.title === "string" && section.title.length > 0 ? (
       <Heading
         size="md"
         py={2}
@@ -366,7 +411,7 @@ const ResultsScreen = ({ navigation, route }) => {
       >
         {section.title}
       </Heading>
-    );
+    ) : null;
   };
 
   return (
@@ -381,18 +426,18 @@ const ResultsScreen = ({ navigation, route }) => {
 
         {loading ? (
           <TitleSearching />
-        ) : movieResults.length > 0 ? (
-          <TitleMovieResults />
+        ) : movieAndShowResults.length > 0 ? (
+          <TitleMovieAndShowResults />
         ) : (
           artistResults.length > 0 && <TitleArtistResults />
         )}
       </Row>
 
-      {movieResults.length > 0 && (
+      {movieAndShowResults.length > 0 && (
         <SectionList
-          sections={movieResults}
+          sections={movieAndShowResults}
           renderSectionHeader={SectionTitle}
-          renderItem={({ item }) => <MovieItem {...item} />}
+          renderItem={({ item }) => <MovieOrShowItem {...item} />}
           keyExtractor={(item) => item.id.toString()}
           listKey="MovieList"
           stickySectionHeadersEnabled={false}
@@ -435,8 +480,8 @@ const ResultsScreen = ({ navigation, route }) => {
           </AlertDialog.Header>
           <AlertDialog.Body py={0}>
             <Text textAlign="center">{`${getAllSearchNames()} ${i18n.t(
-              findMovies
-                ? "results_screen.alert_no_movies"
+              findMoviesAndShows
+                ? "results_screen.alert_no_movies_or_shows"
                 : "results_screen.alert_no_artists"
             )}`}</Text>
           </AlertDialog.Body>

@@ -4,8 +4,8 @@ import React from "react";
 
 /**
  * On this screen the user chooses between the option to search
- * for common artists on selected movies or common movies of
- * selected artists.
+ * for common artists on selected movies and shows, or common 
+ * movies and shows of selected artists.
  */
 function WelcomeScreen({ navigation }) {
   return (
@@ -15,15 +15,15 @@ function WelcomeScreen({ navigation }) {
       </Center>
       <Button
         onPress={() =>
-          navigation.navigate("SearchScreen", { findMovies: true })
+          navigation.navigate("SearchScreen", { findMoviesAndShows: true })
         }
         mt={10}
       >
-        <Text>{i18n.t("welcome_screen.find_movies")}</Text>
+        <Text>{i18n.t("welcome_screen.find_movies_and_shows")}</Text>
       </Button>
       <Button
         onPress={() =>
-          navigation.navigate("SearchScreen", { findMovies: false })
+          navigation.navigate("SearchScreen", { findMoviesAndShows: false })
         }
         mt={4}
       >

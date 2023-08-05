@@ -11,6 +11,7 @@ import {
   ANIMATION_DURATION,
   TMDB_ARTIST_PAGE_URL,
   TMDB_MOVIE_PAGE_URL,
+  TMDB_SHOW_PAGE_URL,
 } from "../modules/constants";
 
 export const platformAndroid = Platform.OS === "android";
@@ -38,12 +39,20 @@ export const autoAnimate = (duration = ANIMATION_DURATION) => {
 };
 
 /**
- * Opens the TMDB profile page of the given movie or artist
+ * Opens the TMDB profile page of the given movie, show or artist
  */
-export const openMovieOrArtistPage = async (id, isArtist = false) => {
+export const openMovieShowOrArtistPage = async (
+  id,
+  isArtist = false,
+  isShow = false
+) => {
   if (await InAppBrowser.isAvailable()) {
     InAppBrowser.open(
-      (isArtist ? TMDB_ARTIST_PAGE_URL : TMDB_MOVIE_PAGE_URL) + id
+      (isArtist
+        ? TMDB_ARTIST_PAGE_URL
+        : isShow
+        ? TMDB_SHOW_PAGE_URL
+        : TMDB_MOVIE_PAGE_URL) + id
     )
       .then((result) => {
         if (!result) {
@@ -55,20 +64,21 @@ export const openMovieOrArtistPage = async (id, isArtist = false) => {
 };
 
 /**
- * Gets the titles of the 'known for' movies
+ * Gets the titles of the 'known for' movies and shows
  */
 const parseKnownFor = (knownForJSON) => {
   if (knownForJSON === undefined) return undefined;
 
-  const movies = [];
+  const moviesAndShows = [];
 
-  for (const movie of knownForJSON) {
-    movie.media_type === "movie"
-      ? movies.push({ title: movie.title, id: movie.id })
-      : movies.push({ title: movie.name, id: movie.id });
+  for (const item of knownForJSON) {
+    moviesAndShows.push({
+      title: item.media_type === "movie" ? item.title : item.name,
+      id: item.id,
+    });
   }
 
-  return movies;
+  return moviesAndShows;
 };
 
 /**
@@ -90,15 +100,16 @@ export function extractArtistInfo(results) {
 }
 
 /**
- * Gets relevant movie info from TMDB API results
+ * Gets relevant movie or show info from TMDB API results
  */
-export function extractMovieInfo(results) {
+export function extractMovieOrShowInfo(results) {
   return results.map((result) => ({
-    name: result.title,
+    name: result.title !== undefined ? result.title : result.name,
     overview: result.overview,
     posterPath: result.poster_path,
     id: result.id,
     rating: result.vote_average.toFixed(1),
+    isShow: result.name !== undefined,
   }));
 }
 
