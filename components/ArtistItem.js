@@ -15,6 +15,7 @@ import {
 import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
 import {
+  GENDER_FEMALE,
   IMAGE_RATIO,
   ITEM_HEIGHT,
   ITEM_TEXT_LINE_HEIGHT,
@@ -35,6 +36,7 @@ const ArtistItem = ({
   selected,
   isActor,
   as,
+  gender,
 }) => {
   // the number of lines which the "known for" text can span, calculated on layout
   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
@@ -69,7 +71,11 @@ const ArtistItem = ({
         }}
       >
         <Text italic ml={1}>
-          {i18n.t("misc.known_for")}
+          {i18n.t(
+            gender === GENDER_FEMALE
+              ? "misc.known_for_female"
+              : "misc.known_for_male"
+          )}
         </Text>
         {knownForRef.map((movie) => (
           <Button

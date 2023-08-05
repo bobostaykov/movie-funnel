@@ -39,6 +39,7 @@ export const ITEM_TEXT_LINE_HEIGHT = 16;
 export const LOADING_INDICATOR_DIAMETER = 60;
 export const TOAST_HIDE_DELAY_LONG = 6000;
 export const TOAST_HIDE_DELAY_SHORT = 3000;
+export const GENDER_FEMALE = 1;
 
 // --- TMDb URLs ---
 export const TMDB_API_BASE_URL = "https://api.themoviedb.org/3";

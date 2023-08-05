@@ -54,6 +54,7 @@
     "in": "В"
   },
   "misc": {
-    "known_for": "Известен с: "
+    "known_for_female": "Известна с: ",
+    "known_for_male": "Известен с: "
   }
 }

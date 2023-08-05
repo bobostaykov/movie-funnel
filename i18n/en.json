@@ -54,6 +54,7 @@
     "in": "In"
   },
   "misc": {
-    "known_for": "Known for: "
+    "known_for_female": "Known for: ",
+    "known_for_male": "Known for: "
   }
 }

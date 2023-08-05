@@ -95,6 +95,7 @@ export function extractArtistInfo(results) {
       as: result.character ? result.character : result.job,
       isActor: result.character ? true : false,
       popularity: result.popularity,
+      gender: result.gender,
     }))
     .sort((a, b) => b.popularity - a.popularity);
 }
