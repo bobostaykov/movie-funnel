@@ -287,6 +287,7 @@ const SearchScreen = ({ navigation, route }) => {
 
     setSearching(false);
     setIntermediateSearchValue("");
+    setResultsTruncated(false);
 
     setTimeout(() => {
       setPopularVisible(true);
@@ -577,8 +578,9 @@ const SearchScreen = ({ navigation, route }) => {
 
         {resultsTruncated && (
           <Text
-            mt={-3}
-            mb={selectedItems.length > 0 ? 20 : platformAndroid ? 1 : 4}
+            textAlign="center"
+            lineHeight={15}
+            mb={selectedItems.length > 0 ? 20 : platformAndroid ? 4 : 6}
           >
             {i18n.t("search_screen.truncated_results")}
           </Text>
