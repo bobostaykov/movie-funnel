@@ -58,7 +58,7 @@ export const TMDB_SEARCH_SHOWS_URL = TMDB_API_BASE_URL + "/search/tv?query=";
 export const TMDB_API_MOVIES_URL =
   TMDB_API_BASE_URL + "/discover/movie?sort_by=popularity.desc&with_people=";
 // URL to get movie or show poster
-export const TMDB_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
+export const TMDB_IMAGE_URL = "https://image.tmdb.org/t/p/w185";
 export const TMDB_ARTIST_PAGE_URL = "https://www.themoviedb.org/person/";
 export const TMDB_MOVIE_PAGE_URL = "https://www.themoviedb.org/movie/";
 export const TMDB_SHOW_PAGE_URL = "https://www.themoviedb.org/tv/";

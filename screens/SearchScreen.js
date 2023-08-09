@@ -332,7 +332,7 @@ function SearchScreen({ navigation, route }) {
   /**
    * Called on keyboard "return" key press
    */
-  function searchHandler() {
+  async function searchHandler() {
     if (!intermediateSearchValue.trim()) {
       Toast.show({
         text2: i18n.t("errors.empty_search"),
@@ -353,7 +353,7 @@ function SearchScreen({ navigation, route }) {
     if (route.params.findMoviesAndShows) {
       fetchArtistsForSearchTerm(intermediateSearchValue);
     } else {
-      fetchMoviesAndShowsForSearchTerm(intermediateSearchValue);
+      await fetchMoviesAndShowsForSearchTerm(intermediateSearchValue);
     }
   }
 

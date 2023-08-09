@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Use custom alert">
-      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
+    <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Use function declaration instead of function expression">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ArtistItem.js" beforeDir="false" afterPath="$PROJECT_DIR$/components/ArtistItem.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/MovieOrShowItem.js" beforeDir="false" afterPath="$PROJECT_DIR$/components/MovieOrShowItem.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/constants.js" beforeDir="false" afterPath="$PROJECT_DIR$/modules/constants.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/CustomSplashScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/CustomSplashScreen.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/screens/ResultsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/ResultsScreen.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screens/SearchScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/SearchScreen.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,22 +73,23 @@
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Project.color&quot;: &quot;39ca2c&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/bobo/Coding/ActorParty/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Project.color": "39ca2c",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "ShowUsagesActions.previewPropertyKey": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "dev",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "/Users/bobo/Coding/ActorParty/node_modules/prettier",
+    "settings.editor.selected.configurable": "Errors",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -159,7 +156,7 @@
       <workItem from="1691504551948" duration="1411000" />
       <workItem from="1691505973154" duration="1354000" />
       <workItem from="1691507339816" duration="432000" />
-      <workItem from="1691507786425" duration="3914000" />
+      <workItem from="1691507786425" duration="5979000" />
     </task>
     <task id="LOCAL-00001" summary="Keyboard remove all listeners">
       <created>1659535740276</created>
@@ -210,7 +207,15 @@
       <option name="project" value="LOCAL" />
       <updated>1665174364658</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Use function declaration instead of function expression">
+      <option name="closed" value="true" />
+      <created>1691603790276</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1691603790276</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -234,6 +239,7 @@
     <MESSAGE value="Only show &quot;apply&quot; button when more than 1 artist selected" />
     <MESSAGE value="Idea files" />
     <MESSAGE value="Use custom alert" />
-    <option name="LAST_COMMIT_MESSAGE" value="Use custom alert" />
+    <MESSAGE value="Use function declaration instead of function expression" />
+    <option name="LAST_COMMIT_MESSAGE" value="Use function declaration instead of function expression" />
   </component>
 </project>

@@ -12,7 +12,7 @@ import {
   TMDB_ARTIST_PAGE_URL,
   TMDB_MOVIE_PAGE_URL,
   TMDB_SHOW_PAGE_URL,
-} from "../modules/constants";
+} from "./constants";
 
 export const platformAndroid = Platform.OS === "android";
 export const platformIOS = Platform.OS === "ios";
@@ -93,7 +93,7 @@ export function extractArtistInfo(results) {
       photoPath: result.profile_path,
       knownFor: parseKnownFor(result.known_for),
       as: result.character ? result.character : result.job,
-      isActor: result.character ? true : false,
+      isActor: !!result.character,
       popularity: result.popularity,
       gender: result.gender,
     }))

@@ -46,6 +46,7 @@ function ResultsScreen({ navigation, route }) {
   const [noResultsAlertVisible, setNoResultsAlertVisible] = useState(false);
   // whether fetching is in progress
   const [loading, setLoading] = useState(false);
+  const alertOkRef = React.useRef(null);
 
   const ids = route.params.ids.split(",");
   const names = route.params.names.split(",");
@@ -81,7 +82,7 @@ function ResultsScreen({ navigation, route }) {
 
       autoAnimate();
       setLoading(false);
-      parseMoviesAndShows(uniqueResults);
+      await parseMoviesAndShows(uniqueResults);
     } catch (error) {
       console.error("error:", error);
       setLoading(false);
@@ -100,7 +101,7 @@ function ResultsScreen({ navigation, route }) {
    * in the caller.
    */
   async function getCommonShows(artistIds) {
-    let currentShows;
+    let currentShows = [];
     for (let i = 0; i < artistIds.length; i++) {
       const result = await fetchFromTmdb(
         `${TMDB_ARTIST_BASE_URL}/${artistIds[i]}/tv_credits`
@@ -161,8 +162,8 @@ function ResultsScreen({ navigation, route }) {
 
   /**
    * Extracts the relevant information from the movie results
-   * @param areIndividual: are the individual artist movies
-   *    being parsed or the common
+   * @param areIndividual Are the individual artist movies
+   *    being parsed or the common ones
    */
   async function parseMoviesAndShows(resultsJSON, areIndividual = false) {
     const results = extractMovieOrShowInfo(
@@ -256,7 +257,7 @@ function ResultsScreen({ navigation, route }) {
    * Called when no common artists for the selected movies and
    * shows are found.
    * Informs the user with an alert and fetches artists taking
-   * part in the selected movies ans shows.
+   * part in the selected movies and shows.
    */
   async function getIndividualArtistsForAllMoviesAndShows() {
     setNoResultsAlertVisible(true);
@@ -473,6 +474,7 @@ function ResultsScreen({ navigation, route }) {
         isOpen={noResultsAlertVisible}
         onClose={() => setNoResultsAlertVisible(false)}
         animationPreset="fade"
+        leastDestructiveRef={alertOkRef}
       >
         <AlertDialog.Content>
           <AlertDialog.Header alignItems="center" borderBottomWidth={0}>
@@ -487,6 +489,7 @@ function ResultsScreen({ navigation, route }) {
           </AlertDialog.Body>
           <AlertDialog.Footer justifyContent="center" borderTopWidth={0}>
             <Button
+              ref={alertOkRef}
               variant="ghost"
               colorScheme="black"
               onPress={() => setNoResultsAlertVisible(false)}
