@@ -25,23 +25,25 @@ LogBox.ignoreLogs(["Failed to load http://image.tmdb.org"]);
 
 StatusBar.setBarStyle("dark-content", true);
 
-const App = () => {
+function App() {
   const Stack = createStackNavigator();
 
-  const createStack = () => (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {/*<Stack.Screen name='CustomSplashScreen' component={CustomSplashScreen}/>*/}
-      <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-      <Stack.Screen name="SearchScreen" component={SearchScreen} />
-      <Stack.Screen
-        name="ResultsScreen"
-        component={ResultsScreen}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
-      />
-    </Stack.Navigator>
-  );
+  function createStack() {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/*<Stack.Screen name='CustomSplashScreen' component={CustomSplashScreen}/>*/}
+        <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+        <Stack.Screen name="SearchScreen" component={SearchScreen} />
+        <Stack.Screen
+          name="ResultsScreen"
+          component={ResultsScreen}
+          options={{
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          }}
+        />
+      </Stack.Navigator>
+    );
+  }
 
   const toastText2Style = { fontSize: 14, color: "#2e2e2e" };
 
@@ -63,6 +65,6 @@ const App = () => {
       </SafeAreaProvider>
     </NativeBaseProvider>
   );
-};
+}
 
 export default App;

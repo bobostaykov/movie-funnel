@@ -27,7 +27,7 @@ import { openMovieShowOrArtistPage } from "../modules/utils";
  * Component representing an item in the cast
  * and crew results list
  */
-const ArtistItem = ({
+function ArtistItem({
   name,
   id,
   photoPath,
@@ -37,7 +37,7 @@ const ArtistItem = ({
   isActor,
   as,
   gender,
-}) => {
+}) {
   // the number of lines which the "known for" text can span, calculated on layout
   const [knownForNumberOfLines, setKnownForNumberOfLines] = useState(2);
   const [knownForRef, setKnownForRef] = useState(knownFor);
@@ -194,7 +194,7 @@ const ArtistItem = ({
       )}
     </Pressable>
   );
-};
+}
 
 const styles = StyleSheet.create({
   image: {

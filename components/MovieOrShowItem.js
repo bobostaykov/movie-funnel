@@ -25,7 +25,7 @@ import { openMovieShowOrArtistPage, platformAndroid } from "../modules/utils";
 /**
  * Component representing an item in the movie and show results list
  */
-const MovieOrShowItem = ({
+function MovieOrShowItem({
   name,
   overview,
   posterPath,
@@ -34,7 +34,7 @@ const MovieOrShowItem = ({
   onPress,
   selected,
   isShow,
-}) => {
+}) {
   // the width of the rating text, calculated on layout and used to add proper margin to title
   const [ratingTextWidth, setRatingTextWidth] = useState(0);
   // the number of lines which the overview text can span, calculated on layout
@@ -148,7 +148,7 @@ const MovieOrShowItem = ({
       )}
     </Pressable>
   );
-};
+}
 
 const styles = StyleSheet.create({
   image: {

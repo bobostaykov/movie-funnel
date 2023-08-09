@@ -47,7 +47,7 @@ import {
  * Initially, the 20 most popular artists/movies are shown, ready
  * to be selected.
  */
-const SearchScreen = ({ navigation, route }) => {
+function SearchScreen({ navigation, route }) {
   // storing the names and IDs of all the selected artists or movies
   const [selectedItems, setSelectedItems] = useState([]);
   // list of fetched popular artists to show initially on search screen
@@ -97,7 +97,7 @@ const SearchScreen = ({ navigation, route }) => {
   /**
    * Fetches most popular artists on TMDb
    */
-  const fetchPopularArtists = () => {
+  function fetchPopularArtists() {
     setLoading(true);
 
     fetchFromTmdb(TMDB_POPULAR_ARTISTS_URL)
@@ -114,12 +114,12 @@ const SearchScreen = ({ navigation, route }) => {
         setLoading(false);
         setPopularVisible(true);
       });
-  };
+  }
 
   /**
    * Fetches most popular movies and shows on TMDb
    */
-  const fetchPopularMoviesAndShows = async () => {
+  async function fetchPopularMoviesAndShows() {
     setLoading(true);
 
     try {
@@ -140,12 +140,12 @@ const SearchScreen = ({ navigation, route }) => {
       setLoading(false);
       setPopularVisible(true);
     }
-  };
+  }
 
   /**
    * Fetch artist results for search term
    */
-  const fetchArtistsForSearchTerm = (term) => {
+  function fetchArtistsForSearchTerm(term) {
     fetchFromTmdb(TMDB_SEARCH_ARTISTS_URL + encodeURI(term))
       .then((result) => {
         setTimeout(() => {
@@ -167,12 +167,12 @@ const SearchScreen = ({ navigation, route }) => {
         setSearching(false);
         setPopularVisible(true);
       });
-  };
+  }
 
   /**
    * Fetch movie and show results for search term
    */
-  const fetchMoviesAndShowsForSearchTerm = async (term) => {
+  async function fetchMoviesAndShowsForSearchTerm(term) {
     try {
       const movieResults = await fetchFromTmdb(
         TMDB_SEARCH_MOVIES_URL + encodeURI(term)
@@ -200,14 +200,14 @@ const SearchScreen = ({ navigation, route }) => {
       setSearching(false);
       setPopularVisible(true);
     }
-  };
+  }
 
   /**
    * Extracts relevant information from the results
    * @param isPopular: whether popular artists results are
    *    parsed; if false -> then search results are parsed
    */
-  const parseArtistResults = (resultsJSON, isPopular = false) => {
+  function parseArtistResults(resultsJSON, isPopular = false) {
     const results = extractArtistInfo(
       resultsJSON.slice(
         0,
@@ -222,14 +222,14 @@ const SearchScreen = ({ navigation, route }) => {
     }
 
     scrollResultsToTop();
-  };
+  }
 
   /**
    * Extracts relevant information from the results
    * @param isPopular: whether popular movie and show results are
    *    parsed; if false -> then search results are parsed
    */
-  const parseMovieAndShowResults = (resultsJSON, isPopular = false) => {
+  function parseMovieAndShowResults(resultsJSON, isPopular = false) {
     const results = extractMovieOrShowInfo(
       resultsJSON.slice(
         0,
@@ -244,12 +244,12 @@ const SearchScreen = ({ navigation, route }) => {
     }
 
     scrollResultsToTop();
-  };
+  }
 
   /**
    * Called on artist or movie/show item press
    */
-  const selectItem = (id, name, selected, isShow = false) => {
+  function selectItem(id, name, selected, isShow = false) {
     if (selected) {
       if (
         selectedItems.length < route.params.findMoviesAndShows
@@ -268,7 +268,7 @@ const SearchScreen = ({ navigation, route }) => {
     } else {
       setSelectedItems((current) => current.filter((item) => item.id !== id));
     }
-  };
+  }
 
   /**
    * Called on "back" button press.
@@ -277,7 +277,7 @@ const SearchScreen = ({ navigation, route }) => {
    * and in to make the transition smooth.
    * -> If not, navigates back to Welcome screen.
    */
-  const backHandler = () => {
+  function backHandler() {
     Keyboard.dismiss();
 
     if (!searching) {
@@ -307,12 +307,12 @@ const SearchScreen = ({ navigation, route }) => {
         useNativeDriver: true,
       }),
     ]).start();
-  };
+  }
 
   /**
    * Called on "apply" button press
    */
-  const applySelection = () => {
+  function applySelection() {
     if (selectedItems.length < 2) {
       Toast.show({
         text2: route.params.findMoviesAndShows
@@ -327,12 +327,12 @@ const SearchScreen = ({ navigation, route }) => {
         findMoviesAndShows: route.params.findMoviesAndShows,
       });
     }
-  };
+  }
 
   /**
    * Called on keyboard "return" key press
    */
-  const searchHandler = () => {
+  function searchHandler() {
     if (!intermediateSearchValue.trim()) {
       Toast.show({
         text2: i18n.t("errors.empty_search"),
@@ -355,9 +355,9 @@ const SearchScreen = ({ navigation, route }) => {
     } else {
       fetchMoviesAndShowsForSearchTerm(intermediateSearchValue);
     }
-  };
+  }
 
-  const getSelectedItemIds = () => {
+  function getSelectedItemIds() {
     const ids = [];
     for (const item of selectedItems) {
       let id = item.id;
@@ -368,19 +368,19 @@ const SearchScreen = ({ navigation, route }) => {
       ids.push(id);
     }
     return ids.join(",");
-  };
+  }
 
-  const getSelectedItemNames = () => {
+  function getSelectedItemNames() {
     const names = [];
     for (const item of selectedItems) {
       names.push(item.name);
     }
     return names.join(",");
-  };
+  }
 
-  const scrollResultsToTop = () => {
+  function scrollResultsToTop() {
     scrollView.current?.scrollTo({ y: 0 });
-  };
+  }
 
   // --- COMPONENTS ---
 
@@ -629,7 +629,7 @@ const SearchScreen = ({ navigation, route }) => {
       </PresenceTransition>
     </Box>
   );
-};
+}
 
 const styles = StyleSheet.create({
   resultsContainer: {

@@ -36,7 +36,7 @@ import {
  * On this screen the resulting list of movies is shown with
  * information and a link to the corresponding TMDB page
  */
-const ResultsScreen = ({ navigation, route }) => {
+function ResultsScreen({ navigation, route }) {
   const [movieAndShowResults, setMovieAndShowResults] = useState([]);
   const [artistResults, setArtistResults] = useState([]);
   // whether all artist names are shown (when more than 2)
@@ -64,7 +64,7 @@ const ResultsScreen = ({ navigation, route }) => {
   /**
    * Finds the movies and shows in common for the selected artists
    */
-  const getCommonMoviesAndShows = async () => {
+  async function getCommonMoviesAndShows() {
     setLoading(true);
     try {
       const movieResults = await fetchFromTmdb(
@@ -92,7 +92,7 @@ const ResultsScreen = ({ navigation, route }) => {
         bottomOffset: 80,
       });
     }
-  };
+  }
 
   /**
    * Finds the shows in common for the given artists.
@@ -123,7 +123,7 @@ const ResultsScreen = ({ navigation, route }) => {
    * Informs the user with an alert and fetches movies starring
    * the selected artists.
    */
-  const getIndividualMoviesForAllArtists = async () => {
+  async function getIndividualMoviesForAllArtists() {
     setNoResultsAlertVisible(true);
     autoAnimate();
     setNoResults(true);
@@ -141,12 +141,12 @@ const ResultsScreen = ({ navigation, route }) => {
     autoAnimate();
     setLoading(false);
     setMovieAndShowResults(movies);
-  };
+  }
 
   /**
    * Gets movies the provided artist stars in
    */
-  const getIndividualMoviesForArtist = async (artistId) => {
+  async function getIndividualMoviesForArtist(artistId) {
     try {
       const result = await fetchFromTmdb(TMDB_API_MOVIES_URL + artistId);
       const json = await result.json();
@@ -157,14 +157,14 @@ const ResultsScreen = ({ navigation, route }) => {
       navigation.pop();
       Toast.show({ text2: i18n.t("errors.fetch_results"), bottomOffset: 80 });
     }
-  };
+  }
 
   /**
    * Extracts the relevant information from the movie results
    * @param areIndividual: are the individual artist movies
    *    being parsed or the common
    */
-  const parseMoviesAndShows = async (resultsJSON, areIndividual = false) => {
+  async function parseMoviesAndShows(resultsJSON, areIndividual = false) {
     const results = extractMovieOrShowInfo(
       resultsJSON.slice(0, areIndividual ? 3 : undefined)
     );
@@ -176,7 +176,7 @@ const ResultsScreen = ({ navigation, route }) => {
     } else {
       await getIndividualMoviesForAllArtists();
     }
-  };
+  }
 
   /**
    * Finds the cast and crew part of the selected movies/shows
@@ -302,15 +302,15 @@ const ResultsScreen = ({ navigation, route }) => {
   /**
    * Toggles the expanded/collapsed view of the search names
    */
-  const toggleSearchNamesExpanded = () => {
+  function toggleSearchNamesExpanded() {
     autoAnimate();
     setSearchNamesExpanded((current) => !current);
-  };
+  }
 
   /**
    * Returns a string of all artists'/movies' names joined with commas
    */
-  const getAllSearchNames = () => {
+  function getAllSearchNames() {
     return (
       names.slice(0, -1).join(", ") +
       " " +
@@ -318,13 +318,13 @@ const ResultsScreen = ({ navigation, route }) => {
       " " +
       names[names.length - 1]
     );
-  };
+  }
 
   /**
    * Returns a string of the first two artists'/movies' names
    * and an indicator of how many are hidden
    */
-  const getSearchNamesShortened = () => {
+  function getSearchNamesShortened() {
     return (
       names[0] +
       ", " +
@@ -336,7 +336,7 @@ const ResultsScreen = ({ navigation, route }) => {
       " " +
       (names.length === 3 ? i18n.t("helpers.other") : i18n.t("helpers.others"))
     );
-  };
+  }
 
   // --- COMPONENTS ---
 
@@ -498,6 +498,6 @@ const ResultsScreen = ({ navigation, route }) => {
       </AlertDialog>
     </Box>
   );
-};
+}
 
 export default ResultsScreen;

@@ -21,7 +21,7 @@ export const platformIOS = Platform.OS === "ios";
  * LayoutAnimation automatically animates a transformation on screen
  */
 let experimentalSet = false;
-export const autoAnimate = (duration = ANIMATION_DURATION) => {
+export function autoAnimate(duration = ANIMATION_DURATION) {
   // in order for LayoutAnimation to work on Android
   if (
     platformAndroid &&
@@ -36,16 +36,16 @@ export const autoAnimate = (duration = ANIMATION_DURATION) => {
     ...LayoutAnimation.Presets.easeInEaseOut,
     duration,
   });
-};
+}
 
 /**
  * Opens the TMDB profile page of the given movie, show or artist
  */
-export const openMovieShowOrArtistPage = async (
+export async function openMovieShowOrArtistPage(
   id,
   isArtist = false,
   isShow = false
-) => {
+) {
   if (await InAppBrowser.isAvailable()) {
     InAppBrowser.open(
       (isArtist
@@ -61,12 +61,12 @@ export const openMovieShowOrArtistPage = async (
       })
       .catch(() => Toast.show({ text2: i18n.t("errors.web_page") }));
   }
-};
+}
 
 /**
  * Gets the titles of the 'known for' movies and shows
  */
-const parseKnownFor = (knownForJSON) => {
+function parseKnownFor(knownForJSON) {
   if (knownForJSON === undefined) return undefined;
 
   const moviesAndShows = [];
@@ -79,7 +79,7 @@ const parseKnownFor = (knownForJSON) => {
   }
 
   return moviesAndShows;
-};
+}
 
 /**
  * Gets relevant artist info from TMDB API results
@@ -114,10 +114,10 @@ export function extractMovieOrShowInfo(results) {
   }));
 }
 
-export const fetchFromTmdb = (url) => {
+export function fetchFromTmdb(url) {
   return fetch(url, {
     headers: {
       Authorization: "Bearer " + tmdbAccessToken,
     },
   });
-};
+}
