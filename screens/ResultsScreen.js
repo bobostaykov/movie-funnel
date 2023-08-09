@@ -41,7 +41,7 @@ function ResultsScreen({ navigation, route }) {
   const [artistResults, setArtistResults] = useState([]);
   // whether all artist names are shown (when more than 2)
   const [searchNamesExpanded, setSearchNamesExpanded] = useState(false);
-  // no common movies for selected artists or common artists for selected movies are found
+  // no common movies and shows for selected artists or common artists for selected movies and shows are found
   const [noResults, setNoResults] = useState(false);
   const [noResultsAlertVisible, setNoResultsAlertVisible] = useState(false);
   // whether fetching is in progress
@@ -120,8 +120,8 @@ function ResultsScreen({ navigation, route }) {
   }
 
   /**
-   * Called when no common movies for the selected artists are found.
-   * Informs the user with an alert and fetches movies starring
+   * Called when no common movies or shows for the selected artists are found.
+   * Informs the user with an alert and fetches individual movies starring
    * the selected artists.
    */
   async function getIndividualMoviesForAllArtists() {
@@ -266,14 +266,18 @@ function ResultsScreen({ navigation, route }) {
     const result = [];
     for (let i = 0; i < ids.length; i++) {
       const artists = await getArtistsForMovieOrShow(ids[i]);
+      if (artists.length === 0) {
+        result.push({ title: names[i], data: [] });
+        continue;
+      }
       const director = artists.crew.find((member) => member.job === "Director");
       const popularCast = artists.cast.slice(0, director !== undefined ? 2 : 3);
       const data = [];
+      data.push(...popularCast);
       if (director !== undefined) {
         data.push(director);
       }
-      data.push(...popularCast);
-      result.push({ title: names[i], data: extractArtistInfo(data) });
+      result.push({ title: names[i], data: extractArtistInfo(data, false) });
     }
     setArtistResults(result);
   }
@@ -453,7 +457,9 @@ function ResultsScreen({ navigation, route }) {
             if (section.data.length === 0) {
               return (
                 <Text italic alignSelf="center" mb={2}>
-                  {section.title === i18n.t("results_screen.common_cast")
+                  {noResults
+                    ? i18n.t("results_screen.no_artists_found")
+                    : section.title === i18n.t("results_screen.common_cast")
                     ? i18n.t("results_screen.no_common_cast")
                     : i18n.t("results_screen.no_common_crew")}
                 </Text>

@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Use function declaration instead of function expression">
+    <list default="true" id="9672fac7-bf7f-40a4-87eb-dfc15e47f2bc" name="Changes" comment="Fix linting warnings">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/constants.js" beforeDir="false" afterPath="$PROJECT_DIR$/modules/constants.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/i18n/bg.json" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/bg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/i18n/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/en.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utils.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/screens/ResultsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/ResultsScreen.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/SearchScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/screens/SearchScreen.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +86,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "prettierjs.PrettierConfiguration.Package": "/Users/bobo/Coding/ActorParty/node_modules/prettier",
-    "settings.editor.selected.configurable": "Errors",
+    "settings.editor.selected.configurable": "editing.templates",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -156,7 +156,7 @@
       <workItem from="1691504551948" duration="1411000" />
       <workItem from="1691505973154" duration="1354000" />
       <workItem from="1691507339816" duration="432000" />
-      <workItem from="1691507786425" duration="5979000" />
+      <workItem from="1691507786425" duration="8071000" />
     </task>
     <task id="LOCAL-00001" summary="Keyboard remove all listeners">
       <created>1659535740276</created>
@@ -215,7 +215,23 @@
       <option name="project" value="LOCAL" />
       <updated>1691603790276</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Use function declaration instead of function expression">
+      <option name="closed" value="true" />
+      <created>1691605635116</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1691605635116</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Fix linting warnings">
+      <option name="closed" value="true" />
+      <created>1691605722245</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1691605722245</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -240,6 +256,7 @@
     <MESSAGE value="Idea files" />
     <MESSAGE value="Use custom alert" />
     <MESSAGE value="Use function declaration instead of function expression" />
-    <option name="LAST_COMMIT_MESSAGE" value="Use function declaration instead of function expression" />
+    <MESSAGE value="Fix linting warnings" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix linting warnings" />
   </component>
 </project>

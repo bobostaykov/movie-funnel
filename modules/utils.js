@@ -85,19 +85,22 @@ function parseKnownFor(knownForJSON) {
  * Gets relevant artist info from TMDB API results
  * and sorts it by popularity
  */
-export function extractArtistInfo(results) {
-  return results
-    .map((result) => ({
-      name: result.name,
-      id: result.id,
-      photoPath: result.profile_path,
-      knownFor: parseKnownFor(result.known_for),
-      as: result.character ? result.character : result.job,
-      isActor: !!result.character,
-      popularity: result.popularity,
-      gender: result.gender,
-    }))
-    .sort((a, b) => b.popularity - a.popularity);
+export function extractArtistInfo(results, sort = true) {
+  const transformed = results.map((result) => ({
+    name: result.name,
+    id: result.id,
+    photoPath: result.profile_path,
+    knownFor: parseKnownFor(result.known_for),
+    as: result.character ? result.character : result.job,
+    isActor: !!result.character,
+    popularity: result.popularity,
+    gender: result.gender,
+  }));
+  if (!sort) {
+    return transformed;
+  } else {
+    return transformed.sort((a, b) => b.popularity - a.popularity);
+  }
 }
 
 /**

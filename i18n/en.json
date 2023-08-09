@@ -42,6 +42,7 @@
     "collapse_names": "hide",
     "no_common_cast": "No cast in common",
     "no_common_crew": "No crew in common",
+    "no_artists_found": "No artists were found",
     "alert_title": "No results",
     "alert_no_movies_or_shows": "don't have any movies or shows in common yet... Here are some of their individual movies and shows instead!",
     "alert_no_artists": "don't have any cast or crew in common... Here are some of the artists in each of them instead!"
