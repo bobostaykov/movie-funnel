@@ -7,20 +7,25 @@ import {
   CloseIcon,
   Fab,
   Heading,
+  Icon,
   IconButton,
   Image,
   Input,
   PresenceTransition,
+  Row,
+  SearchIcon,
   Text,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
 import Toast from "react-native-toast-message";
+import Octicons from "react-native-vector-icons/Octicons";
 import ArtistItem from "../components/ArtistItem";
 import ItemSkeleton from "../components/ItemSkeleton";
 import MovieOrShowItem from "../components/MovieOrShowItem";
 import {
   ANIMATION_DURATION,
+  colors,
   MAX_ARTISTS,
   MAX_MOVIES_AND_SHOWS,
   MAX_RESULTS_TO_SHOW,
@@ -438,43 +443,57 @@ function SearchScreen({ navigation, route }) {
 
   return (
     <Box flex={1} safeAreaTop={platformAndroid && 4} px={4}>
-      <Input
-        ref={nameInput}
-        value={intermediateSearchValue}
-        onChangeText={setIntermediateSearchValue}
-        placeholder={i18n.t(
-          route.params.findMoviesAndShows
-            ? "search_screen.input_placeholder_artists"
-            : "search_screen.input_placeholder_movies_and_shows"
-        )}
-        placeholderTextColor="light.500"
-        fontSize="sm"
-        returnKeyType="search"
-        onSubmitEditing={searchHandler}
-        blurOnSubmit
-        selectTextOnFocus
-        // Workaround for selectTextOnFocus not working on iOS
-        multiline
-        rounded="md"
-        py={platformAndroid ? 1.5 : 3}
+      <Row
         // Next two attributes: so the items can go behind the input and the rounded corners are not white
         mb={-1}
         zIndex={1}
-        bg="light.100"
-        _focus={{
-          bg: "light.100",
-        }}
-        InputLeftElement={
-          <IconButton
-            icon={<ArrowBackIcon color="grey" />}
-            rounded="md"
-            onPress={backHandler}
-            mr={-1}
-            p={1.5}
-            ml={1}
-          />
-        }
-      />
+      >
+        <IconButton
+          icon={
+            searching ? (
+              <ArrowBackIcon color="grey" />
+            ) : (
+              <Icon as={Octicons} name="home" color="grey" size={6} />
+            )
+          }
+          rounded="md"
+          onPress={backHandler}
+          py={1}
+          pl={3}
+          pr={searching ? 3 : "8.5px"}
+          ml={-2}
+          bg={colors.pageBackground}
+          _pressed={{
+            backgroundColor: "#c3dfe5",
+          }}
+        />
+        <Input
+          ref={nameInput}
+          value={intermediateSearchValue}
+          onChangeText={setIntermediateSearchValue}
+          placeholder={i18n.t(
+            route.params.findMoviesAndShows
+              ? "search_screen.input_placeholder_artists"
+              : "search_screen.input_placeholder_movies_and_shows"
+          )}
+          placeholderTextColor="light.500"
+          fontSize="sm"
+          returnKeyType="search"
+          onSubmitEditing={searchHandler}
+          blurOnSubmit
+          selectTextOnFocus
+          // Workaround for selectTextOnFocus not working on iOS
+          multiline
+          rounded="md"
+          py={platformAndroid ? 1.5 : 3}
+          bg="light.100"
+          _focus={{
+            bg: "light.100",
+          }}
+          InputLeftElement={<SearchIcon size={5} ml={3} />}
+          flex={1}
+        />
+      </Row>
 
       <Animated.ScrollView
         ref={scrollView}
