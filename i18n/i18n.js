@@ -4,10 +4,10 @@
  *
  * JSON files with the translations of all strings in the
  * app are located in the /i18n directory.
- * Currently, english and bulgarian.
+ * Currently, English and Bulgarian.
  */
 
-import i18n from "i18n-js";
+import { I18n } from "i18n-js";
 import { NativeModules, Platform } from "react-native";
 
 import bg from "./bg.json";
@@ -21,9 +21,9 @@ if (Platform.OS === "ios") {
 } else {
   locale = NativeModules.I18nManager.localeIdentifier;
 }
+const i18n = new I18n({ en, bg });
 i18n.locale = locale.split("_")[0];
 i18n.fallbacks = true;
 i18n.defaultLocale = "en";
-i18n.translations = { en, bg };
 
 export default i18n;

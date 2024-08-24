@@ -25,7 +25,7 @@ LogBox.ignoreLogs(["Failed to load http://image.tmdb.org"]);
 
 StatusBar.setBarStyle("dark-content", true);
 
-function App() {
+export default function App() {
   const Stack = createStackNavigator();
 
   function createStack() {
@@ -66,5 +66,3 @@ function App() {
     </NativeBaseProvider>
   );
 }
-
-export default App;
