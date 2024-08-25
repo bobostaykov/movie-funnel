@@ -10,9 +10,9 @@ import {
 } from "native-base";
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
-import FastImage from "react-native-fast-image";
-import FeatherIcon from "react-native-vector-icons/Feather";
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
+import { Image } from "expo-image";
+import FeatherIcon from "@expo/vector-icons/Feather";
+import FontAwesomeIcon from "@expo/vector-icons/FontAwesome";
 import {
   IMAGE_RATIO,
   ITEM_HEIGHT,
@@ -64,11 +64,7 @@ function MovieOrShowItem({
       alignItems="center"
       bg="#f3e2d7"
     >
-      <FastImage
-        resizeMode={FastImage.resizeMode.cover}
-        source={photo}
-        style={styles.image}
-      />
+      <Image contentFit="cover" source={photo} style={styles.image} />
       <Box px={4} py={3} flex={1}>
         <Row pb={2}>
           <Heading size="md" mr={ratingTextWidth + spacing.marginS}>

@@ -19,7 +19,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Keyboard, RefreshControl, StyleSheet } from "react-native";
 import Toast from "react-native-toast-message";
-import Octicons from "react-native-vector-icons/Octicons";
+import Octicons from "@expo/vector-icons/Octicons";
 import ArtistItem from "../components/ArtistItem";
 import ItemSkeleton from "../components/ItemSkeleton";
 import MovieOrShowItem from "../components/MovieOrShowItem";

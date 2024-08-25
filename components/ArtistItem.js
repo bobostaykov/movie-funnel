@@ -13,7 +13,7 @@ import {
   Text,
 } from "native-base";
 import { StyleSheet } from "react-native";
-import FastImage from "react-native-fast-image";
+import { Image } from "expo-image";
 import {
   GENDER_FEMALE,
   IMAGE_RATIO,
@@ -155,7 +155,7 @@ function ArtistItem({
       bg="#dbe3fa"
       flexDir="row"
     >
-      <FastImage resizeMode="cover" source={photo} style={styles.image} />
+      <Image contentFit="cover" source={photo} style={styles.image} />
       <Box ml={4} flex={1}>
         <Heading size="md" mr={4} my={2}>
           {name}
